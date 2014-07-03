@@ -1,0 +1,3 @@
+var a = 2
+var b = 42
+print a - b # -40

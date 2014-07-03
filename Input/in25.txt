@@ -1,0 +1,4 @@
+var a = 3
+var b = 41
+
+print b % a # 2

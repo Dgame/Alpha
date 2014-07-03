@@ -1,0 +1,3 @@
+var a = 23
+var b = a
+print b # 23
