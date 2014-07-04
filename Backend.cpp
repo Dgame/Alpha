@@ -39,9 +39,23 @@ void BackendVisitor::visit(const Operator* op, const Variable* var) {
 		break;
 		
 		case Op::Div:
+			as::build(as::Move, 0, as::Reg::DX);
+
+			if (var != nullptr)
+				as::build(as::Move, as::Pointer::SP, offset, as::Reg::BX);
+
+			as::build(as::Div, as::Reg::BX);
+		break;
+
 		case Op::Mod:
-			// TODO: 
-			return;
+			as::build(as::Move, 0, as::Reg::DX);
+
+			if (var != nullptr)
+				as::build(as::Move, as::Pointer::SP, offset, as::Reg::BX);
+
+			as::build(as::Div, as::Reg::BX);
+			as::build(as::Move, as::Reg::DX, as::Reg::AX);
+		break;
 
 		case Op::Negate:
 			as::build(as::Neg, as::Reg::AX);	
@@ -74,14 +88,20 @@ void BackendVisitor::visit(const Term* term) {
 	unsigned int pushed = 0;
 
 	const Variable* curVar = nullptr;
+	bool isdivOrMod = false;
 
 	for (unsigned int i = 0; i < size; i++) {
 		const Literal* literal = term->at(i);
 		const bool isLastRun = (i + 1) >= size;
 
 		if (const Value* val = literal->isValue()) {
+			if (!isdivOrMod)
+				as::build(as::Move, val->value, as::Reg::AX);
+			else
+				as::build(as::Move, val->value, as::Reg::BX);
+
 			curVar = nullptr;
-			as::build(as::Move, val->value, as::Reg::AX);
+			isdivOrMod = false;
 		} else if (const Var* lvar = literal->isVar()) {
 			const Variable* var = lvar->variable;
 
@@ -96,12 +116,13 @@ void BackendVisitor::visit(const Term* term) {
 		} else if (const Operator* op = literal->isOperator()) {
 			this->visit(op, curVar);
 			curVar = nullptr;
+			isdivOrMod = false;
 
 			if (pushed > 0) {
-				if (op->op == Op::Plus || op->op == Op::Mul) {
+				if (op->op == Op::Mul || op->op == Op::Plus) {
 					as::build(as::Add, 4, as::Pointer::SP);
 					pushed--;
-				} else if (op->op == Op::Minus) {
+				} else if (op->op == Op::Minus || op->op == Op::Div || op->op == Op::Mod) {
 					as::build(as::Pop, as::Reg::AX);
 					pushed--;
 				}
@@ -110,12 +131,23 @@ void BackendVisitor::visit(const Term* term) {
 			assert(0);
 		}
 
-		if (!isLastRun && 
-			!(term->at(i + 1)->isOperator() || term->at(i + 1)->isVar()))
+		if (isLastRun 
+			|| term->at(i + 1)->isOperator() 
+			|| term->at(i + 1)->isVar())
 		{
-			as::build(as::Push, as::Reg::AX);
-			pushed++;
+			continue;
 		}
+
+		// For Div/Mod correction
+		const Operator* op = term->at(i + 2)->isOperator();
+		if (op != nullptr && (op->op == Op::Div || op->op == Op::Mod)) {
+			isdivOrMod = true;
+
+			continue;
+		}
+
+		as::build(as::Push, as::Reg::AX);
+		pushed++;
 	}
 }
 

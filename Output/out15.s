@@ -7,8 +7,10 @@ movl	%esp, %ebp
 subl	$4, %esp
 movl	$2, 0(%esp)
 movl	0(%esp), %eax
-pushl	%eax
-movl	$4, %eax
+movl	$2, %ebx
+movl	$0, %edx
+idiv	%ebx
+movl	%edx, %eax
 pushl	%eax
 call	_println_int
 addl	$4, %esp

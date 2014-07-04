@@ -6,7 +6,11 @@ pushl	%ebp
 movl	%esp, %ebp
 subl	$4, %esp
 movl	$2, 0(%esp)
-movl	$2, %eax
+movl	$3, %eax
+movl	$0, %edx
+movl	0(%esp), %ebx
+idiv	%ebx
+movl	%edx, %eax
 pushl	%eax
 call	_println_int
 addl	$4, %esp

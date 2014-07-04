@@ -16,16 +16,12 @@ void loadContent(const std::string& filename, std::vector<char>& content) {
 }
 
 int main(/*int argc, char const* argv[]*/) {
-	std::vector<char> content;
-	std::ostringstream stm;
-
 	for (unsigned int nr = 0; nr < 26; nr++) {
-		if (nr != 0)
-			stm.clear();
+		std::ostringstream in;
+		in << "Input/in" << nr << ".txt";
 
-		stm << "Input/in" << nr << ".txt";
-
-		loadContent(stm.str(), content);
+		std::vector<char> content;
+		loadContent(in.str(), content);
 
 		Scopes scopes;
 		scopes.pushScope();
@@ -45,10 +41,10 @@ int main(/*int argc, char const* argv[]*/) {
 
 		}
 
-		stm.clear();
-		stm << "Output/out" << nr++ << ".s";
+		std::ostringstream out;
+		out << "Output/out" << nr << ".s";
 
-		freopen(stm.str().c_str(), "w", stdout);
+		freopen(out.str().c_str(), "w", stdout);
 
 		BackendVisitor backend(vm.stackSize);
 
