@@ -12,8 +12,7 @@ movl	$0, %edx
 movl	4(%esp), %ebx
 idiv	%ebx
 movl	%eax, 8(%esp)
-movl	8(%esp), %eax
-pushl	%eax
+pushl	8(%esp)
 call	_println_int
 addl	$4, %esp
 addl	$12, %esp

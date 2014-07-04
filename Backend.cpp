@@ -65,9 +65,21 @@ void BackendVisitor::visit(const Operator* op, const Variable* var) {
 
 void BackendVisitor::visit(const Command* cmd) {
 	if (const Print* print = cmd->isPrint()) {
-		this->visit(print->exp.get());
+		const Term* term = print->exp->isTerm();
 
-		as::build(as::Push, as::Reg::AX);
+		if (term != nullptr && term->count() == 1) {
+			if (const Var* lvar = term->front()->isVar())
+				as::build(as::Push, as::Pointer::SP, lvar->variable->offset);
+			else if (const Value* val = term->front()->isValue())
+				as::build(as::Push, val->value);
+			else
+				assert(0);
+		} else {
+			this->visit(print->exp.get());
+
+			as::build(as::Push, as::Reg::AX);
+		}
+
 		as::build(as::Call, RTLabelStr.at(RTLabel::PrintlnI));
 		as::build(as::Add, 4, as::Pointer::SP);
 	} else if (const Variable* var = cmd->isVariable()) {

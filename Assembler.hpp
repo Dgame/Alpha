@@ -258,6 +258,8 @@ namespace as {
 		virtual void visit(Pointer ptr, int offset, Reg reg);
 		// push, pop
 		virtual void visit(Pointer ptr);
+		// push, pop
+		virtual void visit(Pointer ptr, int offset);
 		// move
 		virtual void visit(Pointer p1, Pointer p2);
 		// move

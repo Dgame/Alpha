@@ -47,13 +47,25 @@ int main() {
 
 	std::ifstream test("test_results.txt");
 
+	auto handle = GetStdHandle(STD_OUTPUT_HANDLE);
+
 	for (unsigned int i = 0; i < expected_results.size(); i++) {
 		std::string buf;
 		std::getline(test, buf);
 
-		std::cout << "Get: " << buf << "\tExpected: " << expected_results[i] << "\t -> " << (readNumber(buf) == expected_results[i] ? "Valid" : "Invalid") << std::endl;
+		SetConsoleTextAttribute(handle, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
+		std::cout << "Get: " << buf << "\tExpected: " << expected_results[i] << "\t -> ";
+
+		if (readNumber(buf) == expected_results[i]) {
+			SetConsoleTextAttribute(handle, FOREGROUND_GREEN);
+			std::cout << "Valid" << std::endl;
+		} else {
+			SetConsoleTextAttribute(handle, FOREGROUND_RED);
+			std::cout << "Invalid" << std::endl;
+		}
 	}
 
+	SetConsoleTextAttribute(handle, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
 	std::cout << "Finish" << std::endl;
 
 	return 0;

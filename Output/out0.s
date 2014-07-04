@@ -4,8 +4,7 @@ _prog:
 
 pushl	%ebp
 movl	%esp, %ebp
-movl	$42, %eax
-pushl	%eax
+pushl	$42
 call	_println_int
 addl	$4, %esp
 popl	%ebp

@@ -69,6 +69,14 @@ namespace as {
 		*out << CommandStr.at(this->cmd) << "\t" << PointerStr.at(ptr) << std::endl;
 	}
 
+	// push, pop
+	void Assembler::visit(Pointer ptr, int offset) {
+		if (!this->accept(Operand::AddrOf))
+			return this->error();
+
+		*out << CommandStr.at(this->cmd) << "\t" << addrOf(ptr, offset) << std::endl;
+	}
+
 	void Assembler::visit(Pointer p1, Pointer p2) {
 		if (!this->accept(Operand::Pointer, Operand::Pointer))
 			return this->error();
