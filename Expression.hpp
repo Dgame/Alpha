@@ -230,15 +230,12 @@ struct Variable : public Command {
 struct Scope;
 
 struct If : public Command {
-	std::string labelIf;
-	std::string labelElse;
-
 	std::unique_ptr<Condition> cond;
 
-	Scope* ifScope = nullptr;
-	Scope* elseScope = nullptr;
+	const Scope* ifScope = nullptr;
+	const Scope* elseScope = nullptr;
 
-	explicit If(const std::string& label, Condition* cp);
+	explicit If(Condition* cp, const Scope* isp, const Scope* esp);
 
 	const If* isIf() const override {
 		return this;
@@ -246,11 +243,24 @@ struct If : public Command {
 };
 
 struct Scope {
+	unsigned int nr;
+
+	explicit Scope(unsigned int mynr);
+
+	std::string label() const {
+		return "L" + patch::to_string(this->nr);
+	}
+
+	std::string hlabel() const {
+		return "H" + this->label();
+	}
+
 	std::vector<std::unique_ptr<Command>> decls;
 };
 
 struct Scopes {
 	std::vector<Scope> scopes;
+	unsigned int count = 0;
 	int curIndex = -1;
 
 	Scope& operator [](unsigned int index) {
@@ -258,7 +268,7 @@ struct Scopes {
 	}
 
 	void pushScope() {
-		this->scopes.push_back(Scope());
+		this->scopes.push_back(Scope(this->count++));
 		this->curIndex++;
 	}
 
@@ -268,6 +278,10 @@ struct Scopes {
 
 	Scope& curScope() {
 		return this->scopes[this->curIndex];
+	}
+
+	const Scope& lastScope() const {
+		return this->scopes[this->curIndex - 1];
 	}
 };
 

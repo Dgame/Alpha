@@ -14,7 +14,7 @@ enum class Tok {
 	Exit,
 	If,
 	Else,
-	While,
+	For,
 
 	True,
 	False,
@@ -38,7 +38,7 @@ const std::map<Tok, const std::string> TokStr = {
 	{Tok::Exit, "exit"},
 	{Tok::If, "if"},
 	{Tok::Else, "else"},
-	{Tok::While, "while"},
+	{Tok::For, "for"},
 
 	{Tok::True, "true"},
 	{Tok::False, "false"},

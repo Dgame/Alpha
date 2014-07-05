@@ -234,12 +234,33 @@ bool Parser::parseScope() {
 }
 
 bool Parser::parseIf() {
-	if (read(Tok::If)) {
+	if (this->read(Tok::If)) {
 		Condition* cond = nullptr;
 
 		BooleanParser bp(this);
 		if (bp.parse(&cond)) {
-			// TODO: 
+			if (this->parseScope()) {
+				const Scope* isp = &env.scope->lastScope();
+				const Scope* esp = nullptr;
+
+				// TODO: 
+
+				if (this->read(Tok::Else)) {
+					if (!this->parseScope()) {
+						loc.error("Expected Scope for 'else'");
+
+						return false;
+					}
+
+					// TODO: 
+				}
+
+				// TODO: 
+			} else {
+				loc.error("Expected Scope for 'if'");
+
+				return false;
+			}
 		} else {
 			loc.error("Expected boolean expression for if");
 

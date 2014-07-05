@@ -26,7 +26,11 @@ Print::Print(Expression* ep) : exp(ep) {
 
 }
 
-If::If(const std::string& label, Condition* cp) : labelIf(label), cond(cp) {
+If::If(Condition* cp, const Scope* isp, const Scope* esp) : cond(cp), ifScope(isp), elseScope(esp) {
+
+}
+
+Scope::Scope(unsigned int mynr) : nr(mynr) {
 
 }
 
