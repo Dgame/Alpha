@@ -28,13 +28,14 @@ struct BackendVisitor {
 	explicit BackendVisitor(unsigned int stackSize);
 	virtual ~BackendVisitor();
 
-	void visit(const Operator* op, const Variable* var);
+	void visit(const Operator*, const Variable*);
 
-	void visit(const Command* cmd);
-	void visit(const Expression* exp);
-	void visit(const Term* term);
-	void visit(const Array* array);
-	void visit(const Variable* var);
+	void visit(const Command*);
+	void visit(const Expression*);
+	void visit(const Term*);
+	void visit(const Variable*);
+	void visit(const Array*);
+	void visit(const Condition*);
 };
 
 #endif

@@ -27,16 +27,16 @@ void Parser::skipSpaces() {
 		++loc.pos;
 	}
 
-	while (skipComment()) {
+	while (this->skipComment()) {
 
 	}
 
 	if (!loc.eof() && std::isspace(*loc.pos))
-		return skipSpaces();
+		return this->skipSpaces();
 }
 
 bool Parser::read(const std::string& what) {
-	skipSpaces();
+	this->skipSpaces();
 
 	for (char c : what) {
 		if (!loc.eof() && *loc.pos == c)
@@ -55,7 +55,7 @@ bool Parser::read(const std::string& what) {
 }
 
 bool Parser::read(char what) {
-	skipSpaces();
+	this->skipSpaces();
 
 	if (!loc.eof() && *loc.pos == what) {
 		++loc.pos;
@@ -67,22 +67,22 @@ bool Parser::read(char what) {
 }
 
 bool Parser::read(Tok tok) {
-	return read(TokStr.at(tok));
+	return this->read(TokStr.at(tok));
 }
 
 bool Parser::peek(char what) {
-	skipSpaces();
+	this->skipSpaces();
 
 	return *loc.pos == what;
 }
 
 void Parser::expect(char what) {
-	if (!read(what))
+	if (!this->read(what))
 		loc.error("Expected " + what);
 }
 
 void Parser::expect(Tok tok) {
-	if (!read(tok))
+	if (!this->read(tok))
 		loc.error("Expected " + TokStr.at(tok));
 }
 
@@ -91,7 +91,7 @@ void Parser::next() {
 }
 
 bool Parser::readNumber(int* n) {
-	skipSpaces();
+	this->skipSpaces();
 
 	if (!loc.eof() && std::isdigit(*loc.pos)) {
 		*n = 0;
@@ -109,7 +109,7 @@ bool Parser::readNumber(int* n) {
 }
 
 bool Parser::readIdentifier(std::string* identifier) {
-	skipSpaces();
+	this->skipSpaces();
 
 	if (!loc.eof() && (std::isalpha(*loc.pos) || *loc.pos == '_')) {
 		identifier->clear();
@@ -127,11 +127,14 @@ bool Parser::readIdentifier(std::string* identifier) {
 }
 
 bool Parser::parse() {
-	return parsePrint() || parseVar() || parseVarAssign();
+	if (this->parseExit())
+		return false;
+
+	return this->parsePrint() || this->parseVar() || this->parseVarAssign();
 }
 
 bool Parser::parsePrint() {
-	if (read(Tok::Print)) {
+	if (this->read(Tok::Print)) {
 		Expression* exp = nullptr;
 
 		TermParser tp(this);
@@ -146,12 +149,12 @@ bool Parser::parsePrint() {
 }
 
 bool Parser::parseVar() {
-	if (read(Tok::Var)) {
+	if (this->read(Tok::Var)) {
 		std::string identifier;
-		if (readIdentifier(&identifier)) {
+		if (this->readIdentifier(&identifier)) {
 			Expression* exp = nullptr;
 
-			if (peek('=')) {
+			if (this->peek('=')) {
 				next();
 
 				TermParser tp(this);
@@ -174,7 +177,7 @@ bool Parser::parseVar() {
 
 bool Parser::parseVarAssign() {
 	std::string identifier;
-	if (readIdentifier(&identifier)) {
+	if (this->readIdentifier(&identifier)) {
 		expect('=');
 
 		Expression* exp = nullptr;
@@ -188,6 +191,57 @@ bool Parser::parseVarAssign() {
 
 		if (!env.vm->assignVar(identifier, exp)) {
 			loc.error("Invalid expression or unknown variable");
+
+			return false;
+		}
+
+		return true;
+	}
+
+	return false;
+}
+
+bool Parser::parseExit() {
+	if (this->read(Tok::Exit)) {
+		// TODO: ?
+
+		return true;
+	}
+
+	return false;	
+}
+
+bool Parser::parseScope() {
+	if (this->read('{')) {
+		env.scope->pushScope();
+
+		while (this->parse()) {
+
+		}
+
+		if (this->read('}'))
+			env.scope->popScope();
+		else {
+			loc.error("Missing '}'.");
+
+			return false;
+		}
+
+		return true;
+	}
+
+	return false;
+}
+
+bool Parser::parseIf() {
+	if (read(Tok::If)) {
+		Condition* cond = nullptr;
+
+		BooleanParser bp(this);
+		if (bp.parse(&cond)) {
+			// TODO: 
+		} else {
+			loc.error("Expected boolean expression for if");
 
 			return false;
 		}
@@ -326,5 +380,17 @@ bool TermParser::_parseLiteral() {
 		return true;
 	}
 
+	return false;
+}
+
+BooleanParser::BooleanParser(Parser* p) : _p(*p) {
+	_cond = patch::make_unique<Condition>();
+}
+
+bool BooleanParser::parse(Condition** cond) {
+	return false;
+}
+
+bool BooleanParser::_parseCompare() {
 	return false;
 }

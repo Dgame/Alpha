@@ -84,6 +84,8 @@ void BackendVisitor::visit(const Command* cmd) {
 		as::build(as::Add, 4, as::Pointer::SP);
 	} else if (const Variable* var = cmd->isVariable()) {
 		this->visit(var);
+	} else if (const If* myIf = cmd->isIf()) {
+		this->visit(myIf->cond.get());
 	}
 }
 
@@ -92,6 +94,8 @@ void BackendVisitor::visit(const Expression* exp) {
 		this->visit(term);
 	} else if (const Array* array = exp->isArray()) {
 		this->visit(array);
+	} else if (const Condition* cond = exp->isCondition()) {
+		this->visit(cond);
 	}
 }
 
@@ -163,10 +167,6 @@ void BackendVisitor::visit(const Term* term) {
 	}
 }
 
-void BackendVisitor::visit(const Array*) {
-	// TODO: 
-}
-
 void BackendVisitor::visit(const Variable* var) {
 	if (var->exp == nullptr) {
 		return;
@@ -186,5 +186,15 @@ void BackendVisitor::visit(const Variable* var) {
 		this->visit(array);
 
 		// TODO: 
+	} else {
+		assert(0);
 	}
+}
+
+void BackendVisitor::visit(const Array*) {
+	// TODO: 
+}
+
+void BackendVisitor::visit(const Condition*) {
+	// TODO: 
 }

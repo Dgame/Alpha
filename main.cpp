@@ -32,6 +32,7 @@ int main(/*int argc, char const* argv[]*/) {
 		Env env;
 		env.vm = &vm;
 		env.cm = &cm;
+		env.scope = &scopes;
 
 		Loc loc(&*content.begin(), &*content.end() + 1);
 

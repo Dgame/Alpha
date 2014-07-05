@@ -156,10 +156,12 @@ struct Condition : public Expression {
 	std::unique_ptr<Compare> comp;
 	std::map<Link, std::unique_ptr<Compare>> comps;
 
-	explicit Condition(Compare* cp);
-
 	const Condition* isCondition() const override {
 		return this;
+	}
+
+	void setPrimary(Compare* cp) {
+		this->comp = std::unique_ptr<Compare>(cp);
 	}
 
 	void push(Link lnk, Compare* cmp) {

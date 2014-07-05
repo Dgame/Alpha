@@ -54,7 +54,7 @@ int main() {
 		std::getline(test, buf);
 
 		SetConsoleTextAttribute(handle, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
-		std::cout << "Get: " << buf << "\tExpected: " << expected_results[i] << "\t -> ";
+		std::cout << "Get: " << buf << "\t\t Expected: " << expected_results[i] << "\t -> ";
 
 		if (readNumber(buf) == expected_results[i]) {
 			SetConsoleTextAttribute(handle, FOREGROUND_GREEN);

@@ -99,6 +99,9 @@ struct Parser {
 	bool parsePrint();
 	bool parseVar();
 	bool parseVarAssign();
+	bool parseExit();
+	bool parseScope();
+	bool parseIf();
 };
 
 class TermParser {
@@ -116,6 +119,20 @@ private:
 	bool _parseTerm();
 	bool _parseFactor();
 	bool _parseLiteral();
+};
+
+class BooleanParser {
+private:
+	std::unique_ptr<Condition> _cond;
+	Parser& _p;
+
+public:
+	explicit BooleanParser(Parser* p);
+
+	bool parse(Condition** cond);
+
+private:
+	bool _parseCompare();
 };
 
 #endif

@@ -16,10 +16,6 @@ Compare::Compare(Expression* lp, Expression* rp, Cmp mycmp) : lhs(lp), rhs(rp), 
 
 }
 
-Condition::Condition(Compare* cp) : comp(cp) {
-
-}
-
 Variable::Variable(int offset, const std::string& name, Expression* ep, unsigned int size) : exp(ep) {
 	this->offset = offset;
 	this->name = name;
