@@ -110,11 +110,16 @@ void BackendVisitor::visit(const Term* term) {
 
 		if (const Value* val = literal->isValue()) {
 			const Operator* op = isLastRun ? nullptr : term->at(i + 1)->isOperator();
-
 			if (op && (op->op == Op::Div || op->op == Op::Mod))
 				as::build(as::Move, val->value, as::Reg::BX);
-			else
+			else {
+				if (i > 0 && !term->at(i - 1)->isOperator()) {
+					as::build(as::Push, as::Reg::AX);
+					pushed++;
+				}
+
 				as::build(as::Move, val->value, as::Reg::AX);
+			}
 
 			curVar = nullptr;
 		} else if (const Var* lvar = literal->isVar()) {
@@ -141,25 +146,14 @@ void BackendVisitor::visit(const Term* term) {
 					pushed--;
 				}
 			}
+
+			if (!isLastRun && !term->at(i + 1)->isOperator()) {
+				as::build(as::Push, as::Reg::AX);
+				pushed++;
+			}
 		} else {
 			assert(0);
 		}
-
-		if (isLastRun 
-			|| term->at(i + 1)->isOperator() 
-			|| term->at(i + 1)->isVar())
-		{
-			continue;
-		}
-
-		// For Div/Mod correction
-		const Operator* op = term->at(i + 2)->isOperator();
-		if (op && (op->op == Op::Div || op->op == Op::Mod)) {
-			continue;
-		}
-
-		as::build(as::Push, as::Reg::AX);
-		pushed++;
 	}
 }
 
