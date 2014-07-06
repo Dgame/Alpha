@@ -244,6 +244,7 @@ struct If : public Command {
 
 struct Scope {
 	unsigned int nr;
+	std::vector<std::unique_ptr<Command>> decls;
 
 	explicit Scope(unsigned int mynr);
 
@@ -254,8 +255,6 @@ struct Scope {
 	std::string hlabel() const {
 		return "H" + this->label();
 	}
-
-	std::vector<std::unique_ptr<Command>> decls;
 };
 
 struct Scopes {

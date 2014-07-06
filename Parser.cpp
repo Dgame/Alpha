@@ -240,8 +240,8 @@ bool Parser::parseIf() {
 		BooleanParser bp(this);
 		if (bp.parse(&cond)) {
 			if (this->parseScope()) {
-				const Scope* isp = &env.scope->lastScope();
-				const Scope* esp = nullptr;
+				// const Scope* isp = &env.scope->lastScope();
+				// const Scope* esp = nullptr;
 
 				// TODO: 
 

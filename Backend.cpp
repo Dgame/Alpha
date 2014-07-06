@@ -100,24 +100,23 @@ void BackendVisitor::visit(const Expression* exp) {
 }
 
 void BackendVisitor::visit(const Term* term) {
-	const unsigned int size = term->count();
 	unsigned int pushed = 0;
 
 	const Variable* curVar = nullptr;
-	bool isdivOrMod = false;
 
-	for (unsigned int i = 0; i < size; i++) {
+	for (unsigned int i = 0; i < term->count(); i++) {
 		const Literal* literal = term->at(i);
-		const bool isLastRun = (i + 1) >= size;
+		const bool isLastRun = (i + 1) >= term->count();
 
 		if (const Value* val = literal->isValue()) {
-			if (!isdivOrMod)
-				as::build(as::Move, val->value, as::Reg::AX);
-			else
+			const Operator* op = isLastRun ? nullptr : term->at(i + 1)->isOperator();
+
+			if (op && (op->op == Op::Div || op->op == Op::Mod))
 				as::build(as::Move, val->value, as::Reg::BX);
+			else
+				as::build(as::Move, val->value, as::Reg::AX);
 
 			curVar = nullptr;
-			isdivOrMod = false;
 		} else if (const Var* lvar = literal->isVar()) {
 			const Variable* var = lvar->variable;
 
@@ -132,7 +131,6 @@ void BackendVisitor::visit(const Term* term) {
 		} else if (const Operator* op = literal->isOperator()) {
 			this->visit(op, curVar);
 			curVar = nullptr;
-			isdivOrMod = false;
 
 			if (pushed > 0) {
 				if (op->op == Op::Mul || op->op == Op::Plus) {
@@ -156,9 +154,7 @@ void BackendVisitor::visit(const Term* term) {
 
 		// For Div/Mod correction
 		const Operator* op = term->at(i + 2)->isOperator();
-		if (op != nullptr && (op->op == Op::Div || op->op == Op::Mod)) {
-			isdivOrMod = true;
-
+		if (op && (op->op == Op::Div || op->op == Op::Mod)) {
 			continue;
 		}
 
