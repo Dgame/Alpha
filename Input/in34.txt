@@ -1,0 +1,10 @@
+var a = 99
+var b = 88
+
+if a == 99 and b == 88 {
+	a = b
+} else {
+	b = a
+}
+
+print a

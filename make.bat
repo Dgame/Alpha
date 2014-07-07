@@ -1,0 +1,1 @@
+g++ -o main.exe main.cpp Assembler.cpp Expression.cpp Parser.cpp Commands.cpp Manager.cpp Backend.cpp -std=c++0x

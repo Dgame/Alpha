@@ -28,21 +28,27 @@ void Parser::skipSpaces() {
 	}
 
 	while (this->skipComment()) {
-
+		// Wait...
 	}
 
-	if (!loc.eof() && std::isspace(*loc.pos))
+	if (!loc.eof() && std::isspace(*loc.pos)) {
 		return this->skipSpaces();
+	}
 }
 
 bool Parser::read(const std::string& what) {
 	this->skipSpaces();
 
+	const char* prevPos = loc.pos;
+
 	for (char c : what) {
 		if (!loc.eof() && *loc.pos == c)
 			++loc.pos;
-		else
+		else {
+			loc.pos = prevPos;
+
 			return false;
+		}
 	}
 
 	if (!loc.eof() && !std::isspace(*loc.pos)) {
@@ -76,20 +82,6 @@ bool Parser::peek(char what) {
 	return *loc.pos == what;
 }
 
-void Parser::expect(char what) {
-	if (!this->read(what))
-		loc.error("Expected " + what);
-}
-
-void Parser::expect(Tok tok) {
-	if (!this->read(tok))
-		loc.error("Expected " + TokStr.at(tok));
-}
-
-void Parser::next() {
-	loc.pos++;
-}
-
 bool Parser::readNumber(int* n) {
 	this->skipSpaces();
 
@@ -112,10 +104,12 @@ bool Parser::readIdentifier(std::string* identifier) {
 	this->skipSpaces();
 
 	if (!loc.eof() && (std::isalpha(*loc.pos) || *loc.pos == '_')) {
+		*identifier += *loc.pos;
+		loc.pos++;
+
 		while (!loc.eof() && (std::isalnum(*loc.pos) || *loc.pos == '_')) {
 			*identifier += *loc.pos;
-
-			++loc.pos;
+			loc.pos++;
 		}
 
 		return true;
@@ -127,8 +121,16 @@ bool Parser::readIdentifier(std::string* identifier) {
 bool Parser::parse() {
 	if (this->parseExit())
 		return false;
+	if (this->parsePrint())
+		return true;
+	if (this->parseIf())
+		return true;
+	if (this->parseVar())
+		return true;
+	if (this->parseVarAssign())
+		return true;
 
-	return this->parsePrint() || this->parseIf() || this->parseVar() || this->parseVarAssign();
+	return false;
 }
 
 bool Parser::parsePrint() {
@@ -138,7 +140,11 @@ bool Parser::parsePrint() {
 		TermParser tp(this);
 		if (tp.parse(&exp)) {
 			env.cm->push(new Print(exp));
-		}
+		} else {
+	 		loc.error("No expression to print.");
+
+	 		return false;
+	 	}
 
 		return true;
 	}
@@ -153,7 +159,7 @@ bool Parser::parseVar() {
 			Expression* exp = nullptr;
 
 			if (this->peek('=')) {
-				next();
+				++loc.pos;
 
 				TermParser tp(this);
 				if (!tp.parse(&exp)) {
@@ -176,7 +182,11 @@ bool Parser::parseVar() {
 bool Parser::parseVarAssign() {
 	std::string identifier;
 	if (this->readIdentifier(&identifier)) {
-		expect('=');
+		if (!this->read('=')) {
+			loc.error("Expected '='");
+
+			return false;
+		}
 
 		Expression* exp = nullptr;
 
@@ -214,7 +224,7 @@ bool Parser::parseScope(Scope** scope) {
 		env.sm->pushScope();
 
 		while (this->parse()) {
-
+			// Wait...
 		}
 
 		if (this->read('}'))
@@ -386,9 +396,11 @@ bool TermParser::_parseLiteral() {
 	if (_p.readIdentifier(&identifier)) {
 		const Variable* var = _p.env.vm->getVar(identifier);
 
-		if (var == nullptr)
+		if (var == nullptr) {
 			_p.loc.error("Unknown variable '" + identifier + "'");
-		else
+
+			return false;
+		} else
 			_term->push(var);
 
 		return true;
@@ -444,16 +456,18 @@ Compare* BooleanParser::_parseCompare() const {
 			cmp = Cmp::Equal;
 		else if (_p.read(Tok::NotEqual))
 			cmp = Cmp::NotEqual;
-		else if (_p.read(Tok::GreaterEqual))
-			cmp = Cmp::GreaterEqual;
-		else if (_p.read(Tok::LessEqual))
-			cmp = Cmp::LessEqual;
-		else if (_p.read(Tok::Less))
-			cmp = Cmp::Less;
-		else if (_p.read(Tok::Greater))
-			cmp = Cmp::Greater;
-		else {
-			_p.loc.error("Unexpected compare operation in if.");
+		else if (_p.read('>')) {
+			if (_p.read('='))
+				cmp = Cmp::GreaterEqual;
+			else
+				cmp = Cmp::Greater;
+		} else if (_p.read('<')) {
+			if (_p.read('='))
+				cmp = Cmp::LessEqual;
+			else
+				cmp = Cmp::Less;
+		} else {
+			_p.loc.error("Unexpected compare operation in if");
 
 			return nullptr;
 		}

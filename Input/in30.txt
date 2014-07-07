@@ -1,0 +1,9 @@
+var a = 11
+
+if a < 9 or a > 10 {
+	a = a * 2
+} else {
+	a = a - 3
+}
+
+print a

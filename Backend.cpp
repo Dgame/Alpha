@@ -1,5 +1,65 @@
 #include "Backend.hpp"
 
+as::Cond compareToCond(Cmp cmp) {
+	switch (cmp) {
+		case Cmp::Equal:
+			return as::Cond::Equal;
+		break;
+
+		case Cmp::NotEqual:
+			return as::Cond::NotEqual;
+		break;
+
+		case Cmp::Greater:
+			return as::Cond::Greater;
+		break;
+
+		case Cmp::Less:
+			return as::Cond::Less;
+		break;
+
+		case Cmp::GreaterEqual:
+			return as::Cond::GreaterEqual;
+		break;
+
+		case Cmp::LessEqual:
+			return as::Cond::LessEqual;
+		break;
+	}
+
+	assert(0);
+}
+
+as::Cond negateCond(as::Cond cond) {
+	switch (cond) {
+		case as::Cond::Equal:
+			return as::Cond::NotEqual;
+		break;
+
+		case as::Cond::NotEqual:
+			return as::Cond::Equal;
+		break;
+
+		case as::Cond::Greater:
+			return as::Cond::NotGreater;
+		break;
+
+		case as::Cond::Less:
+			return as::Cond::NotLess;
+		break;
+
+		case as::Cond::GreaterEqual:
+			return as::Cond::Less;
+		break;
+
+		case as::Cond::LessEqual:
+			return as::Cond::Greater;
+		break;
+	}
+
+	assert(0);
+}
+
 BackendVisitor::BackendVisitor(unsigned int stackSize) {
 	this->stackSize = stackSize;
 
@@ -91,24 +151,7 @@ void BackendVisitor::visit(const Command* cmd) {
 	} else if (const Variable* var = cmd->isVariable()) {
 		this->visit(var);
 	} else if (const If* myIf = cmd->isIf()) {
-		this->visit(myIf->cond.get());
-
-		const std::string elabel = myIf->ifScope->label();
-		const std::string hlabel = myIf->ifScope->hlabel();
-
-		as::build(as::Jump, as::Cond::Equal, elabel);
-
-		if (myIf->elseScope) {
-			as::label(myIf->elseScope->label()); // May be redundant
-			this->visit(myIf->elseScope.get());
-		}
-
-		as::build(as::Jump, as::Cond::Always, hlabel);
-
-		as::label(elabel);
-		this->visit(myIf->ifScope.get());
-
-		as::label(hlabel);
+		this->visit(myIf);
 	}
 }
 
@@ -132,6 +175,7 @@ void BackendVisitor::visit(const Term* term) {
 
 		if (const Value* val = literal->isValue()) {
 			const Operator* op = isLastRun ? nullptr : term->at(i + 1)->isOperator();
+
 			if (op && (op->op == Op::Div || op->op == Op::Mod))
 				as::build(as::Move, val->value, as::Reg::BX);
 			else {
@@ -204,8 +248,48 @@ void BackendVisitor::visit(const Array*) {
 	// TODO: 
 }
 
-void BackendVisitor::visit(const Condition* cond) {
-	const Term* term = cond->primary->lhs->isTerm();
+void BackendVisitor::visit(const If* myIf) {
+	this->visit(myIf->cond->primary.get());
+	// Sprung
+	const std::string elabel = myIf->ifScope->label();
+	const std::string hlabel = myIf->ifScope->hlabel();
+
+	as::build(as::Jump, compareToCond(myIf->cond->primary->cmp), elabel);
+
+	for (auto& pair : myIf->cond->comps) {
+		this->visit(pair.second.get());
+
+		const as::Cond cond = compareToCond(pair.second->cmp);
+
+		switch (pair.first) {
+			case Link::And:
+				as::build(as::Jump, cond, elabel);
+			break;
+
+			case Link::Or:
+				as::build(as::Jump, cond, elabel);
+			break;
+
+			default:
+				assert(0);
+		}
+	}
+
+	if (myIf->elseScope) {
+		as::label(myIf->elseScope->label()); // May be redundant
+		this->visit(myIf->elseScope.get());
+	}
+
+	as::build(as::Jump, as::Cond::Always, hlabel);
+
+	as::label(elabel);
+	this->visit(myIf->ifScope.get());
+
+	as::label(hlabel);
+}
+
+void BackendVisitor::visit(const Compare* comp) {
+	const Term* term = comp->lhs->isTerm();
 	if (term && term->count() == 1) {
 		if (const Var* lvar = term->front()->isVar())
 			as::build(as::Move, as::Pointer::SP, lvar->variable->offset, as::Reg::BX);
@@ -214,12 +298,11 @@ void BackendVisitor::visit(const Condition* cond) {
 		else
 			assert(0);
 	} else {
-		this->visit(cond->primary->lhs.get());
+		this->visit(comp->lhs.get());
 		as::build(as::Move, as::Reg::AX, as::Reg::BX);
 	}
 
-	this->visit(cond->primary->rhs.get());
-	as::build(as::Comp, as::Reg::BX, as::Reg::AX);
+	this->visit(comp->rhs.get());
 
-	// TODO: Further conditions
+	as::build(as::Comp, as::Reg::AX, as::Reg::BX);
 }

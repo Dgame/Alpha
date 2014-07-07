@@ -23,10 +23,6 @@ enum class Tok {
 
 	Equal,
 	NotEqual,
-	LessEqual,
-	Less,
-	GreaterEqual,
-	Greater,
 
 	And,
 	Or,
@@ -47,10 +43,6 @@ const std::map<Tok, const std::string> TokStr = {
 
 	{Tok::Equal, "=="},
 	{Tok::NotEqual, "!="},
-	{Tok::LessEqual, "<="},
-	{Tok::Less, "<"},
-	{Tok::GreaterEqual, ">="},
-	{Tok::Greater, ">"},
 
 	{Tok::And, "and"},
 	{Tok::Or, "or"},
@@ -67,7 +59,7 @@ struct Loc {
 	explicit Loc(const std::string& file, const char* start, const char* theEnd);
 
 	bool eof() const {
-		return this->pos == this->end;
+		return this->pos >= (this->end - 1);
 	}
 
 	void error(const std::string& msg) const {
@@ -87,10 +79,6 @@ struct Parser {
 	bool read(const std::string& what);
 	bool read(Tok tok);
 	bool read(char ch);
-
-	void expect(char what);
-	void expect(Tok tok);
-	void next();
 
 	bool peek(char what);
 

@@ -24,6 +24,9 @@ const std::map<RTLabel, const std::string> RTLabelStr = {
 	{RTLabel::PrintlnS, "_println_string"}
 };
 
+as::Cond compareToCond(Cmp cmp);
+as::Cond negateCond(as::Cond cond);
+
 struct BackendVisitor {
 	unsigned int stackSize = 0;
 
@@ -39,7 +42,8 @@ struct BackendVisitor {
 	void visit(const Term*);
 	void visit(const Variable*);
 	void visit(const Array*);
-	void visit(const Condition*);
+	void visit(const If* myIf);
+	void visit(const Compare* comp);
 };
 
 #endif

@@ -5,11 +5,17 @@ _prog:
 pushl	%ebp
 movl	%esp, %ebp
 subl	$4, %esp
-movl	$7, 0(%esp)
+movl	$9, 0(%esp)
 movl	0(%esp), %ebx
-movl	$7, %eax
+movl	$9, %eax
 cmpl	%eax, %ebx
-je	L1
+jne	L1
+L2:
+movl	0(%esp), %eax
+movl	$3, %ebx
+movl	$0, %edx
+idiv	%ebx
+movl	%eax, 0(%esp)
 jmp	L1H
 L1:
 movl	0(%esp), %eax
