@@ -67,6 +67,8 @@ struct Loc {
 	}
 };
 
+void checkInPlace(Expression*, const std::string& identifier);
+
 struct Parser {
 	Env& env;
 	Loc& loc;

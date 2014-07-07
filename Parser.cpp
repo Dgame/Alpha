@@ -4,6 +4,22 @@ Loc::Loc(const std::string& file, const char* start, const char* theEnd) : filen
 	
 }
 
+void checkInPlace(Expression* exp, const std::string& identifier) {
+	if (exp->isTerm()) {
+		Term* term = dynamic_cast<Term*>(exp);
+
+		if (term->count() == 3) {
+			if (const Var* lvar = term->at(0)->isVar()) {
+				if (const Operator* op = term->at(2)->isOperator()) {
+					if (lvar->variable->name == identifier && op->isAssociative()) {
+						term->inPlace = true;
+					}
+				}
+			}
+		}
+	}
+}
+
 Parser::Parser(Env& myenv, Loc& myloc) : env(myenv), loc(myloc) {
 
 }
@@ -171,6 +187,8 @@ bool Parser::parseVar() {
 
 			env.vm->createVar(identifier, exp);
 
+			checkInPlace(exp, identifier);
+
 			return true;
 		} else
 			loc.error("Expected identifier after 'var'");
@@ -202,6 +220,8 @@ bool Parser::parseVarAssign() {
 
 			return false;
 		}
+
+		checkInPlace(exp, identifier);
 
 		return true;
 	}

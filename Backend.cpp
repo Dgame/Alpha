@@ -166,6 +166,23 @@ void BackendVisitor::visit(const Expression* exp) {
 }
 
 void BackendVisitor::visit(const Term* term) {
+	if (term->inPlace) {
+		const Var* lvar = term->at(0)->isVar();
+		assert(lvar);
+		const Operator* op = term->at(2)->isOperator();
+		assert(op);
+		assert(op->isAssociative());
+
+		if (const Value* val = term->at(1)->isValue())
+			as::build(as::Move, val->value, as::Reg::AX);
+		else if (const Var* lvar2 = term->at(1)->isVar())
+			as::build(as::Move, as::Pointer::SP, lvar2->variable->offset, as::Reg::AX);
+		else
+			assert(0);
+
+		return this->visit(op, lvar->variable);
+	}
+
 	unsigned int pushed = 0;
 	const Variable* curVar = nullptr;
 
@@ -257,20 +274,17 @@ void BackendVisitor::visit(const If* myIf) {
 
 	as::Cond cond = compareToCond(myIf->cond->primary->cmp);
 	const auto& pair = myIf->cond->comps.begin();
-	const auto& end = myIf->cond->comps.end();
 
-	bool isAnd = false;
+	bool isAnd = pair != myIf->cond->comps.end() && pair->first == Link::And;
 
-	if (pair != end && pair->first == Link::And) {
-		isAnd = true;
-
+	if (isAnd) {
 		as::build(as::Jump, negateCond(cond), nelabel);
 	} else {
 		as::build(as::Jump, cond, elabel);
 	}
 
 	for (auto& pair : myIf->cond->comps) {
-		isAnd = false;
+		isAnd = pair.first == Link::And;
 
 		this->visit(pair.second.get());
 
@@ -278,7 +292,6 @@ void BackendVisitor::visit(const If* myIf) {
 
 		switch (pair.first) {
 			case Link::And:
-				isAnd = true;
 				as::build(as::Jump, negateCond(cond), nelabel);
 			break;
 
@@ -295,7 +308,7 @@ void BackendVisitor::visit(const If* myIf) {
 		as::build(as::Jump, cond, elabel);
 
 	if (myIf->elseScope) {
-		as::label(nelabel); // May be redundant
+		as::label(nelabel);
 		this->visit(myIf->elseScope.get());
 	}
 

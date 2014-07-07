@@ -12,11 +12,8 @@ cmpl	%eax, %ebx
 je	L1
 jmp	L1H
 L1:
-movl	0(%esp), %eax
-pushl	%eax
 movl	$1, %eax
 addl	0(%esp), %eax
-addl	$4, %esp
 movl	%eax, 0(%esp)
 L1H:
 pushl	0(%esp)

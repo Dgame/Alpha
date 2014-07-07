@@ -112,6 +112,7 @@ struct Expression {
 
 struct Term : public Expression {
 	std::vector<std::unique_ptr<Literal>> literals;
+	bool inPlace = false;
 
 	const Term* isTerm() const override {
 		return this;
