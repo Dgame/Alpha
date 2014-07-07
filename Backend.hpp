@@ -5,6 +5,8 @@
 #include <cassert>
 #include "Assembler.hpp"
 #include "Expression.hpp"
+#include "Commands.hpp"
+#include "Manager.hpp"
 
 enum class RTLabel {
 	Start,

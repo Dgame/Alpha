@@ -5,6 +5,8 @@
 #include <string>
 #include <map>
 #include "Expression.hpp"
+#include "Commands.hpp"
+#include "Manager.hpp"
 #include "patch.hpp"
 #include "Env.hpp"
 
