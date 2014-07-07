@@ -1,6 +1,6 @@
 #include "Parser.hpp"
 
-Loc::Loc(const char* start, const char* theEnd) : pos(start), end(theEnd) {
+Loc::Loc(const std::string& file, const char* start, const char* theEnd) : filename(file), pos(start), end(theEnd) {
 	
 }
 
@@ -112,13 +112,11 @@ bool Parser::readIdentifier(std::string* identifier) {
 	this->skipSpaces();
 
 	if (!loc.eof() && (std::isalpha(*loc.pos) || *loc.pos == '_')) {
-		identifier->clear();
-
-		do {
+		while (!loc.eof() && (std::isalnum(*loc.pos) || *loc.pos == '_')) {
 			*identifier += *loc.pos;
 
 			++loc.pos;
-		} while (!loc.eof() && (std::isalnum(*loc.pos) || *loc.pos == '_'));
+		}
 
 		return true;
 	}
@@ -130,7 +128,7 @@ bool Parser::parse() {
 	if (this->parseExit())
 		return false;
 
-	return this->parsePrint() || this->parseVar() || this->parseVarAssign();
+	return this->parsePrint() || this->parseIf() || this->parseVar() || this->parseVarAssign();
 }
 
 bool Parser::parsePrint() {
@@ -211,16 +209,16 @@ bool Parser::parseExit() {
 	return false;	
 }
 
-bool Parser::parseScope() {
+bool Parser::parseScope(Scope** scope) {
 	if (this->read('{')) {
-		env.scope->pushScope();
+		env.sm->pushScope();
 
 		while (this->parse()) {
 
 		}
 
 		if (this->read('}'))
-			env.scope->popScope();
+			*scope = env.sm->popScope().release();
 		else {
 			loc.error("Missing '}'.");
 
@@ -236,26 +234,21 @@ bool Parser::parseScope() {
 bool Parser::parseIf() {
 	if (this->read(Tok::If)) {
 		Condition* cond = nullptr;
+		Scope* isp = nullptr;
+		Scope* esp = nullptr;
 
 		BooleanParser bp(this);
 		if (bp.parse(&cond)) {
-			if (this->parseScope()) {
-				// const Scope* isp = &env.scope->lastScope();
-				// const Scope* esp = nullptr;
-
-				// TODO: 
-
+			if (this->parseScope(&isp)) {
 				if (this->read(Tok::Else)) {
-					if (!this->parseScope()) {
+					if (!this->parseScope(&esp)) {
 						loc.error("Expected Scope for 'else'");
 
 						return false;
 					}
-
-					// TODO: 
 				}
 
-				// TODO: 
+				env.cm->push(new If(cond, isp, esp));
 			} else {
 				loc.error("Expected Scope for 'if'");
 
@@ -394,7 +387,7 @@ bool TermParser::_parseLiteral() {
 		const Variable* var = _p.env.vm->getVar(identifier);
 
 		if (var == nullptr)
-			_p.loc.error("Unknown variable " + identifier);
+			_p.loc.error("Unknown variable '" + identifier + "'");
 		else
 			_term->push(var);
 
@@ -409,9 +402,73 @@ BooleanParser::BooleanParser(Parser* p) : _p(*p) {
 }
 
 bool BooleanParser::parse(Condition** cond) {
-	return false;
+	Compare* cmp = _parseCompare();
+
+	if (!cmp)
+		return false;
+
+	_cond->setPrimary(cmp);
+
+	Link link;
+	while (_parseLinkage(&link)) {
+		cmp = _parseCompare();
+		_cond->push(link, cmp);
+	}
+
+	*cond = _cond.release();
+
+	return true;
 }
 
-bool BooleanParser::_parseCompare() {
-	return false;
+bool BooleanParser::_parseLinkage(Link* link) const {
+	if (_p.read(Tok::And))
+		*link = Link::And;
+	else if (_p.read(Tok::Or))
+		*link = Link::Or;
+	else if (_p.read(Tok::Xor))
+		*link = Link::Xor;
+	else
+		return false;
+
+	return true;
+}
+
+Compare* BooleanParser::_parseCompare() const {
+	Expression* lhs = nullptr;
+	Expression* rhs = nullptr;
+
+	TermParser tpl(&_p);
+	if (tpl.parse(&lhs)) {
+		Cmp cmp;
+		if (_p.read(Tok::Equal))
+			cmp = Cmp::Equal;
+		else if (_p.read(Tok::NotEqual))
+			cmp = Cmp::NotEqual;
+		else if (_p.read(Tok::GreaterEqual))
+			cmp = Cmp::GreaterEqual;
+		else if (_p.read(Tok::LessEqual))
+			cmp = Cmp::LessEqual;
+		else if (_p.read(Tok::Less))
+			cmp = Cmp::Less;
+		else if (_p.read(Tok::Greater))
+			cmp = Cmp::Greater;
+		else {
+			_p.loc.error("Unexpected compare operation in if.");
+
+			return nullptr;
+		}
+
+		TermParser tpr(&_p);
+		if (tpr.parse(&rhs)) {
+			return new Compare(lhs, rhs, cmp);
+		}
+
+		_p.loc.error("Expected right hand side expression for if");
+
+		return nullptr;
+	}
+
+	_p.loc.error("Expected left hand side expression for if");
+
+	return nullptr;
 }

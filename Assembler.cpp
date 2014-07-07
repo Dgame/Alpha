@@ -38,6 +38,14 @@ namespace as {
 		*out << CommandStr.at(this->cmd) << "\t" << NumPrefix << patch::to_string(num) << ", " << RegisterStr.at(reg) << std::endl;
 	}
 
+	// compare
+	void Assembler::visit(Reg reg, int num) {
+		if (!this->accept(Operand::Register, Operand::Numeric))
+			return this->error();
+
+		*out << CommandStr.at(this->cmd) << "\t" << RegisterStr.at(reg) << ", " << NumPrefix << patch::to_string(num) << std::endl;
+	}
+
 	// move
 	void Assembler::visit(Reg r1, Reg r2) {
 		if (!this->accept(Operand::Register, Operand::Register))

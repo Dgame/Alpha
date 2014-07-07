@@ -43,7 +43,7 @@ int main() {
 
 	std::cout << "Compare..." << std::endl;
 
-	const std::vector<int> expected_results = {42, 6, -2, 8, 2, 2, 7, 9, 14, 23, 23, 6, -2, 8, 2, 0, 4, 0, 4, 1, 1, 44, -40, 84, 21, 2, 2};
+	const std::vector<int> expected_results = {42, 6, -2, 8, 2, 2, 7, 9, 14, 23, 23, 6, -2, 8, 2, 0, 4, 0, 4, 1, 1, 44, -40, 84, 21, 2, 2, 8};
 
 	std::ifstream test("test_results.txt");
 
@@ -54,7 +54,7 @@ int main() {
 		std::getline(test, buf);
 
 		SetConsoleTextAttribute(handle, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
-		std::cout << "Get: " << buf << "\t\t Expected: " << expected_results[i] << "\t -> ";
+		std::cout << "#" << i << " Get: " << buf << "\t\t Expected: " << expected_results[i] << "\t -> ";
 
 		if (readNumber(buf) == expected_results[i]) {
 			SetConsoleTextAttribute(handle, FOREGROUND_GREEN);

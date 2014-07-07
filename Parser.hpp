@@ -21,9 +21,9 @@ enum class Tok {
 
 	Equal,
 	NotEqual,
-	LessOrEqual,
+	LessEqual,
 	Less,
-	GreaterOrEqual,
+	GreaterEqual,
 	Greater,
 
 	And,
@@ -45,9 +45,9 @@ const std::map<Tok, const std::string> TokStr = {
 
 	{Tok::Equal, "=="},
 	{Tok::NotEqual, "!="},
-	{Tok::LessOrEqual, "<="},
+	{Tok::LessEqual, "<="},
 	{Tok::Less, "<"},
-	{Tok::GreaterOrEqual, ">="},
+	{Tok::GreaterEqual, ">="},
 	{Tok::Greater, ">"},
 
 	{Tok::And, "and"},
@@ -57,18 +57,19 @@ const std::map<Tok, const std::string> TokStr = {
 };
 
 struct Loc {
+	const std::string& filename;
 	const char* pos = nullptr;
 	const char* const end = nullptr;
 	unsigned int lineNr = 1;
 
-	explicit Loc(const char* start, const char* theEnd);
+	explicit Loc(const std::string& file, const char* start, const char* theEnd);
 
 	bool eof() const {
 		return this->pos == this->end;
 	}
 
 	void error(const std::string& msg) const {
-		std::cerr << "Error: " << msg << " at line " << this->lineNr << std::endl;
+		std::cerr << "Error: " << msg << " at line " << this->lineNr << " in " << this->filename << std::endl;
 	}
 };
 
@@ -100,7 +101,7 @@ struct Parser {
 	bool parseVar();
 	bool parseVarAssign();
 	bool parseExit();
-	bool parseScope();
+	bool parseScope(Scope** scope);
 	bool parseIf();
 };
 
@@ -132,7 +133,8 @@ public:
 	bool parse(Condition** cond);
 
 private:
-	bool _parseCompare();
+	bool _parseLinkage(Link* link) const;
+	Compare* _parseCompare() const;
 };
 
 #endif

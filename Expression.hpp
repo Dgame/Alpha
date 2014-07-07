@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <set>
+#include <list>
 #include <map>
 #include "patch.hpp"
 
@@ -19,6 +20,7 @@ enum class Op : char {
 struct Value;
 struct Operator;
 struct Var;
+struct VarElement;
 
 struct Literal {
 	virtual const Value* isValue() const {
@@ -30,6 +32,10 @@ struct Literal {
 	}
 
 	virtual const Var* isVar() const {
+		return nullptr;
+	}
+
+	virtual const VarElement* isVarElement() const {
 		return nullptr;
 	}
 };
@@ -52,6 +58,10 @@ struct Operator : public Literal {
 	const Operator* isOperator() const override {
 		return this;
 	}
+
+	bool isAssociative() const {
+		return this->op != Op::Div && this->op != Op::Mod && this->op != Op::Minus;
+	}
 };
 
 struct Variable;
@@ -62,6 +72,17 @@ struct Var : public Literal {
 	explicit Var(const Variable* vp);
 
 	const Var* isVar() const override {
+		return this;
+	}
+};
+
+struct VarElement : public Literal {
+	const Variable* variable;
+	const unsigned int offset;
+
+	explicit VarElement(const Variable* vp, unsigned int os);
+
+	const VarElement* isVarElement() const override {
 		return this;
 	}
 };
@@ -153,7 +174,7 @@ enum class Link : char {
 };
 
 struct Condition : public Expression {
-	std::unique_ptr<Compare> comp;
+	std::unique_ptr<Compare> primary;
 	std::map<Link, std::unique_ptr<Compare>> comps;
 
 	const Condition* isCondition() const override {
@@ -161,7 +182,7 @@ struct Condition : public Expression {
 	}
 
 	void setPrimary(Compare* cp) {
-		this->comp = std::unique_ptr<Compare>(cp);
+		this->primary = std::unique_ptr<Compare>(cp);
 	}
 
 	void push(Link lnk, Compare* cmp) {
@@ -232,10 +253,10 @@ struct Scope;
 struct If : public Command {
 	std::unique_ptr<Condition> cond;
 
-	const Scope* ifScope = nullptr;
-	const Scope* elseScope = nullptr;
+	std::unique_ptr<Scope> ifScope;
+	std::unique_ptr<Scope> elseScope;
 
-	explicit If(Condition* cp, const Scope* isp, const Scope* esp);
+	explicit If(Condition* cp, Scope* isp, Scope* esp);
 
 	const If* isIf() const override {
 		return this;
@@ -253,44 +274,37 @@ struct Scope {
 	}
 
 	std::string hlabel() const {
-		return "H" + this->label();
+		return this->label() + "H";
 	}
 };
 
-struct Scopes {
-	std::vector<Scope> scopes;
+struct ScopeManager {
+	std::list<std::unique_ptr<Scope>> scopes;
 	unsigned int count = 0;
-	int curIndex = -1;
-
-	Scope& operator [](unsigned int index) {
-		return this->scopes[index];
-	}
 
 	void pushScope() {
-		this->scopes.push_back(Scope(this->count++));
-		this->curIndex++;
+		this->scopes.emplace_front(patch::make_unique<Scope>(this->count++));
 	}
 
-	void popScope() {
-		this->curIndex--;
+	std::unique_ptr<Scope> popScope() {
+		std::unique_ptr<Scope> sc = std::move(this->scopes.front());
+		this->scopes.pop_front();
+
+		return std::move(sc);
 	}
 
-	Scope& curScope() {
-		return this->scopes[this->curIndex];
-	}
-
-	const Scope& lastScope() const {
-		return this->scopes[this->curIndex - 1];
+	Scope* curScope() {
+		return this->scopes.front().get();
 	}
 };
 
 struct VarManager {
-	Scopes& scopes;
+	ScopeManager& sm;
 	std::set<std::string> varNames;
 	
 	unsigned int stackSize = 0;
 
-	explicit VarManager(Scopes& sc);
+	explicit VarManager(ScopeManager& sr);
 
 	bool createVar(const std::string& name, Expression* exp, unsigned int size = 4);
 	bool assignVar(const std::string& name, Expression* exp);
@@ -298,12 +312,12 @@ struct VarManager {
 };
 
 struct CommandManager {
-	Scopes& scopes;
+	ScopeManager& sm;
 
-	explicit CommandManager(Scopes& sc);
+	explicit CommandManager(ScopeManager& sr);
 
 	void push(Command* cmd) {
-		this->scopes.curScope().decls.emplace_back(std::unique_ptr<Command>(cmd));
+		this->sm.curScope()->decls.emplace_back(std::unique_ptr<Command>(cmd));
 	}
 };
 

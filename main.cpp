@@ -16,25 +16,27 @@ void loadContent(const std::string& filename, std::vector<char>& content) {
 }
 
 int main(/*int argc, char const* argv[]*/) {
-	for (unsigned int nr = 0; nr < 27; nr++) {
+	for (unsigned int nr = 0; nr < 28; nr++) {
 		std::ostringstream in;
 		in << "Input/in" << nr << ".txt";
 
+		const std::string filename = in.str();
+
 		std::vector<char> content;
-		loadContent(in.str(), content);
+		loadContent(filename, content);
 
-		Scopes scopes;
-		scopes.pushScope();
+		ScopeManager sm;
+		sm.pushScope();
 
-		VarManager vm(scopes);
-		CommandManager cm(scopes);
+		VarManager vm(sm);
+		CommandManager cm(sm);
 
 		Env env;
 		env.vm = &vm;
 		env.cm = &cm;
-		env.scope = &scopes;
+		env.sm = &sm;
 
-		Loc loc(&*content.begin(), &*content.end() + 1);
+		Loc loc(filename, &*content.begin(), &*content.end() + 1);
 
 		Parser p(env, loc);
 
@@ -49,10 +51,11 @@ int main(/*int argc, char const* argv[]*/) {
 
 		BackendVisitor backend(vm.stackSize);
 
-		for (Scope& scope : scopes.scopes) {
-			for (std::unique_ptr<Command>& cmd : scope.decls) {
-				backend.visit(cmd.get());
-			}
+		while (sm.scopes.size() != 0) {
+			std::unique_ptr<Scope> scope = std::move(sm.scopes.front());
+			sm.scopes.pop_front();
+
+			backend.visit(scope.get());
 		}
 	}
 

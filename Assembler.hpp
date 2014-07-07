@@ -49,58 +49,59 @@ namespace as {
 	};
 
 	enum class Cond : char {
-		None,
-		Z,
-		E,
-		NZ,
-		NE,
-		G,
-		GE,
-		L,
-		LE,
-		A,
-		AE,
-		NA,
-		B,
-		BE,
-		NB,
-		C,
-		NC,
-		O,
-		NO,
-		P,
-		PE,
-		NP,
-		PO,
-		S,
-		NS
+		Always,
+		Zero,
+		Equal,
+		NotZero,
+		NotEqual,
+		Greater,
+		GreaterEqual,
+		Less,
+		LessEqual,
+		Above,
+		AboveEqual,
+		NotAbove,
+		Below,
+		BelowEqual,
+		NotBelow,
+		Carry,
+		NotCarry,
+		Overflow,
+		NotOverflow,
+		Parity,
+		ParityEven,
+		NotParity,
+		ParityOdd,
+		Sign,
+		NotSign
 	};
 
 	static const std::map<Cond, const std::string> ConditionStr = {
-		{Cond::None, "mp"},
-		{Cond::Z, "z"},
-		{Cond::E, "e"},
-		{Cond::NZ, "nz"},
-		{Cond::NE, "ne"},
-		{Cond::G, "g"},
-		{Cond::GE, "ge"},
-		{Cond::L, "l"},
-		{Cond::LE, "le"},
-		{Cond::A, "a"},
-		{Cond::AE, "ae"},
-		{Cond::NA, "na"},
-		{Cond::B, "b"},
-		{Cond::BE, "be"},
-		{Cond::NB, "nb"},
-		{Cond::C, "c"},
-		{Cond::NC, "nc"},
-		{Cond::O, "o"},
-		{Cond::NO, "no"},
-		{Cond::P, "p"},
-		{Cond::PE, "pe"},
-		{Cond::NP, "np"},
-		{Cond::S, "s"},
-		{Cond::NS, "ns"}
+		{Cond::Always, "mp"},
+		{Cond::Zero, "z"},
+		{Cond::Equal, "e"},
+		{Cond::NotZero, "nz"},
+		{Cond::NotEqual, "ne"},
+		{Cond::Greater, "g"},
+		{Cond::GreaterEqual, "ge"},
+		{Cond::Less, "l"},
+		{Cond::LessEqual, "le"},
+		{Cond::Above, "a"},
+		{Cond::AboveEqual, "ae"},
+		{Cond::NotAbove, "na"},
+		{Cond::Below, "b"},
+		{Cond::BelowEqual, "be"},
+		{Cond::NotBelow, "nb"},
+		{Cond::Carry, "c"},
+		{Cond::NotCarry, "nc"},
+		{Cond::Overflow, "o"},
+		{Cond::NotOverflow, "no"},
+		{Cond::Parity, "p"},
+		{Cond::ParityEven, "pe"},
+		{Cond::NotParity, "np"},
+		{Cond::ParityOdd, "po"},
+		{Cond::Sign, "s"},
+		{Cond::NotSign, "ns"}
 	};
 
 	enum AsCommand {
@@ -133,7 +134,7 @@ namespace as {
 		"imull",
 		"idiv",
 		"negl",
-		"cmp",
+		"cmpl",
 		"call",
 		"ret",
 		"and",
@@ -157,12 +158,14 @@ namespace as {
 
 	enum class OpPair : char {
 		NR, // Numeric;Register
+		RN, // Register;Numeric
 		RR, // Register;Register
 		PP, // Pointer;Pointer
 		AA, // AddrOf;AddrOf
 		RA, // Register;AddrOf
 		AR, // AddrOf;Register
 		NA, // Numeric;AddrOf
+		AN, // AddrOf;Numeric
 		PN, // Pointer;Numeric
 		NP  // Numeric;Pointer
 	};
@@ -250,6 +253,8 @@ namespace as {
 		virtual void visit(Reg reg);
 		// move
 		virtual void visit(int num, Reg reg);
+		// compare
+		virtual void visit(Reg reg, int num);
 		// move
 		virtual void visit(Reg r1, Reg r2);
 		// move
@@ -381,8 +386,8 @@ namespace as {
 		bool accept(Operand o1, Operand o2) const override {
 			return checkPair(OpPair::RR, o1, o2)
 				|| checkPair(OpPair::RA, o1, o2)
-				|| checkPair(OpPair::NR, o1, o2)
-				|| checkPair(OpPair::NA, o1, o2)
+				|| checkPair(OpPair::RN, o1, o2)
+				|| checkPair(OpPair::AN, o1, o2)
 				|| checkPair(OpPair::AA, o1, o2);
 		}
 	};
@@ -453,7 +458,7 @@ namespace as {
 		explicit AsInc(std::ostream& out);
 
 		bool accept(Operand o1) const override {
-			return o1 == Operand::Register || o1 == Operand::AddrOf;
+			return o1 == Operand::Register;
 		}
 	};
 
@@ -461,7 +466,7 @@ namespace as {
 		explicit AsDec(std::ostream& out);
 
 		bool accept(Operand o1) const override {
-			return o1 == Operand::Register || o1 == Operand::AddrOf;
+			return o1 == Operand::Register;
 		}
 	};
 
@@ -496,5 +501,9 @@ namespace as {
 
 	inline void start(const std::string& label) {
 		output << ".text\n.globl " << label << "\n" << label << ":\n" << std::endl;
+	}
+
+	inline void label(const std::string& label) {
+		output << label << ':' << std::endl;
 	}
 }

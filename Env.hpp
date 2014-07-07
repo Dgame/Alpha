@@ -3,12 +3,12 @@
 
 struct VarManager;
 struct CommandManager;
-struct Scopes;
+struct ScopeManager;
 
 struct Env {
 	VarManager* vm = nullptr;
 	CommandManager* cm = nullptr;
-	Scopes* scope = nullptr;
+	ScopeManager* sm = nullptr;
 };
 
 #endif

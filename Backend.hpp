@@ -28,6 +28,8 @@ struct BackendVisitor {
 	explicit BackendVisitor(unsigned int stackSize);
 	virtual ~BackendVisitor();
 
+	void visit(const Scope* scope);
+
 	void visit(const Operator*, const Variable*);
 
 	void visit(const Command*);

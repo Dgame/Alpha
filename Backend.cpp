@@ -19,6 +19,12 @@ BackendVisitor::~BackendVisitor() {
 	as::build(as::Ret);
 }
 
+void BackendVisitor::visit(const Scope* scope) {
+	for (const std::unique_ptr<Command>& cmd : scope->decls) {
+		this->visit(cmd.get());
+	}
+}
+
 void BackendVisitor::visit(const Operator* op, const Variable* var) {
 	const unsigned int offset = var == nullptr ? 0 : var->offset;
 
@@ -86,6 +92,23 @@ void BackendVisitor::visit(const Command* cmd) {
 		this->visit(var);
 	} else if (const If* myIf = cmd->isIf()) {
 		this->visit(myIf->cond.get());
+
+		const std::string elabel = myIf->ifScope->label();
+		const std::string hlabel = myIf->ifScope->hlabel();
+
+		as::build(as::Jump, as::Cond::Equal, elabel);
+
+		if (myIf->elseScope) {
+			as::label(myIf->elseScope->label()); // May be redundant
+			this->visit(myIf->elseScope.get());
+		}
+
+		as::build(as::Jump, as::Cond::Always, hlabel);
+
+		as::label(elabel);
+		this->visit(myIf->ifScope.get());
+
+		as::label(hlabel);
 	}
 }
 
@@ -101,7 +124,6 @@ void BackendVisitor::visit(const Expression* exp) {
 
 void BackendVisitor::visit(const Term* term) {
 	unsigned int pushed = 0;
-
 	const Variable* curVar = nullptr;
 
 	for (unsigned int i = 0; i < term->count(); i++) {
@@ -124,9 +146,6 @@ void BackendVisitor::visit(const Term* term) {
 			curVar = nullptr;
 		} else if (const Var* lvar = literal->isVar()) {
 			const Variable* var = lvar->variable;
-
-			if (!var->exp)
-				continue;
 
 			if (isLastRun || !term->at(i + 1)->isOperator()) {
 				as::build(as::Move, as::Pointer::SP, var->offset, as::Reg::AX);
@@ -185,6 +204,22 @@ void BackendVisitor::visit(const Array*) {
 	// TODO: 
 }
 
-void BackendVisitor::visit(const Condition*) {
-	// TODO: 
+void BackendVisitor::visit(const Condition* cond) {
+	const Term* term = cond->primary->lhs->isTerm();
+	if (term && term->count() == 1) {
+		if (const Var* lvar = term->front()->isVar())
+			as::build(as::Move, as::Pointer::SP, lvar->variable->offset, as::Reg::BX);
+		else if (const Value* val = term->front()->isValue())
+			as::build(as::Move, val->value, as::Reg::BX);
+		else
+			assert(0);
+	} else {
+		this->visit(cond->primary->lhs.get());
+		as::build(as::Move, as::Reg::AX, as::Reg::BX);
+	}
+
+	this->visit(cond->primary->rhs.get());
+	as::build(as::Comp, as::Reg::BX, as::Reg::AX);
+
+	// TODO: Further conditions
 }
