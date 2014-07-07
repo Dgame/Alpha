@@ -1,0 +1,9 @@
+var a = 7
+
+if a == 8 {
+	a = a + 1
+} else {
+	a = a - 1
+}
+
+print a
