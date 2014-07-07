@@ -43,7 +43,11 @@ int main() {
 
 	std::cout << "Compare..." << std::endl;
 
-	const std::vector<int> expected_results = {42, 6, -2, 8, 2, 2, 7, 9, 14, 23, 23, 6, -2, 8, 2, 0, 4, 0, 4, 1, 1, 44, -40, 84, 21, 2, 2, 8, 6, 10, 22, 10, 10, 3, 88};
+	const std::vector<int> expected_results = {
+		42, 6, -2, 8, 2, 2, 7, 9, 14, 23, 23, 6,
+		-2, 8, 2, 0, 4, 0, 4, 1, 1, 44, -40, 84,
+		21, 2, 2, 8, 6, 10, 22, 10, 10, 3, 88, 99
+	};
 
 	std::ifstream test("test_results.txt");
 

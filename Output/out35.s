@@ -6,7 +6,7 @@ pushl	%ebp
 movl	%esp, %ebp
 subl	$8, %esp
 movl	$99, 0(%esp)
-movl	$88, 4(%esp)
+movl	$87, 4(%esp)
 movl	0(%esp), %ebx
 movl	$99, %eax
 cmpl	%eax, %ebx

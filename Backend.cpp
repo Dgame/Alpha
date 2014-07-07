@@ -253,17 +253,33 @@ void BackendVisitor::visit(const If* myIf) {
 	// Sprung
 	const std::string elabel = myIf->ifScope->label();
 	const std::string hlabel = myIf->ifScope->hlabel();
+	const std::string nelabel = myIf->elseScope ? myIf->elseScope->label() : hlabel;
 
-	as::build(as::Jump, compareToCond(myIf->cond->primary->cmp), elabel);
+	as::Cond cond = compareToCond(myIf->cond->primary->cmp);
+	const auto& pair = myIf->cond->comps.begin();
+	const auto& end = myIf->cond->comps.end();
+
+	bool isAnd = false;
+
+	if (pair != end && pair->first == Link::And) {
+		isAnd = true;
+
+		as::build(as::Jump, negateCond(cond), nelabel);
+	} else {
+		as::build(as::Jump, cond, elabel);
+	}
 
 	for (auto& pair : myIf->cond->comps) {
+		isAnd = false;
+
 		this->visit(pair.second.get());
 
-		const as::Cond cond = compareToCond(pair.second->cmp);
+		cond = compareToCond(pair.second->cmp);
 
 		switch (pair.first) {
 			case Link::And:
-				as::build(as::Jump, cond, elabel);
+				isAnd = true;
+				as::build(as::Jump, negateCond(cond), nelabel);
 			break;
 
 			case Link::Or:
@@ -275,8 +291,11 @@ void BackendVisitor::visit(const If* myIf) {
 		}
 	}
 
+	if (isAnd)
+		as::build(as::Jump, cond, elabel);
+
 	if (myIf->elseScope) {
-		as::label(myIf->elseScope->label()); // May be redundant
+		as::label(nelabel); // May be redundant
 		this->visit(myIf->elseScope.get());
 	}
 
