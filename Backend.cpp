@@ -1,61 +1,35 @@
 #include "Backend.hpp"
 
 as::Cond compareToCond(Cmp cmp) {
-	switch (cmp) {
-		case Cmp::Equal:
-			return as::Cond::Equal;
-		break;
-
-		case Cmp::NotEqual:
-			return as::Cond::NotEqual;
-		break;
-
-		case Cmp::Greater:
-			return as::Cond::Greater;
-		break;
-
-		case Cmp::Less:
-			return as::Cond::Less;
-		break;
-
-		case Cmp::GreaterEqual:
-			return as::Cond::GreaterEqual;
-		break;
-
-		case Cmp::LessEqual:
-			return as::Cond::LessEqual;
-		break;
-	}
-
+	if (cmp == Cmp::Equal)
+		return as::Cond::Equal;
+	else if (cmp == Cmp::NotEqual)
+		return as::Cond::NotEqual;
+	else if (cmp == Cmp::Greater)
+		return as::Cond::Greater;
+	else if (cmp == Cmp::Less)
+		return as::Cond::Less;
+	else if (cmp == Cmp::GreaterEqual)
+		return as::Cond::GreaterEqual;
+	else if (cmp == Cmp::LessEqual)
+		return as::Cond::LessEqual;
+	
 	assert(0);
 }
 
 as::Cond negateCond(as::Cond cond) {
-	switch (cond) {
-		case as::Cond::Equal:
-			return as::Cond::NotEqual;
-		break;
-
-		case as::Cond::NotEqual:
-			return as::Cond::Equal;
-		break;
-
-		case as::Cond::Greater:
-			return as::Cond::NotGreater;
-		break;
-
-		case as::Cond::Less:
-			return as::Cond::NotLess;
-		break;
-
-		case as::Cond::GreaterEqual:
-			return as::Cond::Less;
-		break;
-
-		case as::Cond::LessEqual:
-			return as::Cond::Greater;
-		break;
-	}
+	if (cond == as::Cond::Equal)
+		return as::Cond::NotEqual;
+	else if (cond == as::Cond::NotEqual)
+		return as::Cond::Equal;
+	else if (cond == as::Cond::Greater)
+		return as::Cond::NotGreater;
+	else if (cond == as::Cond::Less)
+		return as::Cond::NotLess;
+	else if (cond == as::Cond::GreaterEqual)
+		return as::Cond::Less;
+	else if (cond == as::Cond::LessEqual)
+		return as::Cond::Greater;
 
 	assert(0);
 }

@@ -67,33 +67,35 @@ struct Loc {
 	}
 };
 
-void checkInPlace(Expression*, const std::string& identifier);
+void checkInPlace(Expression*, const std::string&);
 
 struct Parser {
 	Env& env;
 	Loc& loc;
 
-	explicit Parser(Env& myenv, Loc& myloc);
+	explicit Parser(Env&, Loc&);
 
 	bool skipComment();
 	void skipSpaces();
 
-	bool read(const std::string& what);
+	bool read(const std::string&);
 	bool read(Tok tok);
 	bool read(char ch);
 
 	bool peek(char what);
 
-	bool readNumber(int* num);
-	bool readIdentifier(std::string* identifier);
+	bool readNumber(int*);
+	bool readIdentifier(std::string*);
 
 	bool parse();
 
 	bool parsePrint();
 	bool parseVar();
 	bool parseVarAssign();
+	bool parseArray(Array**);
+	bool parseArrayAccess(Expression**);
 	bool parseExit();
-	bool parseScope(Scope** scope);
+	bool parseScope(Scope**);
 	bool parseIf();
 };
 

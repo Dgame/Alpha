@@ -12,7 +12,7 @@ Var::Var(const Variable* vp) : variable(vp) {
 
 }
 
-VarElement::VarElement(const Variable* vp, unsigned int os) : variable(vp), offset(os) {
+Item::Item(const Variable* vp, unsigned int os) : variable(vp), offset(os) {
 
 }
 

@@ -20,7 +20,7 @@ enum class Op : char {
 struct Value;
 struct Operator;
 struct Var;
-struct VarElement;
+struct Item;
 
 struct Literal {
 	virtual const Value* isValue() const {
@@ -35,7 +35,7 @@ struct Literal {
 		return nullptr;
 	}
 
-	virtual const VarElement* isVarElement() const {
+	virtual const Item* isItem() const {
 		return nullptr;
 	}
 };
@@ -76,13 +76,13 @@ struct Var : public Literal {
 	}
 };
 
-struct VarElement : public Literal {
+struct Item : public Literal {
 	const Variable* variable;
 	const unsigned int offset;
 
-	explicit VarElement(const Variable* vp, unsigned int os);
+	explicit Item(const Variable* vp, unsigned int os);
 
-	const VarElement* isVarElement() const override {
+	const Item* isItem() const override {
 		return this;
 	}
 };

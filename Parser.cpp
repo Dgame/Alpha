@@ -229,14 +229,67 @@ bool Parser::parseVarAssign() {
 	return false;
 }
 
-bool Parser::parseExit() {
-	if (this->read(Tok::Exit)) {
-		// TODO: ?
+bool Parser::parseArray(Array** arr) {
+	if (!read('[')) {
+		loc.error("Expected '[' for array start");
 
-		return true;
+		return false;
 	}
 
-	return false;	
+	std::unique_ptr<Array> array = patch::make_unique<Array>();
+
+	Expression* exp = nullptr;
+	while (!loc.eof()) {
+		TermParser tp(this);
+		if (!tp.parse(&exp)) {
+			loc.error("Invalid expression for array");
+
+			return false;
+		}
+
+		array->push(exp);
+		exp = nullptr;
+
+		if (!read(','))
+			break;
+	}
+
+	if (!read(']')) {
+		loc.error("Expected ']' for array end");
+
+		return false;
+	}
+
+	*arr = array.release();
+
+	return true;
+}
+
+bool Parser::parseArrayAccess(Expression** exp) {
+	if (!read('[')) {
+		loc.error("Expected '[' for array access");
+
+		return false;
+	}
+
+	TermParser tp(this);
+	if (!tp.parse(exp)) {
+		loc.error("Invalid expression for array access");
+
+		return false;
+	}
+
+	if (!read(']')) {
+		loc.error("Expected ']' for array access");
+
+		return false;
+	}
+
+	return true;
+}
+
+bool Parser::parseExit() {
+	return this->read(Tok::Exit);
 }
 
 bool Parser::parseScope(Scope** scope) {
