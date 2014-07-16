@@ -91,6 +91,7 @@ struct Term;
 struct Compare;
 struct Condition;
 struct Array;
+struct Empty;
 
 struct Expression {
 	virtual const Term* isTerm() const {
@@ -106,6 +107,10 @@ struct Expression {
 	}
 
 	virtual const Array* isArray() const {
+		return nullptr;
+	}
+
+	virtual const Empty* isEmpty() const {
 		return nullptr;
 	}
 };
@@ -204,6 +209,16 @@ struct Array : public Expression {
 
 	void push(Expression* exp) {
 		this->exps.emplace_back(std::unique_ptr<Expression>(exp));
+	}
+
+	const Expression* at(unsigned int index) const {
+		return this->exps[index].get();
+	}
+};
+
+struct Empty : public Expression {
+	const Empty* isEmpty() const override {
+		return this;
 	}
 };
 

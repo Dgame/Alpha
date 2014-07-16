@@ -16,11 +16,13 @@ void loadContent(const std::string& filename, std::vector<char>& content) {
 }
 
 int main(/*int argc, char const* argv[]*/) {
-	for (unsigned int nr = 0; nr < 36; nr++) {
+	for (unsigned int nr = 0; nr < 39; nr++) {
 		std::ostringstream in;
 		in << "Input/in" << nr << ".txt";
 
 		const std::string filename = in.str();
+
+		std::cerr << filename << std::endl;
 
 		std::vector<char> content;
 		loadContent(filename, content);
@@ -43,6 +45,9 @@ int main(/*int argc, char const* argv[]*/) {
 		while (p.parse()) {
 
 		}
+
+		if (!loc.eof()) 
+			break;
 
 		std::ostringstream out;
 		out << "Output/out" << nr << ".s";

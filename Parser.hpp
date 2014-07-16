@@ -84,7 +84,7 @@ struct Parser {
 
 	bool peek(char what);
 
-	bool readNumber(int*);
+	bool readNumber(unsigned int*);
 	bool readIdentifier(std::string*);
 
 	bool parse();
@@ -92,11 +92,18 @@ struct Parser {
 	bool parsePrint();
 	bool parseVar();
 	bool parseVarAssign();
-	bool parseArray(Array**);
-	bool parseArrayAccess(Expression**);
 	bool parseExit();
-	bool parseScope(Scope**);
 	bool parseIf();
+};
+
+class AssignParser {
+private:
+	Parser& _p;
+
+public:
+	explicit AssignParser(Parser*);
+
+	bool parse(Expression**);
 };
 
 class TermParser {
@@ -105,9 +112,9 @@ private:
 	Parser& _p;
 
 public:
-	explicit TermParser(Parser* p);
+	explicit TermParser(Parser*);
 
-	bool parse(Expression** exp);
+	bool parse(Expression**);
 
 private:
 	bool _parseNumExp();
@@ -122,13 +129,32 @@ private:
 	Parser& _p;
 
 public:
-	explicit BooleanParser(Parser* p);
+	explicit BooleanParser(Parser*);
 
-	bool parse(Condition** cond);
+	bool parse(Condition**);
 
 private:
-	bool _parseLinkage(Link* link) const;
+	bool _parseLinkage(Link*) const;
 	Compare* _parseCompare() const;
+};
+
+class ScopeParser {
+private:
+	Parser& _p;
+
+public:
+	explicit ScopeParser(Parser*);
+	bool parseScope(Scope**);
+};
+
+class ArrayParser {
+private:
+	Parser& _p;
+
+public:
+	explicit ArrayParser(Parser*);
+
+	bool parseArray(Array**);
 };
 
 #endif

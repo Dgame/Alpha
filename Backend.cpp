@@ -132,8 +132,9 @@ void BackendVisitor::visit(const Command* cmd) {
 void BackendVisitor::visit(const Expression* exp) {
 	if (const Term* term = exp->isTerm()) {
 		this->visit(term);
-	} else if (const Array* array = exp->isArray()) {
-		this->visit(array);
+	} else if (/*const Array* array = */exp->isArray()) {
+		// TODO:
+		assert(0);
 	} else if (const Condition* cond = exp->isCondition()) {
 		this->visit(cond);
 	}
@@ -227,16 +228,36 @@ void BackendVisitor::visit(const Variable* var) {
 			as::build(as::Move, as::Reg::AX, as::Pointer::SP, var->offset);
 		}
 	} else if (const Array* array = var->exp->isArray()) {
-		this->visit(array);
-
-		// TODO: 
+		this->visit(var, array);
+	} else if (/*const Empty* empty = */var->exp->isEmpty()) {
+		// Do nothing
 	} else {
 		assert(0);
 	}
 }
 
-void BackendVisitor::visit(const Array*) {
-	// TODO: 
+void BackendVisitor::visit(const Variable* var, const Array* array) {
+	for (unsigned int i = 0; i < array->count(); i++) {
+		if (const Term* term = array->at(i)->isTerm()) {
+			if (term->count() == 1) {
+				const Literal* literal = term->at(0);
+
+				if (const Value* val = literal->isValue())
+					as::build(as::Move, val->value, as::Pointer::SP, var->offset + (i * 4));
+				else if (const Var* lvar = literal->isVar())
+					as::build(as::Move, as::Pointer::SP, lvar->variable->offset, as::Pointer::SP, var->offset + (i * 4));
+				else
+					assert(0);
+			} else {
+				this->visit(term);
+
+				as::build(as::Move, as::Reg::AX, as::Pointer::SP, var->offset + (i * 4));
+			}
+		} else {
+			this->visit(array->at(i));
+			as::build(as::Move, as::Reg::AX, as::Pointer::SP, var->offset + (i * 4));
+		}
+	}
 }
 
 void BackendVisitor::visit(const If* myIf) {

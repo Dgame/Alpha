@@ -33,7 +33,7 @@ struct BackendVisitor {
 	explicit BackendVisitor(unsigned int stackSize);
 	virtual ~BackendVisitor();
 
-	void visit(const Scope* scope);
+	void visit(const Scope*);
 
 	void visit(const Operator*, const Variable*);
 
@@ -41,9 +41,9 @@ struct BackendVisitor {
 	void visit(const Expression*);
 	void visit(const Term*);
 	void visit(const Variable*);
-	void visit(const Array*);
-	void visit(const If* myIf);
-	void visit(const Compare* comp);
+	void visit(const Variable*, const Array*);
+	void visit(const If*);
+	void visit(const Compare*);
 };
 
 #endif

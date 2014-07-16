@@ -29,6 +29,13 @@ int readNumber(const std::string& buf) {
 	return num;
 }
 
+bool EndsWith(const std::string& a, const std::string& b) {
+	if (b.size() > a.size())
+		return false;
+
+	return std::equal(a.begin() + a.size() - b.size(), a.end(), b.begin());
+}
+
 int main() {
 	std::cout << "Remove old results..." << std::endl;
 
@@ -53,19 +60,38 @@ int main() {
 
 	auto handle = GetStdHandle(STD_OUTPUT_HANDLE);
 
-	for (unsigned int i = 0; i < expected_results.size(); i++) {
+	for (unsigned int i = 0; i < 39; i++) {
+		const bool inside = i < expected_results.size();
 		std::string buf;
 		std::getline(test, buf);
 
 		SetConsoleTextAttribute(handle, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
-		std::cout << "#" << i << " Get: " << buf << "\t\t Expected: " << expected_results[i] << "\t -> ";
+		std::cout << "#" << i;
 
-		if (readNumber(buf) == expected_results[i]) {
+		if (inside) {
+			std::cout << " Get: " << buf << "\t\t Expected: " << expected_results[i] << "\t -> ";
+		} else {
+			std::cout << " just a check for correct compilation -> ";
+		}
+
+		if (!inside) {
+			if (buf.size() == 0) {
+				SetConsoleTextAttribute(handle, FOREGROUND_GREEN);
+				std::cout << "Compiled" << std::endl;
+			} else {
+				SetConsoleTextAttribute(handle, FOREGROUND_RED);
+				std::cout << "Error" << std::endl;
+			}
+		} else if (readNumber(buf) == expected_results[i]) {
 			SetConsoleTextAttribute(handle, FOREGROUND_GREEN);
 			std::cout << "Valid" << std::endl;
 		} else {
 			SetConsoleTextAttribute(handle, FOREGROUND_RED);
-			std::cout << "Invalid" << std::endl;
+
+			if (buf.substr(0, 5) == "Error" || EndsWith(buf, "denied"))
+				std::cout << "Error" << std::endl;
+			else
+				std::cout << "Invalid" << std::endl;
 		}
 	}
 

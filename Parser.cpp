@@ -98,7 +98,7 @@ bool Parser::peek(char what) {
 	return *loc.pos == what;
 }
 
-bool Parser::readNumber(int* n) {
+bool Parser::readNumber(unsigned int* n) {
 	this->skipSpaces();
 
 	if (!loc.eof() && std::isdigit(*loc.pos)) {
@@ -146,6 +146,13 @@ bool Parser::parse() {
 	if (this->parseVarAssign())
 		return true;
 
+	if (!loc.eof()
+		&& !std::isspace(*loc.pos)
+		&& *loc.pos != '}')
+	{
+		loc.error("Unexpected chars");
+	}
+
 	return false;
 }
 
@@ -172,22 +179,52 @@ bool Parser::parseVar() {
 	if (this->read(Tok::Var)) {
 		std::string identifier;
 		if (this->readIdentifier(&identifier)) {
-			Expression* exp = nullptr;
+			unsigned int size = 1;
 
-			if (this->peek('=')) {
-				++loc.pos;
+			if (this->read('[')) {
+				if (!this->readNumber(&size))
+					size = 0;
 
-				TermParser tp(this);
-				if (!tp.parse(&exp)) {
-					loc.error("Invalid expression for variable assign");
+				if (!this->read(']')) {
+					loc.error("Expected ']'");
 
 					return false;
 				}
 			}
 
-			env.vm->createVar(identifier, exp);
+			if (size > 16384) {
+				loc.error("Stack overflow");
 
-			checkInPlace(exp, identifier);
+				return false;
+			}
+
+			Expression* exp = nullptr;
+
+			AssignParser ap(this);
+			if (!ap.parse(&exp))
+				exp = new Empty();
+
+			if (const Array* array = exp->isArray()) {
+				if (size == 0)
+					size = array->count();
+				else if (array->count() != size) {
+					loc.error("Incomaptible array size");
+					std::cerr << size << " <-> " << array->count() << std::endl;
+
+					return false;
+				}
+			}
+
+			if (size == 0) {
+				loc.error("Expected array assign to determine array size");
+
+				return false;
+			}
+
+			env.vm->createVar(identifier, exp, size * 4);
+
+			if (size == 1)
+				checkInPlace(exp, identifier);
 
 			return true;
 		} else
@@ -200,6 +237,8 @@ bool Parser::parseVar() {
 bool Parser::parseVarAssign() {
 	std::string identifier;
 	if (this->readIdentifier(&identifier)) {
+		// TODO: AssignParser?
+
 		if (!this->read('=')) {
 			loc.error("Expected '='");
 
@@ -229,89 +268,8 @@ bool Parser::parseVarAssign() {
 	return false;
 }
 
-bool Parser::parseArray(Array** arr) {
-	if (!read('[')) {
-		loc.error("Expected '[' for array start");
-
-		return false;
-	}
-
-	std::unique_ptr<Array> array = patch::make_unique<Array>();
-
-	Expression* exp = nullptr;
-	while (!loc.eof()) {
-		TermParser tp(this);
-		if (!tp.parse(&exp)) {
-			loc.error("Invalid expression for array");
-
-			return false;
-		}
-
-		array->push(exp);
-		exp = nullptr;
-
-		if (!read(','))
-			break;
-	}
-
-	if (!read(']')) {
-		loc.error("Expected ']' for array end");
-
-		return false;
-	}
-
-	*arr = array.release();
-
-	return true;
-}
-
-bool Parser::parseArrayAccess(Expression** exp) {
-	if (!read('[')) {
-		loc.error("Expected '[' for array access");
-
-		return false;
-	}
-
-	TermParser tp(this);
-	if (!tp.parse(exp)) {
-		loc.error("Invalid expression for array access");
-
-		return false;
-	}
-
-	if (!read(']')) {
-		loc.error("Expected ']' for array access");
-
-		return false;
-	}
-
-	return true;
-}
-
 bool Parser::parseExit() {
 	return this->read(Tok::Exit);
-}
-
-bool Parser::parseScope(Scope** scope) {
-	if (this->read('{')) {
-		env.sm->pushScope();
-
-		while (this->parse()) {
-			// Wait...
-		}
-
-		if (this->read('}'))
-			*scope = env.sm->popScope().release();
-		else {
-			loc.error("Missing '}'.");
-
-			return false;
-		}
-
-		return true;
-	}
-
-	return false;
 }
 
 bool Parser::parseIf() {
@@ -322,9 +280,11 @@ bool Parser::parseIf() {
 
 		BooleanParser bp(this);
 		if (bp.parse(&cond)) {
-			if (this->parseScope(&isp)) {
+			ScopeParser sp(this);
+
+			if (sp.parseScope(&isp)) {
 				if (this->read(Tok::Else)) {
-					if (!this->parseScope(&esp)) {
+					if (!sp.parseScope(&esp)) {
 						loc.error("Expected Scope for 'else'");
 
 						return false;
@@ -341,6 +301,40 @@ bool Parser::parseIf() {
 			loc.error("Expected boolean expression for if");
 
 			return false;
+		}
+
+		return true;
+	}
+
+	return false;
+}
+
+AssignParser::AssignParser(Parser* p) : _p(*p) {
+
+}
+
+bool AssignParser::parse(Expression** exp) {
+	if (_p.peek('=')) {
+		_p.loc.pos++;
+
+		if (_p.peek('[')) {
+			Array* array = nullptr;
+
+			ArrayParser ap(&_p);
+			if (!ap.parseArray(&array)) {
+				_p.loc.error("Expected array expression");
+
+				return false;
+			}
+
+			*exp = array;
+		} else {
+			TermParser tp(&_p);
+			if (!tp.parse(exp)) {
+				_p.loc.error("Invalid expression for variable assign");
+
+				return false;
+			}
 		}
 
 		return true;
@@ -458,7 +452,7 @@ bool TermParser::_parseFactor() {
 }
 
 bool TermParser::_parseLiteral() {
-	int num;
+	unsigned int num;
 	if (_p.readNumber(&num)) {
 		_term->push(num);
 
@@ -558,4 +552,70 @@ Compare* BooleanParser::_parseCompare() const {
 	_p.loc.error("Expected left hand side expression for if");
 
 	return nullptr;
+}
+
+ScopeParser::ScopeParser(Parser* p) : _p(*p) {
+
+}
+
+bool ScopeParser::parseScope(Scope** scope) {
+	if (_p.read('{')) {
+		_p.env.sm->pushScope();
+
+		while (_p.parse()) {
+			// Wait...
+		}
+
+		if (_p.read('}'))
+			*scope = _p.env.sm->popScope().release();
+		else {
+			_p.loc.error("Missing '}'.");
+
+			return false;
+		}
+
+		return true;
+	}
+
+	return false;
+}
+
+ArrayParser::ArrayParser(Parser* p) : _p(*p) {
+
+}
+
+bool ArrayParser::parseArray(Array** arr) {
+	if (!_p.read('[')) {
+		_p.loc.error("Expected '[' for array start");
+
+		return false;
+	}
+
+	std::unique_ptr<Array> array = patch::make_unique<Array>();
+
+	Expression* exp = nullptr;
+	while (!_p.loc.eof()) {
+		TermParser tp(&_p);
+		if (!tp.parse(&exp)) {
+			_p.loc.error("Invalid expression for array");
+
+			return false;
+		}
+
+		array->push(exp);
+		exp = nullptr;
+
+		if (!_p.read(','))
+			break;
+	}
+
+	if (!_p.read(']')) {
+		_p.loc.error("Expected ']' for array end");
+
+		return false;
+	}
+
+	*arr = array.release();
+
+	return true;
 }
