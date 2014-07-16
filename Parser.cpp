@@ -201,8 +201,15 @@ bool Parser::parseVar() {
 			Expression* exp = nullptr;
 
 			AssignParser ap(this);
-			if (!ap.parse(&exp))
-				exp = new Empty();
+			if (!ap.parse(&exp)) {
+				if (size > 1) 
+					exp = new Empty();
+				else {
+					loc.error("Cannot assign empty expression");
+
+					return false;
+				}
+			}
 
 			if (const Array* array = exp->isArray()) {
 				if (size == 0)
@@ -237,30 +244,48 @@ bool Parser::parseVar() {
 bool Parser::parseVarAssign() {
 	std::string identifier;
 	if (this->readIdentifier(&identifier)) {
-		// TODO: AssignParser?
+		unsigned int index = 0;
+		bool hasIndex = false;
 
-		if (!this->read('=')) {
-			loc.error("Expected '='");
+		if (this->read('[')) {
+			hasIndex = true;
 
-			return false;
+			if (!this->readNumber(&index)) {
+				loc.error("Expected index for array access");
+
+				return false;
+			}
+
+			if (!this->read(']')) {
+				loc.error("Expected ']'");
+
+				return false;
+			}
 		}
 
 		Expression* exp = nullptr;
 
-		TermParser tp(this);
-		if (!tp.parse(&exp)) {
-			loc.error("Invalid expression for variable assignment");
+		AssignParser ap(this);
+		if (!ap.parse(&exp)) {
+			loc.error("Cannot assign empty expression.");
 
 			return false;
 		}
 
-		if (!env.vm->assignVar(identifier, exp)) {
-			loc.error("Invalid expression or unknown variable");
+		if (hasIndex) {
+			if (!env.vm->assignVarAt(index, identifier, exp)) {
+				loc.error("Error by array access assign");
+
+				return false;
+			}
+		} else if (!env.vm->assignVar(identifier, exp)) {
+			loc.error("Error by variable assign");
 
 			return false;
 		}
 
-		checkInPlace(exp, identifier);
+		if (!hasIndex)
+			checkInPlace(exp, identifier);
 
 		return true;
 	}
@@ -462,13 +487,29 @@ bool TermParser::_parseLiteral() {
 	std::string identifier;
 	if (_p.readIdentifier(&identifier)) {
 		const Variable* var = _p.env.vm->getVar(identifier);
+		
+		unsigned int index = 0;
+		if (_p.read('[')) {
+			if (!_p.readNumber(&index)) {
+				_p.loc.error("Expected array index");
+
+				return false;
+			}
+
+			if (!_p.read(']')) {
+				_p.loc.error("Expected ']'");
+
+				return false;
+			}
+		}
 
 		if (var == nullptr) {
 			_p.loc.error("Unknown variable '" + identifier + "'");
 
 			return false;
-		} else
-			_term->push(var);
+		} else {
+			_term->push(var, index * 4);
+		}
 
 		return true;
 	}

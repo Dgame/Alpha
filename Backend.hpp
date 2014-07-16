@@ -35,7 +35,7 @@ struct BackendVisitor {
 
 	void visit(const Scope*);
 
-	void visit(const Operator*, const Variable*);
+	void visit(const Operator*, const Var*);
 
 	void visit(const Command*);
 	void visit(const Expression*);

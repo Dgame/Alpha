@@ -51,30 +51,51 @@ int main() {
 	std::cout << "Compare..." << std::endl;
 
 	const std::vector<int> expected_results = {
-		42, 6, -2, 8, 2, 2, 7, 9, 14, 23, 23, 6,
-		-2, 8, 2, 0, 4, 0, 4, 1, 1, 44, -40, 84,
-		21, 2, 2, 8, 6, 10, 22, 10, 10, 3, 88, 99
+		42, 6, -2, 8, 2,
+		2, 7, 9, 14, 23,
+		23, 6, -2, 8, 2,
+		0, 4, 0, 4, 1,
+		1, 44, -40, 84, 21,
+		2, 2, 8, 6, 10,
+		22, 10, 10, 3, 88,
+		99, 1000, 1000, 1000, 
+		1000, 65
 	};
 
 	std::ifstream test("test_results.txt");
 
 	auto handle = GetStdHandle(STD_OUTPUT_HANDLE);
 
-	for (unsigned int i = 0; i < 39; i++) {
-		const bool inside = i < expected_results.size();
+	std::string lastBuf;
+
+	for (unsigned int i = 0; i < expected_results.size(); i++) {
 		std::string buf;
 		std::getline(test, buf);
+		bool cc = false;
+
+		if (expected_results[i] == 1000) {
+			cc = true;
+
+			if (buf.size() != 0) {
+				lastBuf = buf;
+				buf = "";
+			}
+		} else if (buf.size() == 0) {
+			buf = lastBuf;
+		}
+
+		// std::cout << "Buf = " << buf << std::endl;
 
 		SetConsoleTextAttribute(handle, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
 		std::cout << "#" << i;
 
-		if (inside) {
+		if (!cc) {
 			std::cout << " Get: " << buf << "\t\t Expected: " << expected_results[i] << "\t -> ";
 		} else {
 			std::cout << " just a check for correct compilation -> ";
 		}
 
-		if (!inside) {
+		if (cc) {
 			if (buf.size() == 0) {
 				SetConsoleTextAttribute(handle, FOREGROUND_GREEN);
 				std::cout << "Compiled" << std::endl;

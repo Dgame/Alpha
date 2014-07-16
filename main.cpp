@@ -16,7 +16,7 @@ void loadContent(const std::string& filename, std::vector<char>& content) {
 }
 
 int main(/*int argc, char const* argv[]*/) {
-	for (unsigned int nr = 0; nr < 39; nr++) {
+	for (unsigned int nr = 0; nr < 41; nr++) {
 		std::ostringstream in;
 		in << "Input/in" << nr << ".txt";
 

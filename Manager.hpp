@@ -1,6 +1,7 @@
 #ifndef MANAGER_HPP
 #define MANAGER_HPP
 
+#include <iostream>
 #include "Expression.hpp"
 
 struct Command;
@@ -50,6 +51,7 @@ struct VarManager {
 
 	bool createVar(const std::string& name, Expression* exp, unsigned int size = 4);
 	bool assignVar(const std::string& name, Expression* exp);
+	bool assignVarAt(unsigned int index, const std::string& name, Expression* exp, unsigned int size = 4);
 	const Variable* getVar(const std::string& name) const;
 };
 

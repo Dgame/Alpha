@@ -59,8 +59,8 @@ void BackendVisitor::visit(const Scope* scope) {
 	}
 }
 
-void BackendVisitor::visit(const Operator* op, const Variable* var) {
-	const unsigned int offset = var == nullptr ? 0 : var->offset;
+void BackendVisitor::visit(const Operator* op, const Var* lvar) {
+	const unsigned int offset = lvar == nullptr ? 0 : lvar->offsetOf();
 
 	switch (op->op) {
 		case Op::Plus:
@@ -68,7 +68,7 @@ void BackendVisitor::visit(const Operator* op, const Variable* var) {
 		break;
 
 		case Op::Minus:
-			if (var != nullptr)
+			if (lvar != nullptr)
 				as::build(as::Sub, as::Pointer::SP, offset, as::Reg::AX);
 			else
 				as::build(as::Sub, as::Reg::AX, as::Pointer::SP, offset);
@@ -81,7 +81,7 @@ void BackendVisitor::visit(const Operator* op, const Variable* var) {
 		case Op::Div:
 			as::build(as::Move, 0, as::Reg::DX);
 
-			if (var != nullptr)
+			if (lvar != nullptr)
 				as::build(as::Move, as::Pointer::SP, offset, as::Reg::BX);
 
 			as::build(as::Div, as::Reg::BX);
@@ -90,7 +90,7 @@ void BackendVisitor::visit(const Operator* op, const Variable* var) {
 		case Op::Mod:
 			as::build(as::Move, 0, as::Reg::DX);
 
-			if (var != nullptr)
+			if (lvar != nullptr)
 				as::build(as::Move, as::Pointer::SP, offset, as::Reg::BX);
 
 			as::build(as::Div, as::Reg::BX);
@@ -109,7 +109,7 @@ void BackendVisitor::visit(const Command* cmd) {
 
 		if (term != nullptr && term->count() == 1) {
 			if (const Var* lvar = term->front()->isVar())
-				as::build(as::Push, as::Pointer::SP, lvar->variable->offset);
+				as::build(as::Push, as::Pointer::SP, lvar->offsetOf());
 			else if (const Value* val = term->front()->isValue())
 				as::build(as::Push, val->value);
 			else
@@ -132,12 +132,10 @@ void BackendVisitor::visit(const Command* cmd) {
 void BackendVisitor::visit(const Expression* exp) {
 	if (const Term* term = exp->isTerm()) {
 		this->visit(term);
-	} else if (/*const Array* array = */exp->isArray()) {
-		// TODO:
-		assert(0);
 	} else if (const Condition* cond = exp->isCondition()) {
 		this->visit(cond);
-	}
+	} else
+		assert(0);
 }
 
 void BackendVisitor::visit(const Term* term) {
@@ -151,15 +149,15 @@ void BackendVisitor::visit(const Term* term) {
 		if (const Value* val = term->at(1)->isValue())
 			as::build(as::Move, val->value, as::Reg::AX);
 		else if (const Var* lvar2 = term->at(1)->isVar())
-			as::build(as::Move, as::Pointer::SP, lvar2->variable->offset, as::Reg::AX);
+			as::build(as::Move, as::Pointer::SP, lvar2->offsetOf(), as::Reg::AX);
 		else
 			assert(0);
 
-		return this->visit(op, lvar->variable);
+		return this->visit(op, lvar);
 	}
 
 	unsigned int pushed = 0;
-	const Variable* curVar = nullptr;
+	const Var* curLVar = nullptr;
 
 	for (unsigned int i = 0; i < term->count(); i++) {
 		const Literal* literal = term->at(i);
@@ -179,18 +177,16 @@ void BackendVisitor::visit(const Term* term) {
 				as::build(as::Move, val->value, as::Reg::AX);
 			}
 
-			curVar = nullptr;
+			curLVar = nullptr;
 		} else if (const Var* lvar = literal->isVar()) {
-			const Variable* var = lvar->variable;
-
 			if (isLastRun || !term->at(i + 1)->isOperator()) {
-				as::build(as::Move, as::Pointer::SP, var->offset, as::Reg::AX);
+				as::build(as::Move, as::Pointer::SP, lvar->offsetOf(), as::Reg::AX);
 			}
 
-			curVar = var;
+			curLVar = lvar;
 		} else if (const Operator* op = literal->isOperator()) {
-			this->visit(op, curVar);
-			curVar = nullptr;
+			this->visit(op, curLVar);
+			curLVar = nullptr;
 
 			if (pushed > 0) {
 				if (op->op == Op::Mul || op->op == Op::Plus) {
@@ -245,7 +241,7 @@ void BackendVisitor::visit(const Variable* var, const Array* array) {
 				if (const Value* val = literal->isValue())
 					as::build(as::Move, val->value, as::Pointer::SP, var->offset + (i * 4));
 				else if (const Var* lvar = literal->isVar())
-					as::build(as::Move, as::Pointer::SP, lvar->variable->offset, as::Pointer::SP, var->offset + (i * 4));
+					as::build(as::Move, as::Pointer::SP, lvar->offsetOf(), as::Pointer::SP, var->offset + (i * 4));
 				else
 					assert(0);
 			} else {
@@ -319,7 +315,7 @@ void BackendVisitor::visit(const Compare* comp) {
 	const Term* term = comp->lhs->isTerm();
 	if (term && term->count() == 1) {
 		if (const Var* lvar = term->front()->isVar())
-			as::build(as::Move, as::Pointer::SP, lvar->variable->offset, as::Reg::BX);
+			as::build(as::Move, as::Pointer::SP, lvar->offsetOf(), as::Reg::BX);
 		else if (const Value* val = term->front()->isValue())
 			as::build(as::Move, val->value, as::Reg::BX);
 		else

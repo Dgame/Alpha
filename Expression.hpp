@@ -20,7 +20,6 @@ enum class Op : char {
 struct Value;
 struct Operator;
 struct Var;
-struct Item;
 
 struct Literal {
 	virtual const Value* isValue() const {
@@ -32,10 +31,6 @@ struct Literal {
 	}
 
 	virtual const Var* isVar() const {
-		return nullptr;
-	}
-
-	virtual const Item* isItem() const {
 		return nullptr;
 	}
 };
@@ -68,23 +63,15 @@ struct Variable;
 
 struct Var : public Literal {
 	const Variable* variable;
+	unsigned int offset;
 
-	explicit Var(const Variable* vp);
+	explicit Var(const Variable* vp, unsigned int os = 0);
 
 	const Var* isVar() const override {
 		return this;
 	}
-};
 
-struct Item : public Literal {
-	const Variable* variable;
-	const unsigned int offset;
-
-	explicit Item(const Variable* vp, unsigned int os);
-
-	const Item* isItem() const override {
-		return this;
-	}
+	unsigned int offsetOf() const;
 };
 
 struct Term;
@@ -139,8 +126,8 @@ struct Term : public Expression {
 		this->literals.emplace_back(patch::make_unique<Value>(num));
 	}
 
-	void push(const Variable* var) {
-		this->literals.emplace_back(patch::make_unique<Var>(var));
+	void push(const Variable* var, unsigned int offset) {
+		this->literals.emplace_back(patch::make_unique<Var>(var, offset));
 	}
 
 	const Literal* front() const {

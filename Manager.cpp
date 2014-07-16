@@ -22,13 +22,47 @@ bool VarManager::createVar(const std::string& name, Expression* exp, unsigned in
 
 bool VarManager::assignVar(const std::string& name, Expression* exp) {
 	const Variable* var = this->getVar(name);
-	if (var == nullptr)
-		return false;
 
-	if (exp == nullptr)
+	if (var == nullptr) {
+		std::cerr << "Unknown variable" << std::endl;
+
 		return false;
+	}
+
+	if (exp == nullptr) {
+		std::cerr << "Invalid expression" << std::endl;
+
+		return false;
+	}
 
 	this->sm.curScope()->decls.emplace_back(patch::make_unique<Variable>(var->offset, name, exp, var->size));
+
+	return true;
+}
+
+bool VarManager::assignVarAt(unsigned int index, const std::string& name, Expression* exp, unsigned int size) {
+	const Variable* var = this->getVar(name);
+
+	if (var == nullptr) {
+		std::cerr << "Unknown variable" << std::endl;
+
+		return false;
+	}
+
+	if (exp == nullptr) {
+		std::cerr << "Invalid expression" << std::endl;
+		
+		return false;
+	}
+
+	const unsigned int offset = index * 4;
+	if (offset >= var->size) {
+		std::cerr << "Index out of bounds" << std::endl;
+
+		return false;
+	}
+
+	this->sm.curScope()->decls.emplace_back(patch::make_unique<Variable>(offset, name, exp, size));
 
 	return true;
 }
