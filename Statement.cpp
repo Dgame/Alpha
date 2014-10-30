@@ -16,8 +16,12 @@ void PrintStmt::eval(std::ostream& out) const {
 	if (this->var)
 		gas::push(out, Offset(this->var->offset, gas::Pointer::Stack));
 	else if (this->expr) {
-		this->expr->eval(out);
-		gas::push(out, gas::Register::AX);
+		if (const NumExpr* num_expr = this->expr->isNumExpr())
+			gas::push(out, num_expr->value);
+		else {
+			this->expr->eval(out);
+			gas::push(out, gas::Register::AX);
+		}
 	}
 
 	gas::call(out, "_print");

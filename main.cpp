@@ -16,6 +16,8 @@ int main() {
 	main_func.scope.addStmt(new PrintStmt(main_func.scope.getVar("a")));
 	main_func.scope.addStmt(new PrintStmt(main_func.scope.getVar("b")));
 
+	main_func.scope.addStmt(new PrintStmt(new NumExpr(23)));
+
 	MulOp* mul1 = new MulOp(new NumExpr(2), new AddOp(new NumExpr(4), new NumExpr(8)));
 	main_func.scope.addStmt(new PrintStmt(mul1));
 

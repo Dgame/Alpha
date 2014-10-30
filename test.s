@@ -33,6 +33,11 @@ _alpha_main:
         addl    $4, %esp
 # End print
 # Begin print
+        pushl   $23
+        call    _print
+        addl    $4, %esp
+# End print
+# Begin print
 # Begin MulOp
 # Begin NumExpr
         movl    $2, %eax
