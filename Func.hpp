@@ -22,7 +22,6 @@ struct Scope {
 
 	void make_var(const std::string&, const Var*, RefType rt);
 	void make_var(const std::string&, const Expr*);
-	void make_var(const std::string&, const Var*);
 
 	const Var* getVar(const std::string&) const;
 

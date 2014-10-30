@@ -9,19 +9,19 @@ _alpha_main:
 # Begin Var
         movl    $42, 0(%esp)
 # End Var
-# Begin Var
+# Begin Ref
         movl    0(%esp), %eax
         movl    %eax, 4(%esp)
-# End Var
-# Begin Ptr
+# End Ref
+# Begin Ref
         leal    4(%esp), %eax
         movl    %eax, 8(%esp)
-# End Ptr
-# Begin Ptr
+# End Ref
+# Begin Ref
         movl    8(%esp), %eax
         movl    0(%eax), %eax
         movl    %eax, 12(%esp)
-# End Ptr
+# End Ref
 # Begin print
         pushl   0(%esp)
         call    _print

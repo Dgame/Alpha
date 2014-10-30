@@ -1,7 +1,7 @@
 // #include "asm.hpp"
 #include "Var.hpp"
-#include "Expr.hpp"
 #include "Func.hpp"
+#include "Operation.hpp"
 #include "Statement.hpp"
 
 int main() {
@@ -9,7 +9,7 @@ int main() {
 
 	Function main_func("alpha_main");
 	main_func.scope.make_var("a", new NumExpr(42));
-	main_func.scope.make_var("b", main_func.scope.getVar("a"));
+	main_func.scope.make_var("b", main_func.scope.getVar("a"), RefType::ByVal);
 	main_func.scope.make_var("c", main_func.scope.getVar("b"), RefType::EnRef);
 	main_func.scope.make_var("d", main_func.scope.getVar("c"), RefType::DeRef);
 

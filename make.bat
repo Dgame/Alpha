@@ -1,0 +1,1 @@
+g++ -o main.exe main.cpp asm.cpp Var.cpp Expr.cpp Operation.cpp Func.cpp Statement.cpp -std=c++1y -O3 -Wall

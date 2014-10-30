@@ -16,15 +16,14 @@ struct Var : public Statement {
 
 struct VarVal : public Var {
 	std::unique_ptr<const Expr> expr;
-	std::unique_ptr<const Var> var;
 
 	explicit VarVal(u32_t the_offset, const Expr*);
-	explicit VarVal(u32_t the_offset, const Var*);
 
 	virtual void eval(std::ostream&) const override;
 };
 
 enum class RefType {
+	ByVal,
 	EnRef,
 	DeRef
 };

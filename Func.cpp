@@ -24,13 +24,6 @@ void Scope::make_var(const std::string& name, const Expr* exp) {
 	this->addStmt(vv);
 }
 
-void Scope::make_var(const std::string& name, const Var* var) {
-	const VarVal* vv = new VarVal(this->grow(), var);
-
-	this->vars[name] = vv;
-	this->addStmt(vv);
-}
-
 const Var* Scope::getVar(const std::string& name) const {
 	auto it = this->vars.find(name);
 	if (it != this->vars.end())
