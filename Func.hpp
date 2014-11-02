@@ -16,13 +16,15 @@ enum class RefType;
 struct Scope {
 	u32_t stack_size = 0;
 
+	Scope* predecessor = nullptr;
+
 	std::map<std::string, const Var*> vars;
 	std::vector<std::unique_ptr<const Statement>> statements;
 
 	u32_t grow(u32_t size = 4);
 
-	void make_var(const std::string&, const Var*, RefType rt);
-	void make_var(const std::string&, const Expr*);
+	void makeVar(const std::string&, const Var*, RefType rt);
+	void makeVar(const std::string&, const Expr*);
 
 	const Var* getVar(const std::string&) const;
 
@@ -35,9 +37,9 @@ struct Function {
 	std::string name;
 	// Parameter
 	// Return
-	Scope scope;
+	std::unique_ptr<Scope> scope;
 
-	explicit Function(const std::string&);
+	explicit Function(const std::string&, Scope*);
 
 	void eval(std::ostream&) const;
 };

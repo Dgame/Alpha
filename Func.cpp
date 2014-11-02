@@ -10,14 +10,14 @@ u32_t Scope::grow(u32_t size) {
 	return old_size;
 }
 
-void Scope::make_var(const std::string& name, const Var* var, RefType rt) {
+void Scope::makeVar(const std::string& name, const Var* var, RefType rt) {
 	const VarRef* vr = new VarRef(this->grow(), var, rt);
 
 	this->vars[name] = vr;
 	this->addStmt(vr);
 }
 
-void Scope::make_var(const std::string& name, const Expr* exp) {
+void Scope::makeVar(const std::string& name, const Expr* exp) {
 	const VarVal* vv = new VarVal(this->grow(), exp);
 
 	this->vars[name] = vv;
@@ -41,8 +41,9 @@ void Scope::eval(std::ostream& out) const {
 	}
 }
 
-Function::Function(const std::string& the_name) : name(the_name) {
-
+Function::Function(const std::string& the_name, Scope* the_scope) : name(the_name), scope(the_scope) {
+	if (this->name == "main")
+		this->name = "alpha_main"; // Hack
 }
 
 void Function::eval(std::ostream& out) const {
@@ -51,11 +52,11 @@ void Function::eval(std::ostream& out) const {
 
 	gas::push(out, P_BASE);
 	gas::mov(out, P_STACK, P_BASE);
-	gas::sub(out, this->scope.stack_size, P_STACK);
+	gas::sub(out, this->scope->stack_size, P_STACK);
 
-	this->scope.eval(out);
+	this->scope->eval(out);
 
-	gas::add(out, this->scope.stack_size, P_STACK);
+	gas::add(out, this->scope->stack_size, P_STACK);
 	gas::pop(out, P_BASE);
 	gas::ret(out);
 }

@@ -6,29 +6,8 @@ _alpha_main:
         pushl   %ebp
         movl    %esp, %ebp
         subl    $16, %esp
-# Begin Var
-        movl    $42, 0(%esp)
-# End Var
-# Begin Ref
-        movl    0(%esp), %eax
-        movl    %eax, 4(%esp)
-# End Ref
-# Begin Ref
-        leal    4(%esp), %eax
-        movl    %eax, 8(%esp)
-# End Ref
-# Begin Ref
-        movl    8(%esp), %eax
-        movl    0(%eax), %eax
-        movl    %eax, 12(%esp)
-# End Ref
 # Begin print
-        pushl   0(%esp)
-        call    _print
-        addl    $4, %esp
-# End print
-# Begin print
-        pushl   4(%esp)
+        pushl   $42
         call    _print
         addl    $4, %esp
 # End print
@@ -37,23 +16,60 @@ _alpha_main:
         call    _print
         addl    $4, %esp
 # End print
+# Begin Var
+        movl    $42, 0(%esp)
+# End Var
+# Begin ByVal
+        movl    0(%esp), %eax
+        movl    %eax, 4(%esp)
+# End ByVal
+# Begin print
+# Begin VarExpr
+        movl    0(%esp), %eax
+# End VarExpr
+        pushl   %eax
+        call    _print
+        addl    $4, %esp
+# End print
+# Begin print
+# Begin VarExpr
+        movl    4(%esp), %eax
+# End VarExpr
+        pushl   %eax
+        call    _print
+        addl    $4, %esp
+# End print
+# Begin Var
+        movl    $4, 8(%esp)
+# End Var
+# Begin Var
+        movl    $2, 12(%esp)
+# End Var
+# Begin print
+# Begin VarExpr
+        movl    8(%esp), %eax
+# End VarExpr
+        pushl   %eax
+        call    _print
+        addl    $4, %esp
+# End print
+# Begin print
+# Begin VarExpr
+        movl    12(%esp), %eax
+# End VarExpr
+        pushl   %eax
+        call    _print
+        addl    $4, %esp
+# End print
 # Begin print
 # Begin MulOp
 # Begin NumExpr
         movl    $2, %eax
 # End NumExpr
         pushl   %eax
-# Begin AddOp
 # Begin NumExpr
-        movl    $4, %eax
+        movl    $2, %eax
 # End NumExpr
-        pushl   %eax
-# Begin NumExpr
-        movl    $8, %eax
-# End NumExpr
-        addl    0(%esp), %eax
-        addl    $4, %esp
-# End AddOp
         imull   0(%esp), %eax
         addl    $4, %esp
 # End MulOp
@@ -63,21 +79,37 @@ _alpha_main:
 # End print
 # Begin print
 # Begin AddOp
+# Begin NumExpr
+        movl    $25, %eax
+# End NumExpr
+        pushl   %eax
+# Begin NumExpr
+        movl    $5, %eax
+# End NumExpr
+        addl    0(%esp), %eax
+        addl    $4, %esp
+# End AddOp
+        pushl   %eax
+        call    _print
+        addl    $4, %esp
+# End print
+# Begin print
+# Begin AddOp
+# Begin NumExpr
+        movl    $1, %eax
+# End NumExpr
+        pushl   %eax
 # Begin MulOp
 # Begin NumExpr
         movl    $2, %eax
 # End NumExpr
         pushl   %eax
 # Begin NumExpr
-        movl    $4, %eax
+        movl    $3, %eax
 # End NumExpr
         imull   0(%esp), %eax
         addl    $4, %esp
 # End MulOp
-        pushl   %eax
-# Begin NumExpr
-        movl    $8, %eax
-# End NumExpr
         addl    0(%esp), %eax
         addl    $4, %esp
 # End AddOp

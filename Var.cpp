@@ -28,31 +28,39 @@ VarRef::VarRef(u32_t the_offset, const Var* var, RefType rt) : Var(the_offset), 
 }
 
 void VarRef::eval(std::ostream& out) const {
-	out << "# Begin Ref " << std::endl;
-
 	switch (this->refType) {
 		case RefType::ByVal:
+			out << "# Begin ByVal " << std::endl;
+
 			gas::mov(out, gas::Offset(this->addr, P_STACK), E_AX);
 			gas::mov(out, E_AX, gas::Offset(this->offset, P_STACK));
+
+			out << "# End ByVal " << std::endl;
 		break;
 
 		case RefType::DeRef:
+			out << "# Begin DeRef " << std::endl;
+
 			gas::mov(out, gas::Offset(this->addr, P_STACK), E_AX);
 			gas::mov(out, gas::Offset(0, E_AX), E_AX);
 			gas::mov(out, E_AX, gas::Offset(this->offset, P_STACK));
+
+			out << "# End DeRef " << std::endl;
 		break;
 
 		case RefType::EnRef:
+			out << "# Begin EnRef " << std::endl;
+
 			if (this->addr != 0) {
 				gas::lea(out, gas::Offset(this->addr, P_STACK), E_AX);
 				gas::mov(out, E_AX, gas::Offset(this->offset, P_STACK));
 			} else {
 				gas::mov(out, 0, gas::Offset(this->offset, P_STACK));
 			}
+
+			out << "# End EnRef " << std::endl;
 		break;
 	}
-
-	out << "# End Ref " << std::endl;
 }
 
 Array::Array(u32_t the_offset, const std::initializer_list<const Expr*>& elems) : Var(the_offset) {
