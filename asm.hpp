@@ -5,8 +5,6 @@
 #include <string>
 #include <sstream>
 
-#include "types.hpp"
-
 #define BIT_SIZE 32
 
 #if BIT_SIZE == 64
@@ -21,72 +19,217 @@
 	const char SUFFIX = 0;
 #endif
 
-std::string Offset(u32_t offset, const std::string& ident);
+namespace std {
+	template <typename T>
+	inline std::string to_string(T value)
+	{
+		//create an output string stream
+		std::ostringstream os ;
+		//throw the value into the string stream
+		os << value ;
+		//convert the string stream into a string and return
+		return os.str() ;
+	}
+}
+
+enum Ptr {
+#if BIT_SIZE == 32
+	E_SP,
+	E_BP,
+#elif BIT_SIZE == 64
+	R_SP,
+	R_BP,
+#endif
+	P_STACK = 0,
+	P_BASE = 1
+};
+
+enum Reg {
+	E_AX,
+	E_BX,
+	E_CX,
+	E_DX,
+#if BIT_SIZE == 64
+	R_AX,
+	R_BX,
+	R_CX,
+	R_DX
+#endif
+};
+
+enum Idx {
+	E_SI,
+	E_DI,
+#if BIT_SIZE == 64
+	R_SI,
+	R_DI
+#endif
+};
+
+enum JCond {
+	J_Immediate,
+	J_IfZero,
+	J_IfEqual,
+	J_IfNotEqual,
+	J_IfGreater,
+	J_IfGraterEqual,
+	J_IfLess,
+	J_IfLessEqual,
+	J_IfAbove,
+	J_IfBelow
+};
 
 namespace gas {
-	namespace Register {
+	const std::string Pointer[] = {
+#if BIT_SIZE == 32
 		// 32 Bit
-		const std::string E_AX("%eax");
-		const std::string E_BX("%ebx");
-		const std::string E_CX("%ecx");
-		const std::string E_DX("%edx");
+		"%esp",
+		"%ebp",
+#elif BIT_SIZE == 64
+		// 64 Bit
+		"%rsp",
+		"%rbp"
+#endif
+	};
+
+	const std::string Register[] = {
+		// 32 Bit
+		"%eax",
+		"%ebx",
+		"%ecx",
+		"%edx",
 #if BIT_SIZE == 64
 		// 64 Bit
-		const std::string R_AX("%rax");
-		const std::string R_BX("%rbx");
-		const std::string R_CX("%rcx");
-		const std::string R_DX("%rdx");
-		// Default
-		const std::string AX = R_AX;
-		const std::string BX = R_BX;
-		const std::string CX = R_CX;
-		const std::string DX = R_DX;
-#elif BIT_SIZE == 32
-		const std::string AX = E_AX;
-		const std::string BX = E_BX;
-		const std::string CX = E_CX;
-		const std::string DX = E_DX;
+		"%rax",
+		"%rbx",
+		"%rcx",
+		"%rdx"
 #endif
-	}
+	};
 
-	namespace Pointer {
+	const std::string Index[] = {
+		// 32 Bit
+		"%esi",
+		"%edi",
 #if BIT_SIZE == 64
-		const std::string Base("%rbp");
-		const std::string Stack("%rsp");
-#elif BIT_SIZE == 32
-		const std::string Base("%ebp");
-		const std::string Stack("%esp");
+		// 64 Bit
+		"%rsi",
+		"%rdi"
 #endif
-	}
+	};
 
-	void mov(std::ostream& out, int num, const std::string& op);
-	void mov(std::ostream& out, const std::string& op1, const std::string& op2);
+	const std::string JumpPostFix[] = {
+		"mp",
+		"z",
+		"e",
+		"ne",
+		"g",
+		"ge",
+		"l",
+		"le",
+		"a",
+		"b",
+	};
 
-	void add(std::ostream& out, int num, const std::string& op);
-	void add(std::ostream& out, const std::string& op1, const std::string& op2);
+	struct Offset {
+		std::string id;
 
-	void sub(std::ostream& out, int num, const std::string& op);
-	void sub(std::ostream& out, const std::string& op1, const std::string& op2);
+		explicit Offset(int offset, Ptr ptr);
+		explicit Offset(int offset, Reg reg);
+	};
 
-	void mul(std::ostream& out, const std::string& op1, const std::string& op2);
+	// push
+	void push(std::ostream&, int num);
+	void push(std::ostream&, Reg r);
+	void push(std::ostream&, Offset o);
+	void push(std::ostream&, Ptr p);
 
-	void div(std::ostream& out, const std::string& op1, const std::string& op2);
+	// pop
+	void pop(std::ostream&, Reg r);
+	void pop(std::ostream&, Offset o);
+	void pop(std::ostream&, Ptr p);
 
-	void push(std::ostream& out, const std::string& op);
-	void push(std::ostream& out, int num);
+	// inc
+	void inc(std::ostream&, Reg r);
+	void inc(std::ostream&, Offset o);
 
-	void pop(std::ostream& out, const std::string& op);
-	void pop(std::ostream& out, int num);
+	// dec
+	void dec(std::ostream&, Reg r);
+	void dec(std::ostream&, Offset o);
 
-	void inc(std::ostream& out, const std::string& op);
+	// mov
+	void mov(std::ostream&, int num, Reg r);
+	void mov(std::ostream&, int num, Offset o);
+	void mov(std::ostream&, Reg r1, Reg r2);
+	void mov(std::ostream&, Reg r, Offset o);
+	void mov(std::ostream&, Offset o, Reg r);
+	void mov(std::ostream&, Ptr p1, Ptr p2);
 
-	void dec(std::ostream& out, const std::string& op);
+	// add
+	void add(std::ostream&, int num, Ptr p);
+	void add(std::ostream&, int num, Reg r);
+	void add(std::ostream&, int num, Offset o);
+	void add(std::ostream&, Reg r1, Reg r2);
+	void add(std::ostream&, Reg r, Offset o);
+	void add(std::ostream&, Offset o, Reg r);
 
-	void lea(std::ostream& out, const std::string& op1, const std::string& op2);
+	// sub
+	void sub(std::ostream&, int num, Ptr p);
+	void sub(std::ostream&, int num, Reg r);
+	void sub(std::ostream&, int num, Offset o);
+	void sub(std::ostream&, Reg r1, Reg r2);
+	void sub(std::ostream&, Reg r, Offset o);
+	void sub(std::ostream&, Offset o, Reg r);
 
-	void ret(std::ostream& out);
+	// imul
+	void imul(std::ostream&, Reg r1, Reg r2);
+	void imul(std::ostream&, Offset o, Reg r);
 
-	void call(std::ostream& out, const std::string& label);
+	// idiv
+	void idiv(std::ostream&, Reg r);
+	void idiv(std::ostream&, Offset o);
+
+	// lea
+	void lea(std::ostream&, Offset o, Reg r);
+
+	// ret
+	void ret(std::ostream&);
+
+	// call
+	void call(std::ostream&, const std::string&);
+
+	// jmp
+	void jmp(std::ostream&, JCond jc, const std::string&);
+
+	// cmp
+	void cmp(std::ostream&, int num, Reg r);
+	void cmp(std::ostream&, int num, Offset o);
+	void cmp(std::ostream&, Reg r1, Reg r2);
+	void cmp(std::ostream&, Offset o, Reg r);
+	void cmp(std::ostream&, Reg r, Offset o);
+
+	// neg
+	void neg(std::ostream&, Reg r);
+	void neg(std::ostream&, Offset o);
+
+	// not
+	void bit_not(std::ostream&, Reg r);
+	void bit_not(std::ostream&, Offset o);
+
+	// and
+	void bit_and(std::ostream&, Reg r1, Reg r2);
+	void bit_and(std::ostream&, Reg r, Offset o);
+	void bit_and(std::ostream&, Offset o, Reg r);
+
+	// or
+	void bit_or(std::ostream&, Reg r1, Reg r2);
+	void bit_or(std::ostream&, Reg r, Offset o);
+	void bit_or(std::ostream&, Offset o, Reg r);
+
+	// xor
+	void bit_xor(std::ostream&, Reg r1, Reg r2);
+	void bit_xor(std::ostream&, Reg r, Offset o);
+	void bit_xor(std::ostream&, Offset o, Reg r);
 }
 
 #endif

@@ -13,10 +13,10 @@ void AddOp::eval(std::ostream& out) const {
 	out << "# Begin AddOp " << std::endl;
 
 	this->lhs->eval(out);
-	gas::push(out, gas::Register::AX);
+	gas::push(out, E_AX);
 	this->rhs->eval(out);
-	gas::add(out, Offset(0, gas::Pointer::Stack), gas::Register::AX);
-	gas::add(out, 4, gas::Pointer::Stack);
+	gas::add(out, gas::Offset(0, P_STACK), E_AX);
+	gas::add(out, 4, P_STACK);
 
 	out << "# End AddOp " << std::endl;
 }
@@ -29,10 +29,10 @@ void SubOp::eval(std::ostream& out) const {
 	out << "# Begin SubOp " << std::endl;
 
 	this->lhs->eval(out);
-	gas::push(out, gas::Register::AX);
+	gas::push(out, E_AX);
 	this->rhs->eval(out);
-	gas::sub(out, Offset(0, gas::Pointer::Stack), gas::Register::AX);
-	gas::add(out, 4, gas::Pointer::Stack);
+	gas::sub(out, gas::Offset(0, P_STACK), E_AX);
+	gas::add(out, 4, P_STACK);
 
 	out << "# End SubOp " << std::endl;
 }
@@ -45,10 +45,10 @@ void MulOp::eval(std::ostream& out) const {
 	out << "# Begin MulOp " << std::endl;
 
 	this->lhs->eval(out);
-	gas::push(out, gas::Register::AX);
+	gas::push(out, E_AX);
 	this->rhs->eval(out);
-	gas::mul(out, Offset(0, gas::Pointer::Stack), gas::Register::AX);
-	gas::add(out, 4, gas::Pointer::Stack);
+	gas::imul(out, gas::Offset(0, P_STACK), E_AX);
+	gas::add(out, 4, P_STACK);
 
 	out << "# End MulOp " << std::endl;
 }

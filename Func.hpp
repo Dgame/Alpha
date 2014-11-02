@@ -7,6 +7,7 @@
 #include <memory>
 
 #include "Statement.hpp"
+#include "types.hpp"
 
 struct Expr;
 struct Var;

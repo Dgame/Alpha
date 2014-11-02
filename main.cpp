@@ -24,5 +24,7 @@ int main() {
 	AddOp* add1 = new AddOp(new MulOp(new NumExpr(2), new NumExpr(4)), new NumExpr(8));
 	main_func.scope.addStmt(new PrintStmt(add1));
 
+	
+
 	main_func.eval(std::cout);
 }

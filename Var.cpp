@@ -14,10 +14,10 @@ void VarVal::eval(std::ostream& out) const {
 	out << "# Begin Var " << std::endl;
 
 	if (const NumExpr* num_expr = this->expr->isNumExpr())
-		gas::mov(out, num_expr->value, Offset(this->offset, gas::Pointer::Stack));
+		gas::mov(out, num_expr->value, gas::Offset(this->offset, P_STACK));
 	else {
 		this->expr->eval(out);
-		gas::mov(out, gas::Register::AX, Offset(this->offset, gas::Pointer::Stack));
+		gas::mov(out, E_AX, gas::Offset(this->offset, P_STACK));
 	}
 
 	out << "# End Var " << std::endl;
@@ -32,22 +32,22 @@ void VarRef::eval(std::ostream& out) const {
 
 	switch (this->refType) {
 		case RefType::ByVal:
-			gas::mov(out, Offset(this->addr, gas::Pointer::Stack), gas::Register::AX);
-			gas::mov(out, gas::Register::AX, Offset(this->offset, gas::Pointer::Stack));
+			gas::mov(out, gas::Offset(this->addr, P_STACK), E_AX);
+			gas::mov(out, E_AX, gas::Offset(this->offset, P_STACK));
 		break;
 
 		case RefType::DeRef:
-			gas::mov(out, Offset(this->addr, gas::Pointer::Stack), gas::Register::AX);
-			gas::mov(out, Offset(0, gas::Register::AX), gas::Register::AX);
-			gas::mov(out, gas::Register::AX, Offset(this->offset, gas::Pointer::Stack));
+			gas::mov(out, gas::Offset(this->addr, P_STACK), E_AX);
+			gas::mov(out, gas::Offset(0, E_AX), E_AX);
+			gas::mov(out, E_AX, gas::Offset(this->offset, P_STACK));
 		break;
 
 		case RefType::EnRef:
 			if (this->addr != 0) {
-				gas::lea(out, Offset(this->addr, gas::Pointer::Stack), gas::Register::AX);
-				gas::mov(out, gas::Register::AX, Offset(this->offset, gas::Pointer::Stack));
+				gas::lea(out, gas::Offset(this->addr, P_STACK), E_AX);
+				gas::mov(out, E_AX, gas::Offset(this->offset, P_STACK));
 			} else {
-				gas::mov(out, 0, Offset(this->offset, gas::Pointer::Stack));
+				gas::mov(out, 0, gas::Offset(this->offset, P_STACK));
 			}
 		break;
 	}
@@ -67,10 +67,10 @@ void Array::eval(std::ostream& out) const {
 
 	for (u32_t i = 0; i < this->items.size(); i++) {
 		if (const NumExpr* num_expr = this->items[i]->isNumExpr())
-			gas::mov(out, num_expr->value, Offset(this->offset + (i * 4), gas::Pointer::Stack));
+			gas::mov(out, num_expr->value, gas::Offset(this->offset + (i * 4), P_STACK));
 		else {
 			this->items[i]->eval(out);
-			gas::mov(out, gas::Register::AX, Offset(this->offset + (i * 4), gas::Pointer::Stack));
+			gas::mov(out, E_AX, gas::Offset(this->offset + (i * 4), P_STACK));
 		}
 	}
 
