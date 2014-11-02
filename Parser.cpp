@@ -1,192 +1,255 @@
 #include "Parser.hpp"
 
-#include <fstream>
 #include <locale>
 
 #include "Operation.hpp"
 #include "Var.hpp"
+#include "util.hpp"
 
-Parser::Parser(const std::string& file) : _line(0), _filename(file) {
-	std::ifstream in(_filename);
+Parser::Parser(const std::string& file) : _line(1), _filename(file) {
+    std::ifstream in(_filename);
 
-	std::copy(
-		std::istreambuf_iterator<char>(in.rdbuf()),
-		std::istreambuf_iterator<char>(),
-		std::inserter(_content, _content.begin()));
+    std::copy(
+        std::istreambuf_iterator<char>(in.rdbuf()),
+        std::istreambuf_iterator<char>(),
+        std::inserter(_content, _content.begin()));
 
-	_pos = &*_content.begin();
-	_end = &*_content.end() + 1;
+    _pos = &*_content.begin();
+    _end = &*_content.end() + 1;
+}
+
+const std::string Parser::addDataSection(const std::string& str) {
+    const std::string label = "LS" + std::to_string(this->data_sections.size() + 1);
+    this->data_sections[label] = str;
+
+    return label;
+}
+
+void Parser::eval(std::ostream& out) const {
+    out << ".text" << std::endl;
+    
+    for (auto& func : this->functions) {
+        func->eval(out);
+    }
+
+    out << ".data" << std::endl;
+    for (auto& pair : this->data_sections) {
+        out << "\t" << pair.first << ':';
+        out << "\t.ascii \"" << pair.second << "\\0\"" << std::endl;
+    }
 }
 
 void Parser::skipSpaces() {
-	while (!eof() && std::isspace(*_pos)) {
-		if (*_pos == '\n')
-			_line++;
-		++_pos;
+    while (!eof() && std::isspace(*_pos)) {
+        if (*_pos == '\n')
+            _line++;
+        ++_pos;
 
-		skipComment();
-	}
+        skipComment();
+    }
 }
 
 void Parser::skipComment() {
-	if (!eof() && *_pos == '#') {
-		do {
-			_pos++;
-		} while (!eof() && *_pos != '\n');
-	}
+    if (!eof() && *_pos == '#') {
+        do {
+            _pos++;
+        } while (!eof() && *_pos != '\n');
+    }
 }
 
 bool Parser::readNumber(i32_t* num) {
-	skipSpaces();
-	push();
+    skipSpaces();
+    push();
 
-	if (!eof() && std::isdigit(*_pos)) {
-		*num = 0;
-		do {
-			*num *= 10;
-			*num += *_pos - '0';
+    if (!eof() && std::isdigit(*_pos)) {
+        *num = 0;
+        do {
+            *num *= 10;
+            *num += *_pos - '0';
 
-			++_pos;
-		} while (!eof() && std::isdigit(*_pos));
+            ++_pos;
+        } while (!eof() && std::isdigit(*_pos));
 
-		return true;
-	}
+        return true;
+    }
 
-	return false;
+    return false;
 }
 
 bool Parser::readIdentifier(std::string* ident) {
-	skipSpaces();
-	push();
+    skipSpaces();
+    push();
 
-	if (!eof() && (std::isalpha(*_pos) || *_pos == '_')) {
-		*ident += *_pos;
-		_pos++;
+    if (!eof() && (std::isalpha(*_pos) || *_pos == '_')) {
+        *ident = "";
+        *ident += *_pos;
+        _pos++;
 
-		while (!eof() && (std::isalnum(*_pos) || *_pos == '_')) {
-			*ident += *_pos;
-			_pos++;
-		}
+        while (!eof() && (std::isalnum(*_pos) || *_pos == '_')) {
+            *ident += *_pos;
+            _pos++;
+        }
 
-		return true;
-	}
+        return true;
+    }
 
-	return false;
+    return false;
+}
+
+char unescape_character(char c) {
+    switch (c) {
+        case 'n': return '\n';
+        case 't': return '\t';
+        case '\\': return '\\';
+        case '\"': return '\"';
+    }
+
+    std::cerr << "Unknown escape sequence \\" << c << std::endl;
+
+    return c;
+}
+  
+bool Parser::readString(std::string* ident) { 
+    skipSpaces();
+
+    if (!eof() && *_pos == '"') {
+        ++_pos; 
+        *ident = "";
+
+        do {
+            if (*_pos == '\\') {
+                ++_pos;
+                if (eof()) {
+                    error("EOF in string literal");
+
+                    return false;
+                }
+
+                *ident += unescape_character(*_pos);
+            } else
+                *ident += *_pos;
+
+            ++_pos;
+        } while (!eof() && *_pos != '\"');
+
+        expect("\"");
+
+        return true;
+    }
+    
+    return false;
 }
 
 bool Parser::accept(const std::string& tok) {
-	skipSpaces();
-	push();
+    skipSpaces();
+    push();
 
-	for (u32_t i = 0; i < tok.size(); i++) {
-		if (tok[i] != *_pos) {
-			pop();
-			return false;
-		}
+    for (u32_t i = 0; i < tok.size(); i++) {
+        if (tok[i] != *_pos) {
+            pop();
+            return false;
+        }
 
-		_pos++;
-	}
+        _pos++;
+    }
 
-	return true;
+    return true;
 }
 
 bool Parser::expect(const std::string& tok) {
-	skipSpaces();
-	push();
+    skipSpaces();
+    push();
 
-	std::string ident;
-	for (u32_t i = 0; i < tok.size(); i++) {
-		ident += *_pos;
+    std::string ident;
+    for (u32_t i = 0; i < tok.size(); i++) {
+        ident += *_pos;
 
-		if (tok[i] != *_pos) {
-			pop();
-			error("Did expected '" + tok + "', not '" + ident + "'");
+        if (tok[i] != *_pos) {
+            pop();
+            error("Did expected '" + tok + "', not '" + ident + "'");
 
-			return false;
-		}
+            return false;
+        }
 
-		_pos++;
-	}
+        _pos++;
+    }
 
-	return true;
+    return true;
 }
 
 void Parser::parse() {
-	while (!eof() && !_error) {
-		const char* const cur_pos = _pos;
-		if (!parseFunc())
-			error("Did expect a function");
-		if (cur_pos == _pos)
-			error("Could not parse anything");
-	}
+    while (!eof() && !_error) {
+        const char* const cur_pos = _pos;
+        if (!parseFunc())
+            error("Did expect a function");
+        if (cur_pos == _pos)
+            error("Could not parse anything");
+    }
 }
 
 bool Parser::parseFunc() {
-	std::string name;
-	if (readIdentifier(&name)) {
-		expect(":");
-		// TODO: Return type
-		parseParam();
+    std::string name;
+    if (readIdentifier(&name)) {
+        expect(":");
+        // TODO: Return type
+        parseParam();
 
-		Scope* my_scope = nullptr;
-		parseScope(&my_scope);
+        Scope* my_scope = nullptr;
+        parseScope(&my_scope);
 
-		functions.emplace_back(new Function(name, my_scope));
+        functions.emplace_back(new Function(name, my_scope));
 
-		return true;
-	}
+        return true;
+    }
 
-	return false;
+    return false;
 }
 
 void Parser::parseParam() {
-	expect("(");
+    expect("(");
 
-	// TODO: parse parameter
+    // TODO: parse parameter
 
-	expect(")");
+    expect(")");
 }
 
 void Parser::parseScope(Scope** scope) {
-	expect("{");
+    expect("{");
 
-	*scope = new Scope();
+    *scope = new Scope();
 
-	while (!eof() && !_error) {
-		const u32_t stmt_count = (*scope)->statements.size();
+    while (!eof() && !_error) {
+        const u32_t stmt_count = (*scope)->statements.size();
 
-		parseStmt(*scope);
-		parseVar(*scope);
+        parseStmt(*scope);
+        parseVar(*scope);
 
-		// No new elements?
-		if (stmt_count == (*scope)->statements.size())
-			break;
-	}
+        // No new elements?
+        if (stmt_count == (*scope)->statements.size())
+            break;
+    }
 
-	expect("}");
+    expect("}");
 }
 
 void Parser::parseStmt(Scope* scope) {
-	if (accept("print")) {
-		const Expr* exp = parseExpr(scope);
-		if (exp) {
-			scope->addStmt(new PrintStmt(exp));
-			return;
-		}
+    if (accept("print")) {
+        const Expr* exp = parseExpr(scope);
+        if (exp) {
+            scope->addStmt(new PrintStmt(exp));
+            return;
+        }
 
-		std::string ident;
-		if (readIdentifier(&ident)) {
-			const Var* var = scope->getVar(ident);
-			if (var) {
-				scope->addStmt(new PrintStmt(var));
-				return;
-			}
+        std::string ident;
+        if (readString(&ident)) {
+            const std::string label = this->addDataSection(ident);
+            scope->addStmt(new PrintStmt(label));
 
-			pop();
-		}
+            return;
+        }
 
-		error("Nothing to print");
-	}
+        error("Nothing to print");
+    }
 }
 
 void Parser::parseIf(Scope*) {
@@ -206,49 +269,49 @@ void Parser::parseArray(Scope*) {
 }
 
 const Var* Parser::readVar(Scope* scope) {
-	std::string ident;
-	if (readIdentifier(&ident))
-		return scope->getVar(ident);
-	return nullptr;
+    std::string ident;
+    if (readIdentifier(&ident))
+        return scope->getVar(ident);
+    return nullptr;
 }
 
 void Parser::parseVar(Scope* scope) {
-	std::string name;
-	if (readIdentifier(&name)) {
-		// since the 'accept's below will override '_old_pos', store it...
-		char* my_old_pos = _old_pos;
+    std::string name;
+    if (readIdentifier(&name)) {
+        // since the 'accept's below will override '_old_pos', store it...
+        char* my_old_pos = _old_pos;
 
-		if (accept("=")) {
-			// By Value
-			parseVarVal(name, scope);
-		} else if (accept("->")) {
-			// Reference
-			parseVarEnRef(name, scope);
-		} else if (accept("<-")) {
-			// Dereference
-			parseVarDeRef(name, scope);
-		} else {
-			// ...and reset it correctly.
-			_pos = my_old_pos;
-		}
-	}
+        if (accept("=")) {
+            // By Value
+            parseVarVal(name, scope);
+        } else if (accept("->")) {
+            // Reference
+            parseVarEnRef(name, scope);
+        } else if (accept("<-")) {
+            // Dereference
+            parseVarDeRef(name, scope);
+        } else {
+            // ...and reset it correctly.
+            _pos = my_old_pos;
+        }
+    }
 }
 
 void Parser::parseVarVal(std::string& name, Scope* scope) {
-	// By Value
-	const Var* var = readVar(scope);
-	if (var)
-		scope->makeVar(name, var, RefType::ByVal);
-	else {
-		pop();
-		const Expr* exp = parseExpr(scope);
-		if (!exp) {
-			error("No assignment found for variable " + name);
+    // By Value
+    const Var* var = readVar(scope);
+    if (var)
+        scope->makeVar(name, var, RefType::ByVal);
+    else {
+        pop();
+        const Expr* exp = parseExpr(scope);
+        if (!exp) {
+            error("No assignment found for variable " + name);
 
-			return;
-		}
-		scope->makeVar(name, exp);
-	}
+            return;
+        }
+        scope->makeVar(name, exp);
+    }
 }
 
 void Parser::parseVarEnRef(std::string& name, Scope* scope) {
@@ -269,8 +332,8 @@ Expr* Parser::parseExpr(Scope* scope) {
                 if (!rhs) {
                     error("Expected factor after +");
 
-					delete lhs;
-					delete rhs;
+                    delete lhs;
+                    delete rhs;
 
                     return nullptr;
                 }
@@ -281,8 +344,8 @@ Expr* Parser::parseExpr(Scope* scope) {
                 if (!rhs) {
                     error("Expected factor after -");
 
-					delete lhs;
-					delete rhs;
+                    delete lhs;
+                    delete rhs;
 
                     return nullptr;
                 }
@@ -305,8 +368,8 @@ Expr* Parser::parseTerm(Scope* scope) {
                 if (!rhs) {
                     error("Expected factor after *");
 
-					delete lhs;
-					delete rhs;
+                    delete lhs;
+                    delete rhs;
 
                     return nullptr;
                 }
@@ -317,8 +380,8 @@ Expr* Parser::parseTerm(Scope* scope) {
                 if (!rhs) {
                     error("Expected factor after /");
 
-					delete lhs;
-					delete rhs;
+                    delete lhs;
+                    delete rhs;
 
                     return nullptr;
                 }
@@ -347,10 +410,10 @@ Expr* Parser::parseFactor(Scope* scope) {
 
         return exp;
     } else {
-    	const Var* var = readVar(scope);
-    	if (var)
-    		return new VarExpr(var->offset);
-    	pop();
+        const Var* var = readVar(scope);
+        if (var)
+            return new VarExpr(var->offset);
+        pop();
     }
 
     return nullptr;

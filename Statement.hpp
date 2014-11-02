@@ -8,11 +8,11 @@
 struct Var;
 
 struct PrintStmt : public Statement {
-	const Var* var = nullptr;
 	std::unique_ptr<const Expr> expr;
+	std::string label;
 
-	explicit PrintStmt(const Var*);
 	explicit PrintStmt(const Expr*);
+	explicit PrintStmt(const std::string&);
 
 	virtual void eval(std::ostream&) const override;
 };

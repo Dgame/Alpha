@@ -1,6 +1,7 @@
 #ifndef ALPHA_PARSER_HPP
 #define ALPHA_PARSER_HPP
 
+#include <fstream>
 #include "Func.hpp"
 
 struct Parser {
@@ -16,8 +17,12 @@ struct Parser {
 	char* _old_pos;
 
 	std::vector<std::unique_ptr<Function>> functions;
+	std::map<std::string, std::string> data_sections;
 
 	explicit Parser(const std::string&);
+
+	const std::string addDataSection(const std::string&);
+	void eval(std::ostream&) const;
 
 	void push() {
 		_old_pos = _pos;
@@ -45,6 +50,7 @@ struct Parser {
 
 	bool readNumber(i32_t*);
 	bool readIdentifier(std::string*);
+	bool readString(std::string*);
 
 	bool accept(const std::string&);
 	bool expect(const std::string&);

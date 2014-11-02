@@ -2,8 +2,7 @@
 #define ALPHA_ASM_HPP
 
 #include <iostream>
-#include <string>
-#include <sstream>
+#include "util.hpp"
 
 #define BIT_SIZE 32
 
@@ -18,19 +17,6 @@
 #else
 	const char SUFFIX = 0;
 #endif
-
-namespace std {
-	template <typename T>
-	inline std::string to_string(T value)
-	{
-		//create an output string stream
-		std::ostringstream os ;
-		//throw the value into the string stream
-		os << value ;
-		//convert the string stream into a string and return
-		return os.str() ;
-	}
-}
 
 enum Ptr {
 #if BIT_SIZE == 32
@@ -143,6 +129,7 @@ namespace gas {
 	void push(std::ostream&, Reg r);
 	void push(std::ostream&, Offset o);
 	void push(std::ostream&, Ptr p);
+	void push(std::ostream&, const std::string&);
 
 	// pop
 	void pop(std::ostream&, Reg r);

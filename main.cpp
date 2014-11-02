@@ -10,8 +10,8 @@
 #endif
 
 int main() {
-	std::cout << ".text" << std::endl;
 #if TEST
+	std::cout << ".text" << std::endl;
 	Function main_func("alpha_main", new Scope());
 
 	main_func.scope->makeVar("a", new NumExpr(42));
@@ -32,13 +32,13 @@ int main() {
 
 	main_func.eval(std::cout);
 #else
+	std::ofstream out("test.s");
+
 	Parser p("test.alpha");
 	p.parse();
 
 	if (!p.hasErrors()) {
-		for (auto& func : p.functions) {
-			func->eval(std::cout);
-		}
+		p.eval(out);
 	}
 #endif
 }

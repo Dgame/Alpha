@@ -26,6 +26,10 @@ namespace gas {
 		out << "\tpush" << SUFFIX << "\t" << Pointer[p] << std::endl; 
 	}
 
+	void push(std::ostream& out, const std::string& label) {
+		out << "\tpush" << SUFFIX << "\t$" << label << std::endl;
+	}
+
 	// pop
 	void pop(std::ostream& out, Reg r) {
 		out << "\top" << SUFFIX << "\t" << Register[r] << std::endl; 
