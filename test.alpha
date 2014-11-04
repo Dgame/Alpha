@@ -50,4 +50,6 @@ main:() {
 
 	print g
 	print h
+
+	print "Hallo,", "Welt"
 }

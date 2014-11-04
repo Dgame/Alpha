@@ -19,9 +19,12 @@ Parser::Parser(const std::string& file) : _line(1), _filename(file) {
 }
 
 const std::string Parser::addDataSection(const std::string& str) {
-    const std::string label = "LS" + std::to_string(this->data_sections.size() + 1);
-    this->data_sections[label] = str;
+    const u32_t next_size = this->data_sections.size() + 1;
+    const std::string prefix = (next_size < 10) ? "_0" : "_";
+    const std::string label = "LS" + prefix + std::to_string(this->data_sections.size() + 1);
 
+    this->data_sections[label] = str;
+    
     return label;
 }
 

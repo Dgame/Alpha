@@ -7,7 +7,7 @@ _alpha_main:
 	movl	%esp, %ebp
 	subl	$44, %esp
 # Begin print
-	pushl	$LS1
+	pushl	$LS_01
 	call	_println_string
 	addl	$4, %esp
 # End print
@@ -31,7 +31,7 @@ _alpha_main:
 	movl	%eax, 4(%esp)
 # End Var 
 # Begin print
-	pushl	$LS2
+	pushl	$LS_02
 	call	_println_string
 	addl	$4, %esp
 # End print
@@ -58,7 +58,7 @@ _alpha_main:
 	movl	$2, 12(%esp)
 # End Var 
 # Begin print
-	pushl	$LS3
+	pushl	$LS_03
 	call	_println_string
 	addl	$4, %esp
 # End print
@@ -79,7 +79,7 @@ _alpha_main:
 	addl	$4, %esp
 # End print
 # Begin print
-	pushl	$LS4
+	pushl	$LS_04
 	call	_println_string
 	addl	$4, %esp
 # End print
@@ -140,7 +140,7 @@ _alpha_main:
 	addl	$4, %esp
 # End print
 # Begin print
-	pushl	$LS5
+	pushl	$LS_05
 	call	_println_string
 	addl	$4, %esp
 # End print
@@ -265,7 +265,7 @@ _alpha_main:
 	addl	$4, %esp
 # End print
 # Begin print
-	pushl	$LS6
+	pushl	$LS_06
 	call	_println_string
 	addl	$4, %esp
 # End print
@@ -292,7 +292,7 @@ _alpha_main:
 	addl	$4, %esp
 # End print
 # Begin print
-	pushl	$LS7
+	pushl	$LS_07
 	call	_println_string
 	addl	$4, %esp
 # End print
@@ -306,7 +306,7 @@ _alpha_main:
 	movl	%eax, 32(%esp)
 # End Var 
 # Begin print
-	pushl	$LS8
+	pushl	$LS_08
 	call	_print_string
 	addl	$4, %esp
 # End print
@@ -319,7 +319,7 @@ _alpha_main:
 	addl	$4, %esp
 # End print
 # Begin print
-	pushl	$LS9
+	pushl	$LS_09
 	call	_print_string
 	addl	$4, %esp
 # End print
@@ -332,7 +332,7 @@ _alpha_main:
 	addl	$4, %esp
 # End print
 # Begin print
-	pushl	$LS10
+	pushl	$LS_10
 	call	_println_string
 	addl	$4, %esp
 # End print
@@ -361,17 +361,29 @@ _alpha_main:
 	call	_println_int
 	addl	$4, %esp
 # End print
+# Begin print
+	pushl	$LS_11
+	call	_print_string
+	addl	$4, %esp
+# End print
+# Begin print
+	pushl	$LS_12
+	call	_println_string
+	addl	$4, %esp
+# End print
 	addl	$44, %esp
 	popl	%ebp
 	ret
 .data
-	LS1:	.ascii " :: Base test:\0"
-	LS10:	.ascii " :: Pointer Arithmetik:\0"
-	LS2:	.ascii " :: First variables:\0"
-	LS3:	.ascii " :: Reassigned variables:\0"
-	LS4:	.ascii " :: Math. prints:\0"
-	LS5:	.ascii " :: Math. variables:\0"
-	LS6:	.ascii " :: Math. prints with variables:\0"
-	LS7:	.ascii " :: Math. with variables and stored into variables:\0"
-	LS8:	.ascii " > c is now \0"
-	LS9:	.ascii " > But d is still \0"
+	LS_01:	.ascii " :: Base test:\0"
+	LS_02:	.ascii " :: First variables:\0"
+	LS_03:	.ascii " :: Reassigned variables:\0"
+	LS_04:	.ascii " :: Math. prints:\0"
+	LS_05:	.ascii " :: Math. variables:\0"
+	LS_06:	.ascii " :: Math. prints with variables:\0"
+	LS_07:	.ascii " :: Math. with variables and stored into variables:\0"
+	LS_08:	.ascii " > c is now \0"
+	LS_09:	.ascii " > But d is still \0"
+	LS_10:	.ascii " :: Pointer Arithmetik:\0"
+	LS_11:	.ascii "Hallo,\0"
+	LS_12:	.ascii "Welt\0"
