@@ -23,7 +23,6 @@ struct VarVal : public Var {
 };
 
 enum class RefType {
-	ByVal,
 	EnRef,
 	DeRef
 };

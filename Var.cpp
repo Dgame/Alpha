@@ -32,15 +32,6 @@ VarRef::VarRef(u32_t the_offset, const Var* var, RefType rt) : Var(the_offset), 
 
 void VarRef::eval(std::ostream& out) const {
 	switch (this->refType) {
-		case RefType::ByVal:
-			out << "# Begin ByVal " << std::endl;
-
-			gas::mov(out, gas::Offset(this->addr, P_STACK), E_AX);
-			gas::mov(out, E_AX, gas::Offset(this->offset, P_STACK));
-
-			out << "# End ByVal " << std::endl;
-		break;
-
 		case RefType::DeRef:
 			out << "# Begin DeRef " << std::endl;
 

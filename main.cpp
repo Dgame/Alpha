@@ -15,7 +15,7 @@ int main() {
 	Function main_func("alpha_main", new Scope());
 
 	main_func.scope->makeVar("a", new NumExpr(42));
-	main_func.scope->makeVar("b", main_func.scope->getVar("a"), RefType::ByVal);
+	// main_func.scope->makeVar("b", main_func.scope->getVar("a"), RefType::ByVal);
 	main_func.scope->makeVar("c", main_func.scope->getVar("b"), RefType::EnRef);
 	main_func.scope->makeVar("d", main_func.scope->getVar("c"), RefType::DeRef);
 

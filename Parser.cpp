@@ -234,21 +234,29 @@ void Parser::parseScope(Scope** scope) {
 
 void Parser::parseStmt(Scope* scope) {
     if (accept("print")) {
-        const Expr* exp = parseExpr(scope);
-        if (exp) {
-            scope->addStmt(new PrintStmt(exp));
-            return;
+        MultiplePrintStmt* multi_print = new MultiplePrintStmt();
+        while (!_error) {
+            const u32_t print_size = multi_print->prints.size();
+            
+            if (const Expr* exp = parseExpr(scope))
+                multi_print->append(new PrintStmt(exp));
+            else {
+                std::string ident;
+                if (readString(&ident)) {
+                    const std::string label = this->addDataSection(ident);
+                    multi_print->append(new PrintStmt(label));
+                }
+            }
+
+            if (multi_print->prints.size() == print_size)
+                error("Nothing to print");
+
+            if (!accept(","))
+                break;
         }
-
-        std::string ident;
-        if (readString(&ident)) {
-            const std::string label = this->addDataSection(ident);
-            scope->addStmt(new PrintStmt(label));
-
-            return;
-        }
-
-        error("Nothing to print");
+        // adjust, so that the first (N - 1) prints does not have a new line
+        multi_print->adjust();
+        scope->addStmt(multi_print);
     }
 }
 
@@ -299,19 +307,13 @@ void Parser::parseVar(Scope* scope) {
 
 void Parser::parseVarVal(std::string& name, Scope* scope) {
     // By Value
-    const Var* var = readVar(scope);
-    if (var)
-        scope->makeVar(name, var, RefType::ByVal);
-    else {
-        pop();
-        const Expr* exp = parseExpr(scope);
-        if (!exp) {
-            error("No assignment found for variable " + name);
+    const Expr* exp = parseExpr(scope);
+    if (!exp) {
+        error("No assignment found for variable " + name);
 
-            return;
-        }
-        scope->makeVar(name, exp);
+        return;
     }
+    scope->makeVar(name, exp);
 }
 
 void Parser::parseVarEnRef(std::string& name, Scope* scope) {
