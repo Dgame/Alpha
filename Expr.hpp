@@ -5,16 +5,25 @@
 #include <memory>
 #include "types.hpp"
 
-struct NumExpr;
-
 struct Expr {
 	virtual ~Expr() { }
 
-	virtual void eval(std::ostream&) const = 0;
-
-	virtual const NumExpr* isNumExpr() const {
-		return nullptr;
+	// offset (default 0) used for operations
+	virtual u32_t getOffset() const {
+		return 0;
 	}
+
+	// compile time eval. if not possible, ptr is null
+	virtual void cte(const i32_t** ptr) const {
+		*ptr = nullptr;
+	}
+
+	//
+	virtual bool needEval() const {
+		return true;
+	}
+
+	virtual void eval(std::ostream&) const = 0;
 };
 
 struct NumExpr : public Expr {
@@ -22,8 +31,8 @@ struct NumExpr : public Expr {
 
 	explicit NumExpr(i32_t val);
 
-	virtual const NumExpr* isNumExpr() const override {
-		return this;
+	virtual void cte(const i32_t** ptr) const {
+		*ptr = &this->value;
 	}
 
 	virtual void eval(std::ostream&) const override;
@@ -33,6 +42,14 @@ struct VarExpr : public Expr {
 	u32_t offset;
 
 	explicit VarExpr(u32_t the_offset);
+
+	virtual u32_t getOffset() const override {
+		return this->offset;
+	}
+
+	virtual bool needEval() const {
+		return false;
+	}
 
 	virtual void eval(std::ostream&) const override;
 };

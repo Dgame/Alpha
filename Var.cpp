@@ -13,8 +13,11 @@ VarVal::VarVal(u32_t the_offset, const Expr* the_exp) : Var(the_offset), expr(th
 void VarVal::eval(std::ostream& out) const {
 	out << "# Begin Var " << std::endl;
 
-	if (const NumExpr* num_expr = this->expr->isNumExpr())
-		gas::mov(out, num_expr->value, gas::Offset(this->offset, P_STACK));
+	const i32_t* value = nullptr;
+	this->expr->cte(&value);
+
+	if (value)
+		gas::mov(out, *value, gas::Offset(this->offset, P_STACK));
 	else {
 		this->expr->eval(out);
 		gas::mov(out, E_AX, gas::Offset(this->offset, P_STACK));
@@ -74,8 +77,11 @@ void Array::eval(std::ostream& out) const {
 	out << "# Begin Array " << std::endl;
 
 	for (u32_t i = 0; i < this->items.size(); i++) {
-		if (const NumExpr* num_expr = this->items[i]->isNumExpr())
-			gas::mov(out, num_expr->value, gas::Offset(this->offset + (i * 4), P_STACK));
+		const i32_t* value = nullptr;
+		this->items[i]->cte(&value);
+
+		if (value)
+			gas::mov(out, *value, gas::Offset(this->offset + (i * 4), P_STACK));
 		else {
 			this->items[i]->eval(out);
 			gas::mov(out, E_AX, gas::Offset(this->offset + (i * 4), P_STACK));

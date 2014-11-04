@@ -12,11 +12,16 @@ AddOp::AddOp(const Expr* left, const Expr* right) : Operation(left, right) {
 void AddOp::eval(std::ostream& out) const {
 	out << "# Begin AddOp " << std::endl;
 
-	this->lhs->eval(out);
-	gas::push(out, E_AX);
+	if (this->lhs->needEval()) {
+		this->lhs->eval(out);
+		gas::push(out, E_AX);
+	}
+
 	this->rhs->eval(out);
-	gas::add(out, gas::Offset(0, P_STACK), E_AX);
-	gas::add(out, 4, P_STACK);
+	gas::add(out, gas::Offset(this->lhs->getOffset(), P_STACK), E_AX);
+
+	if (this->lhs->needEval())
+		gas::add(out, 4, P_STACK);
 
 	out << "# End AddOp " << std::endl;
 }
@@ -28,11 +33,16 @@ SubOp::SubOp(const Expr* left, const Expr* right) : Operation(left, right) {
 void SubOp::eval(std::ostream& out) const {
 	out << "# Begin SubOp " << std::endl;
 
-	this->lhs->eval(out);
-	gas::push(out, E_AX);
+	if (this->lhs->needEval()) {
+		this->lhs->eval(out);
+		gas::push(out, E_AX);
+	}
+
 	this->rhs->eval(out);
-	gas::sub(out, gas::Offset(0, P_STACK), E_AX);
-	gas::add(out, 4, P_STACK);
+	gas::sub(out, gas::Offset(this->lhs->getOffset(), P_STACK), E_AX);
+
+	if (this->lhs->needEval())
+		gas::add(out, 4, P_STACK);
 
 	out << "# End SubOp " << std::endl;
 }
@@ -44,11 +54,16 @@ MulOp::MulOp(const Expr* left, const Expr* right) : Operation(left, right) {
 void MulOp::eval(std::ostream& out) const {
 	out << "# Begin MulOp " << std::endl;
 
-	this->lhs->eval(out);
-	gas::push(out, E_AX);
+	if (this->lhs->needEval()) {
+		this->lhs->eval(out);
+		gas::push(out, E_AX);
+	}
+
 	this->rhs->eval(out);
-	gas::imul(out, gas::Offset(0, P_STACK), E_AX);
-	gas::add(out, 4, P_STACK);
+	gas::imul(out, gas::Offset(this->lhs->getOffset(), P_STACK), E_AX);
+
+	if (this->lhs->needEval())
+		gas::add(out, 4, P_STACK);
 
 	out << "# End MulOp " << std::endl;
 }

@@ -14,8 +14,11 @@ void PrintStmt::eval(std::ostream& out) const {
 	out << "# Begin print" << std::endl;
 
 	if (this->expr) {
-		if (const NumExpr* num_expr = this->expr->isNumExpr())
-			gas::push(out, num_expr->value);
+		const i32_t* value = nullptr;
+		this->expr->cte(&value);
+
+		if (value)
+			gas::push(out, *value);
 		else {
 			this->expr->eval(out);
 			gas::push(out, E_AX);

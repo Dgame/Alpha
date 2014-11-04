@@ -350,7 +350,7 @@ Expr* Parser::parseExpr(Scope* scope) {
                     return nullptr;
                 }
 
-                lhs = new SubOp(lhs, rhs);
+                lhs = new SubOp(rhs, lhs);
             } else
                 break;
         }
