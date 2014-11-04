@@ -37,7 +37,7 @@ main:() {
 	print c + d
 	print d + c
 
-	print "Pointer"
+	print "Pointer Arithmetik"
 	g -> b
 	h <- g
 

@@ -329,4 +329,4 @@ _alpha_main:
 	LS4:	.ascii "Math. prints\0"
 	LS5:	.ascii "Math. variable\0"
 	LS6:	.ascii "Math. prints with variables\0"
-	LS7:	.ascii "Pointer\0"
+	LS7:	.ascii "Pointer Arithmetik\0"
