@@ -5,7 +5,7 @@
 _alpha_main:
 	pushl	%ebp
 	movl	%esp, %ebp
-	subl	$32, %esp
+	subl	$40, %esp
 # Begin print
 	pushl	$LS1
 	call	_print_string
@@ -289,7 +289,37 @@ _alpha_main:
 	call	_print_int
 	addl	$4, %esp
 # End print
-	addl	$32, %esp
+# Begin print
+	pushl	$LS7
+	call	_print_string
+	addl	$4, %esp
+# End print
+# Begin EnRef 
+	leal	12(%esp), %eax
+	movl	%eax, 32(%esp)
+# End EnRef 
+# Begin DeRef 
+	movl	32(%esp), %eax
+	movl	0(%eax), %eax
+	movl	%eax, 36(%esp)
+# End DeRef 
+# Begin print
+# Begin VarExpr 
+	movl	32(%esp), %eax
+# End VarExpr 
+	pushl	%eax
+	call	_print_int
+	addl	$4, %esp
+# End print
+# Begin print
+# Begin VarExpr 
+	movl	36(%esp), %eax
+# End VarExpr 
+	pushl	%eax
+	call	_print_int
+	addl	$4, %esp
+# End print
+	addl	$40, %esp
 	popl	%ebp
 	ret
 .data
@@ -299,3 +329,4 @@ _alpha_main:
 	LS4:	.ascii "Math. prints\0"
 	LS5:	.ascii "Math. variable\0"
 	LS6:	.ascii "Math. prints with variables\0"
+	LS7:	.ascii "Pointer\0"

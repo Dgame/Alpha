@@ -315,13 +315,26 @@ void Parser::parseVarVal(std::string& name, Scope* scope) {
 }
 
 void Parser::parseVarEnRef(std::string& name, Scope* scope) {
-
+    // Reference
+    const Var* var = readVar(scope);
+    if (var)
+        scope->makeVar(name, var, RefType::EnRef);
+    else {
+        error("Need valid variable for reference.");
+        pop();
+    }
 }
 
 void Parser::parseVarDeRef(std::string& name, Scope* scope) {
-
+    // Dereference
+    const Var* var = readVar(scope);
+    if (var)
+        scope->makeVar(name, var, RefType::DeRef);
+    else {
+        error("Need valid variable for dereference.");
+        pop();
+    }
 }
-
 
 Expr* Parser::parseExpr(Scope* scope) {
     Expr* lhs = parseTerm(scope);

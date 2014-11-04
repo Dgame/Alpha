@@ -37,13 +37,10 @@ main:() {
 	print c + d
 	print d + c
 
-	# print g
-	# print h
+	print "Pointer"
+	g -> b
+	h <- g
 
-	# print "Pointer"
-	# i -> b
-	# j <- i
-
-	# print i
-	# print j
+	print g
+	print h
 }
