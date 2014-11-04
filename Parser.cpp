@@ -386,7 +386,7 @@ Expr* Parser::parseTerm(Scope* scope) {
                     return nullptr;
                 }
 
-                lhs = new DivOp(lhs, rhs);
+                lhs = new DivOp(rhs, lhs);
             } else 
                 break;
         }
