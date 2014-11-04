@@ -1,7 +1,0 @@
-var a = 9
-
-if a < 10 {
-	a = a + 1
-}
-
-print a

@@ -1,0 +1,46 @@
+main:() {
+	print "Base test"
+	print 42
+	print 23
+
+	a = 42
+	b = a
+
+	print "First variables"
+	print a
+	print b
+
+	a = 4
+	b = 2
+
+	print "Reassigned variables"
+	print a
+	print b
+
+	print "Math. prints"
+	print 2 * 2
+	print 25 + 5
+	print 1 + 2 * 3
+
+	print "Math. variable"
+	c = 1 + 2 * 3
+	d = (1 + 2) * 3
+	e = 2 - 3 * 2
+	f = (2 - 3) * 2
+
+	print c
+	print d
+	print e
+	print f
+
+	print "Math. prints with variables"
+	print c + d
+	print d + c
+
+	print "Pointer Arithmetik"
+	g -> b
+	h <- g
+
+	print g
+	print h
+}

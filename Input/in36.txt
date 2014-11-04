@@ -1,3 +1,0 @@
-var as[4]
-#var bs[]
-#var cs[2] = [42]

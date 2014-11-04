@@ -1,68 +1,44 @@
-#include <cstdio>
-#include <iostream>
-#include <fstream>
-#include <vector>
-#include <string>
+#define TEST 0
+
+#if TEST
+#include "Var.hpp"
+#include "Func.hpp"
+#include "Operation.hpp"
+#include "Statement.hpp"
+#else
 #include "Parser.hpp"
-#include "Backend.hpp"
+#endif
 
-void loadContent(const std::string& filename, std::vector<char>& content) {
-	std::ifstream in(filename);
+int main() {
+#if TEST
+	std::cout << ".text" << std::endl;
+	Function main_func("alpha_main", new Scope());
 
-	std::copy(
-		std::istreambuf_iterator<char>(in.rdbuf()),
-		std::istreambuf_iterator<char>(),
-		std::inserter(content, content.begin()));
-}
+	main_func.scope->makeVar("a", new NumExpr(42));
+	main_func.scope->makeVar("b", main_func.scope->getVar("a"), RefType::ByVal);
+	main_func.scope->makeVar("c", main_func.scope->getVar("b"), RefType::EnRef);
+	main_func.scope->makeVar("d", main_func.scope->getVar("c"), RefType::DeRef);
 
-int main(/*int argc, char const* argv[]*/) {
-	for (unsigned int nr = 0; nr < 41; nr++) {
-		std::ostringstream in;
-		in << "Input/in" << nr << ".txt";
+	main_func.scope->addStmt(new PrintStmt(main_func.scope->getVar("a")));
+	main_func.scope->addStmt(new PrintStmt(main_func.scope->getVar("b")));
 
-		const std::string filename = in.str();
+	main_func.scope->addStmt(new PrintStmt(new NumExpr(23)));
 
-		std::cerr << filename << std::endl;
+	MulOp* mul1 = new MulOp(new NumExpr(2), new AddOp(new NumExpr(4), new NumExpr(8)));
+	main_func.scope->addStmt(new PrintStmt(mul1));
 
-		std::vector<char> content;
-		loadContent(filename, content);
+	AddOp* add1 = new AddOp(new MulOp(new NumExpr(2), new NumExpr(4)), new NumExpr(8));
+	main_func.scope->addStmt(new PrintStmt(add1));
 
-		ScopeManager sm;
-		sm.pushScope();
+	main_func.eval(std::cout);
+#else
+	std::ofstream out("test.s");
 
-		VarManager vm(sm);
-		CommandManager cm(sm);
+	Parser p("test.alpha");
+	p.parse();
 
-		Env env;
-		env.vm = &vm;
-		env.cm = &cm;
-		env.sm = &sm;
-
-		Loc loc(filename, &*content.begin(), &*content.end() + 1);
-
-		Parser p(env, loc);
-
-		while (p.parse()) {
-
-		}
-
-		if (!loc.eof()) 
-			break;
-
-		std::ostringstream out;
-		out << "Output/out" << nr << ".s";
-
-		freopen(out.str().c_str(), "w", stdout);
-
-		BackendVisitor backend(vm.stackSize);
-
-		while (sm.scopes.size() != 0) {
-			std::unique_ptr<Scope> scope = std::move(sm.scopes.front());
-			sm.scopes.pop_front();
-
-			backend.visit(scope.get());
-		}
+	if (!p.hasErrors()) {
+		p.eval(out);
 	}
-
-	return 0;
+#endif
 }
