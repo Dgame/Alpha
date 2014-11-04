@@ -12,7 +12,7 @@ AddOp::AddOp(const Expr* left, const Expr* right) : Operation(left, right) {
 void AddOp::eval(std::ostream& out) const {
 	out << "# Begin AddOp " << std::endl;
 
-	if (this->lhs->needEval()) {
+	if (this->lhs->requireStoring()) {
 		this->lhs->eval(out);
 		gas::push(out, E_AX);
 	}
@@ -20,7 +20,7 @@ void AddOp::eval(std::ostream& out) const {
 	this->rhs->eval(out);
 	gas::add(out, gas::Offset(this->lhs->getOffset(), P_STACK), E_AX);
 
-	if (this->lhs->needEval())
+	if (this->lhs->requireStoring())
 		gas::add(out, 4, P_STACK);
 
 	out << "# End AddOp " << std::endl;
@@ -33,7 +33,7 @@ SubOp::SubOp(const Expr* left, const Expr* right) : Operation(left, right) {
 void SubOp::eval(std::ostream& out) const {
 	out << "# Begin SubOp " << std::endl;
 
-	if (this->lhs->needEval()) {
+	if (this->lhs->requireStoring()) {
 		this->lhs->eval(out);
 		gas::push(out, E_AX);
 	}
@@ -41,7 +41,7 @@ void SubOp::eval(std::ostream& out) const {
 	this->rhs->eval(out);
 	gas::sub(out, gas::Offset(this->lhs->getOffset(), P_STACK), E_AX);
 
-	if (this->lhs->needEval())
+	if (this->lhs->requireStoring())
 		gas::add(out, 4, P_STACK);
 
 	out << "# End SubOp " << std::endl;
@@ -54,7 +54,7 @@ MulOp::MulOp(const Expr* left, const Expr* right) : Operation(left, right) {
 void MulOp::eval(std::ostream& out) const {
 	out << "# Begin MulOp " << std::endl;
 
-	if (this->lhs->needEval()) {
+	if (this->lhs->requireStoring()) {
 		this->lhs->eval(out);
 		gas::push(out, E_AX);
 	}
@@ -62,7 +62,7 @@ void MulOp::eval(std::ostream& out) const {
 	this->rhs->eval(out);
 	gas::imul(out, gas::Offset(this->lhs->getOffset(), P_STACK), E_AX);
 
-	if (this->lhs->needEval())
+	if (this->lhs->requireStoring())
 		gas::add(out, 4, P_STACK);
 
 	out << "# End MulOp " << std::endl;

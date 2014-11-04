@@ -19,7 +19,7 @@ struct Expr {
 	}
 
 	//
-	virtual bool needEval() const {
+	virtual bool requireStoring() const {
 		return true;
 	}
 
@@ -47,7 +47,7 @@ struct VarExpr : public Expr {
 		return this->offset;
 	}
 
-	virtual bool needEval() const {
+	virtual bool requireStoring() const {
 		return false;
 	}
 
