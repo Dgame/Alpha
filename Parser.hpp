@@ -3,6 +3,7 @@
 
 #include <fstream>
 #include "Func.hpp"
+#include "DataSection.hpp"
 
 struct Parser {
 	char* _pos;
@@ -17,7 +18,8 @@ struct Parser {
 	char* _old_pos;
 
 	std::vector<std::unique_ptr<Function>> functions;
-	std::map<std::string, std::string> data_sections;
+
+	DataSection data_section;
 
 	explicit Parser(const std::string&);
 
@@ -63,11 +65,13 @@ struct Parser {
 	void parseScope(Scope**);
 
 	void parseStmt(Scope*);
-
+	void parsePrint(Scope*);
 	void parseIf(Scope*);
 	void parseElse(Scope*);
-
 	void parseLoop(Scope*);
+
+	void parseCompExpr();
+	void parseBoolExpr();
 
 	void parseArray(Scope*);
 

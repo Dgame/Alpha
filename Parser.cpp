@@ -18,16 +18,6 @@ Parser::Parser(const std::string& file) : _line(1), _filename(file) {
     _end = &*_content.end() + 1;
 }
 
-const std::string Parser::addDataSection(const std::string& str) {
-    const u32_t next_size = this->data_sections.size() + 1;
-    const std::string prefix = (next_size < 10) ? "_0" : "_";
-    const std::string label = "LS" + prefix + std::to_string(this->data_sections.size() + 1);
-
-    this->data_sections[label] = str;
-    
-    return label;
-}
-
 void Parser::eval(std::ostream& out) const {
     out << ".text" << std::endl;
     
@@ -35,11 +25,7 @@ void Parser::eval(std::ostream& out) const {
         func->eval(out);
     }
 
-    out << ".data" << std::endl;
-    for (auto& pair : this->data_sections) {
-        out << "\t" << pair.first << ':';
-        out << "\t.ascii \"" << pair.second << "\\0\"" << std::endl;
-    }
+    this->data_section.writeDataSections(out);
 }
 
 void Parser::skipSpaces() {
@@ -98,19 +84,6 @@ bool Parser::readIdentifier(std::string* ident) {
 
     return false;
 }
-
-char unescape_character(char c) {
-    switch (c) {
-        case 'n': return '\n';
-        case 't': return '\t';
-        case '\\': return '\\';
-        case '\"': return '\"';
-    }
-
-    std::cerr << "Unknown escape sequence \\" << c << std::endl;
-
-    return c;
-}
   
 bool Parser::readString(std::string* ident) { 
     skipSpaces();
@@ -128,7 +101,7 @@ bool Parser::readString(std::string* ident) {
                     return false;
                 }
 
-                *ident += unescape_character(*_pos);
+                *ident += unescape_char(*_pos);
             } else
                 *ident += *_pos;
 
@@ -193,8 +166,6 @@ void Parser::parse() {
 bool Parser::parseFunc() {
     std::string name;
     if (readIdentifier(&name)) {
-        expect(":");
-        // TODO: Return type
         parseParam();
 
         Scope* my_scope = nullptr;
@@ -236,6 +207,11 @@ void Parser::parseScope(Scope** scope) {
 }
 
 void Parser::parseStmt(Scope* scope) {
+    parsePrint(scope);
+    parseIf(scope);
+}
+
+void Parser::parsePrint(Scope* scope) {
     if (accept("print")) {
         MultiplePrintStmt* multi_print = new MultiplePrintStmt();
         while (!_error) {
@@ -246,7 +222,9 @@ void Parser::parseStmt(Scope* scope) {
             else {
                 std::string ident;
                 if (readString(&ident)) {
-                    const std::string label = this->addDataSection(ident);
+                    const std::string label = make_unique_label();
+                    this->data_section.addDataSection(label, ident);
+
                     multi_print->append(new PrintStmt(label));
                 }
             }
@@ -263,6 +241,79 @@ void Parser::parseStmt(Scope* scope) {
     }
 }
 
+void Parser::parseArray(Scope*) {
+
+}
+
+void Parser::parseCompExpr() {
+    // if (accept("true")) {
+    //     env.out<<"movl $1, %eax"<<endl; 
+    //     return true; 
+    // }else if(ignore(pos, end, "false")){ 
+    //     env.out<<"movl $0, %eax"<<endl; 
+    //     return true; 
+    // }else if(parse_numeric_expression(env, pos, end)){ 
+    //     BacktrackGuard guard(pos); 
+    //     string condition_code; 
+    //     if(ignore(pos, end, "=")) 
+    //         condition_code = "e"; 
+    //     else if(ignore(pos, end, "!=")) 
+    //         condition_code = "ne"; 
+    //     else if(ignore(pos, end, "<=")) 
+    //         condition_code = "be"; 
+    //     else if(ignore(pos, end, ">=")) 
+    //         condition_code = "ae"; 
+    //     else if(ignore(pos, end, "<")) 
+    //         condition_code = "b"; 
+    //     else if(ignore(pos, end, ">")) 
+    //         condition_code = "a"; 
+    //     else 
+    //         cerr<<"Unknown compare operator"<<endl; 
+    //     env.out<<"pushl %eax"<<endl; 
+    //     if(parse_numeric_expression(env, pos, end)){ 
+    //         env.out 
+    //             <<"cmpl %eax, (%esp)"<<endl 
+    //             <<"movl $0, %eax"<<endl 
+    //             <<"set"<<condition_code<<" %al"<<endl 
+    //             <<"addl $4, %esp"<<endl; 
+    //         guard.no_backtrack(); 
+    //         return true; 
+    //     } 
+    // } 
+    // return false; 
+} 
+  
+void Parser::parseBoolExpr() { 
+    // BacktrackGuard guard(pos); 
+    // bool not_operation = false; 
+    // if(ignore(pos, end, "!")) 
+    //     not_operation = true; 
+    // if(parse_compare_expression(env, pos, end)){ 
+    //     for(;;){ 
+    //         string operation; 
+    //         if(ignore(pos, end, "&")) 
+    //             operation = "and"; 
+    //         else if(ignore(pos, end, "|")) 
+    //             operation = "or"; 
+    //         else if(ignore(pos, end, "^")) 
+    //             operation = "xor"; 
+    //         else{ 
+    //             if(not_operation) 
+    //                 env.out<<"notl %eax"<<endl; 
+    //             guard.no_backtrack(); 
+    //             return true; 
+    //         } 
+    //         env.out<<"pushl %eax"<<endl; 
+    //         if(!parse_compare_expression(env, pos, end)) 
+    //             return false; 
+    //         env.out 
+    //             <<operation<<" %eax, (%esp)"<<endl 
+    //             <<"addl $4, %esp"<<endl; 
+    //     } 
+    // } 
+    // return false; 
+}
+
 void Parser::parseIf(Scope*) {
 
 }
@@ -272,10 +323,6 @@ void Parser::parseElse(Scope*) {
 }
 
 void Parser::parseLoop(Scope*) {
-
-}
-
-void Parser::parseArray(Scope*) {
 
 }
 
