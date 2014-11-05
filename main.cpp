@@ -5,6 +5,7 @@
 #include "Func.hpp"
 #include "Operation.hpp"
 #include "Statement.hpp"
+#include "ExtStmt.hpp"
 #else
 #include "Parser.hpp"
 #endif
@@ -15,12 +16,12 @@ int main() {
 	Function main_func("alpha_main", new Scope());
 
 	main_func.scope->makeVar("a", new NumExpr(42));
-	// main_func.scope->makeVar("b", main_func.scope->getVar("a"), RefType::ByVal);
+	main_func.scope->makeVar("b", new VarExpr(main_func.scope->getVar("a")->offset));
 	main_func.scope->makeVar("c", main_func.scope->getVar("b"), RefType::EnRef);
 	main_func.scope->makeVar("d", main_func.scope->getVar("c"), RefType::DeRef);
 
-	main_func.scope->addStmt(new PrintStmt(main_func.scope->getVar("a")));
-	main_func.scope->addStmt(new PrintStmt(main_func.scope->getVar("b")));
+	main_func.scope->addStmt(new PrintStmt(new VarExpr(main_func.scope->getVar("a")->offset)));
+	main_func.scope->addStmt(new PrintStmt(new VarExpr(main_func.scope->getVar("b")->offset)));
 
 	main_func.scope->addStmt(new PrintStmt(new NumExpr(23)));
 
@@ -30,7 +31,11 @@ int main() {
 	AddOp* add1 = new AddOp(new MulOp(new NumExpr(2), new NumExpr(4)), new NumExpr(8));
 	main_func.scope->addStmt(new PrintStmt(add1));
 
-	main_func.eval(std::cout);
+	GreaterOp* gop = new GreaterOp(new NumExpr(1), new NumExpr(2));
+	IfStmt my_if("foo", gop, new Scope());
+	my_if.eval(std::cout);
+
+	// main_func.eval(std::cout);
 #else
 	std::ofstream out("test.s");
 

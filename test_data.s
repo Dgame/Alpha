@@ -2,7 +2,7 @@
 	.def	___main;	.scl	2;	.type	32;	.endef
 	.section .rdata,"dr"
 LC0:
-	.ascii "Hallo\0"
+	.ascii "c = %d\12\0"
 	.text
 	.globl	_main
 	.def	_main;	.scl	2;	.type	32;	.endef
@@ -12,16 +12,25 @@ _main:
 	andl	$-16, %esp
 	subl	$32, %esp
 	call	___main
-	movl	$42, 28(%esp)
-	jmp	L2
-L3:
-	subl	$1, 28(%esp)
-L2:
-	cmpl	$0, 28(%esp)
-	jg	L3
-	movl	$LC0, 24(%esp)
+	movl	$4, 24(%esp)
+	movl	$4, 20(%esp)
+	movl	$23, 28(%esp)
 	movl	24(%esp), %eax
-	movl	%eax, (%esp)
+	# Begin NumExpr
+        movl    $1, %eax
+# End NumExpr
+        # pushl   %eax
+# Begin NumExpr
+        # movl    $2, %eax
+# End NumExpr
+        cmpl    $1, %eax
+        # addl    $4, %esp
+	jle	L2
+	movl	$42, 28(%esp)
+L2:
+	movl	28(%esp), %eax
+	movl	%eax, 4(%esp)
+	movl	$LC0, (%esp)
 	call	_printf
 	leave
 	ret

@@ -17,39 +17,41 @@ main() {
 	print a
 	print b
 
-	print " :: Math. prints:"
-	print 2 * 2
-	print 25 + 5
-	print 1 + 2 * 3
+	print a + b
 
-	print " :: Math. variables:"
-	c = 1 + 2 * 3
-	d = (1 + 2) * 3
-	e = 2 - 3 * 2
-	f = (2 - 3) * 2
+	# print " :: Math. prints:"
+	# print 2 * 2
+	# print 25 + 5
+	# print 1 + 2 * 3
 
-	print c
-	print d
-	print e
-	print f
+	# print " :: Math. variables:"
+	# c = 1 + 2 * 3
+	# d = (1 + 2) * 3
+	# e = 2 - 3 * 2
+	# f = (2 - 3) * 2
 
-	print " :: Math. prints with variables:"
-	print c + d
-	print d + c
+	# print c
+	# print d
+	# print e
+	# print f
 
-	print " :: Math. with variables and stored into variables:"
+	# print " :: Math. prints with variables:"
+	# print c + d
+	# print d + c
 
-	c = c + d
+	# print " :: Math. with variables and stored into variables:"
 
-	print " > c is now ", c
-	print " > But d is still ", d
+	# c = c + d
 
-	print " :: Pointer Arithmetik:"
-	g -> b
-	h <- g
+	# print " > c is now ", c
+	# print " > But d is still ", d
 
-	print g
-	print h
+	# print " :: Pointer Arithmetik:"
+	# g -> b
+	# h <- g
 
-	print "Hallo,", "Welt"
+	# print g
+	# print h
+
+	# print "Hallo,", "Welt"
 }

@@ -7,29 +7,31 @@ struct Operation : public Expr {
 	const std::unique_ptr<const Expr> lhs;
 	const std::unique_ptr<const Expr> rhs;
 
-	explicit Operation(const Expr* left, const Expr* right);
+	explicit Operation(const Expr*, const Expr*);
+
+	virtual ~Operation() { }
 };
 
 struct AddOp : public Operation {
-	explicit AddOp(const Expr* left, const Expr* right);
+	explicit AddOp(const Expr*, const Expr*);
 
 	virtual void eval(std::ostream&) const override;
 };
 
 struct SubOp : public Operation {
-	explicit SubOp(const Expr* left, const Expr* right);
+	explicit SubOp(const Expr*, const Expr*);
 
 	virtual void eval(std::ostream&) const override;
 };
 
 struct MulOp : public Operation {
-	explicit MulOp(const Expr* left, const Expr* right);
+	explicit MulOp(const Expr*, const Expr*);
 
 	virtual void eval(std::ostream&) const override;
 };
 
 struct DivOp : public Operation {
-	explicit DivOp(const Expr* left, const Expr* right);
+	explicit DivOp(const Expr*, const Expr*);
 
 	virtual void eval(std::ostream&) const override;
 };

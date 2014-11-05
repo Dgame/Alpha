@@ -246,72 +246,11 @@ void Parser::parseArray(Scope*) {
 }
 
 void Parser::parseCompExpr() {
-    // if (accept("true")) {
-    //     env.out<<"movl $1, %eax"<<endl; 
-    //     return true; 
-    // }else if(ignore(pos, end, "false")){ 
-    //     env.out<<"movl $0, %eax"<<endl; 
-    //     return true; 
-    // }else if(parse_numeric_expression(env, pos, end)){ 
-    //     BacktrackGuard guard(pos); 
-    //     string condition_code; 
-    //     if(ignore(pos, end, "=")) 
-    //         condition_code = "e"; 
-    //     else if(ignore(pos, end, "!=")) 
-    //         condition_code = "ne"; 
-    //     else if(ignore(pos, end, "<=")) 
-    //         condition_code = "be"; 
-    //     else if(ignore(pos, end, ">=")) 
-    //         condition_code = "ae"; 
-    //     else if(ignore(pos, end, "<")) 
-    //         condition_code = "b"; 
-    //     else if(ignore(pos, end, ">")) 
-    //         condition_code = "a"; 
-    //     else 
-    //         cerr<<"Unknown compare operator"<<endl; 
-    //     env.out<<"pushl %eax"<<endl; 
-    //     if(parse_numeric_expression(env, pos, end)){ 
-    //         env.out 
-    //             <<"cmpl %eax, (%esp)"<<endl 
-    //             <<"movl $0, %eax"<<endl 
-    //             <<"set"<<condition_code<<" %al"<<endl 
-    //             <<"addl $4, %esp"<<endl; 
-    //         guard.no_backtrack(); 
-    //         return true; 
-    //     } 
-    // } 
-    // return false; 
+
 } 
   
 void Parser::parseBoolExpr() { 
-    // BacktrackGuard guard(pos); 
-    // bool not_operation = false; 
-    // if(ignore(pos, end, "!")) 
-    //     not_operation = true; 
-    // if(parse_compare_expression(env, pos, end)){ 
-    //     for(;;){ 
-    //         string operation; 
-    //         if(ignore(pos, end, "&")) 
-    //             operation = "and"; 
-    //         else if(ignore(pos, end, "|")) 
-    //             operation = "or"; 
-    //         else if(ignore(pos, end, "^")) 
-    //             operation = "xor"; 
-    //         else{ 
-    //             if(not_operation) 
-    //                 env.out<<"notl %eax"<<endl; 
-    //             guard.no_backtrack(); 
-    //             return true; 
-    //         } 
-    //         env.out<<"pushl %eax"<<endl; 
-    //         if(!parse_compare_expression(env, pos, end)) 
-    //             return false; 
-    //         env.out 
-    //             <<operation<<" %eax, (%esp)"<<endl 
-    //             <<"addl $4, %esp"<<endl; 
-    //     } 
-    // } 
-    // return false; 
+
 }
 
 void Parser::parseIf(Scope*) {

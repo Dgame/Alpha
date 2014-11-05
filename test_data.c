@@ -1,11 +1,13 @@
 #include <stdio.h>
 
 int main() {
-	int a = 42;
-	while (a > 0) {
-		a--;
+	int a = 4;
+	int b = 4;
+
+	int c = 23;
+	if (a > b) {
+		c = 42;
 	}
 
-	const char* str = "Hallo";
-	printf(str);
+	printf("c = %d\n", c);
 }

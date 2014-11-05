@@ -53,16 +53,16 @@ enum Idx {
 };
 
 enum JCond {
-	J_Immediate,
-	J_IfZero,
-	J_IfEqual,
-	J_IfNotEqual,
-	J_IfGreater,
-	J_IfGraterEqual,
-	J_IfLess,
-	J_IfLessEqual,
-	J_IfAbove,
-	J_IfBelow
+	JMP_IMMEDIATE,
+	JMP_IF_ZERO,
+	JMP_IF_EQUAL,
+	JMP_IF_NOT_EQUAL,
+	JMP_IF_GREATER,
+	JMP_IF_GREATER_OR_EQUAL,
+	JMP_IF_LOWER,
+	JMP_IF_LOWER_OR_EQUAL,
+	JMP_IF_ABOVE,
+	JMP_IF_BELOW
 };
 
 namespace gas {

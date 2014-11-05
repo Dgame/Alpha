@@ -5,6 +5,7 @@
 #include <string>
 #include <memory>
 #include <vector>
+
 #include "Expr.hpp"
 #include "Stmt.hpp"
 
@@ -26,6 +27,7 @@ struct MultiplePrintStmt : public Statement {
 	std::vector<std::unique_ptr<PrintStmt>> prints;
 
 	void append(PrintStmt*);
+	// adjust for newlines at the end
 	void adjust();
 
 	virtual void eval(std::ostream&) const override;
