@@ -613,6 +613,14 @@ LI_34:
 	addl	$4, %esp
 # End print
 LE_35:
+# Begin else
+# Begin print
+	pushl	$LS_38
+	call	_println_string
+	addl	$4, %esp
+# End print
+LEND_37:
+# End else
 # End if
 # Begin if
 # Begin VarExpr 
@@ -623,14 +631,31 @@ LE_35:
 	movl	$2, %eax
 # End NumExpr 
 	cmpl	%eax, %ebx
-	jle	LE_38
-LI_37:
+	jle	LE_40
+LI_39:
 # Begin print
-	pushl	$LS_39
+	pushl	$LS_41
 	call	_println_string
 	addl	$4, %esp
 # End print
-LE_38:
+LE_40:
+# Begin else
+# Begin VarExpr 
+	movl	52(%esp), %eax
+# End VarExpr 
+	movl	%eax, %ebx
+# Begin NumExpr 
+	movl	$2, %eax
+# End NumExpr 
+	cmpl	%eax, %ebx
+	jne	LEND_42
+# Begin print
+	pushl	$LS_43
+	call	_println_string
+	addl	$4, %esp
+# End print
+LEND_42:
+# End else
 # End if
 	addl	$56, %esp
 	popl	%ebp
@@ -658,4 +683,6 @@ LE_38:
 	LS_32:	.ascii "a muss 2 sein\0"
 	LS_33:	.ascii "a = \0"
 	LS_36:	.ascii "a ist kleiner als 2\0"
-	LS_39:	.ascii "a ist größer als 2\0"
+	LS_38:	.ascii "a ist nicht kleiner als 2\0"
+	LS_41:	.ascii "a ist mehr als 2\0"
+	LS_43:	.ascii "a ist nicht mehr als 2, sondern genau 2!\0"

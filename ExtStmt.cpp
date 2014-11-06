@@ -16,5 +16,25 @@ void IfStmt::eval(std::ostream& out) const {
 	this->scope->eval(out);
 	out << this->else_label << ':' << std::endl;
 
+	if (this->else_stmt)
+		this->else_stmt->eval(out);
+
 	out << "# End if" << std::endl;
+}
+
+ElseStmt::ElseStmt(const std::string& the_end_label, const Compare* the_cond, Scope* the_scope)
+	: end_label(the_end_label), cond(the_cond), scope(the_scope)
+{
+
+}
+
+void ElseStmt::eval(std::ostream& out) const {
+	out << "# Begin else" << std::endl;
+
+	if (this->cond)
+		this->cond->eval(out);
+	this->scope->eval(out);
+	out << this->end_label << ':' << std::endl;
+
+	out << "# End else" << std::endl;
 }

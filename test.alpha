@@ -92,10 +92,14 @@ main() {
 
 	if a < 2 {
 		print "a ist kleiner als 2"
+	} else {
+		print "a ist nicht kleiner als 2"
 	}
 
 	if a > 2 {
-		print "a ist größer als 2"
+		print "a ist mehr als 2"
+	} else if a == 2 {
+		print "a ist nicht mehr als 2, sondern genau 2!"
 	}
 
 	#i, j = 0

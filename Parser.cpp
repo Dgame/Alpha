@@ -224,11 +224,11 @@ void Parser::parseScope(Scope** scope) {
 }
 
 void Parser::parseStmt() {
-    parsePrint();
-    parseIf();
+    parsePrintStmt();
+    parseIfStmt();
 }
 
-void Parser::parsePrint() {
+void Parser::parsePrintStmt() {
     if (accept("print")) {
         MultiplePrintStmt* multi_print = new MultiplePrintStmt();
         while (!eof() && !_error) {
@@ -258,8 +258,116 @@ void Parser::parsePrint() {
     }
 }
 
-void Parser::parseArray() {
+void Parser::parseIfStmt() {
+    if (accept("if")) {
+        accept("("); // not expect
 
+        const std::string if_label = make_unique_label("I");
+        const std::string else_label = make_unique_label("E");
+
+        Compare* cmp = parseCondExpr(if_label, else_label);
+        if (!cmp) {
+            error("No if expression was found");
+            return;
+        }
+
+        accept(")"); // not expect
+
+        Scope* scope = nullptr;
+        parseScope(&scope);
+
+        _cur_scope = scope->predecessor;
+        
+        IfStmt* if_stmt = new IfStmt(if_label, else_label, cmp, scope);
+        ElseStmt* else_stmt = parseElseStmt(else_label);
+        if (else_stmt)
+            if_stmt->else_stmt.reset(else_stmt);
+
+        _cur_scope->addStmt(if_stmt);
+    }
+}
+
+ElseStmt* Parser::parseElseStmt(const std::string& else_label) {
+    if (accept("else")) {
+        Compare* cmp = nullptr;
+        const std::string end_label = make_unique_label("END");
+
+        if (accept("if")) {
+             std::cout << "FOUND ELSE IF" << std::endl;
+            accept("("); // not expect
+
+            cmp = parseCondExpr(else_label, end_label);
+            if (!cmp) {
+                error("No if expression was found");
+                return nullptr;
+            }
+
+            accept(")"); // not expect
+        }
+
+        Scope* scope = nullptr;
+        parseScope(&scope);
+
+        _cur_scope = scope->predecessor;
+
+        return new ElseStmt(end_label, cmp, scope);
+    }
+
+    return nullptr;
+}
+
+void Parser::parseLoopStmt() {
+
+}
+
+Compare* Parser::parseCondExpr(const std::string& if_label, const std::string& else_label) {
+    Compare* cmp = nullptr;
+    while (!eof() && !_error) {
+        Compare* left_cmp = parseCompExpr();
+        if (!left_cmp)
+            break;
+
+        if (accept("&&") || accept("||")) {
+            error("Use 'and' instead of '&&' and 'or' instead of '||'");
+            return nullptr;
+        }
+
+        CondType cond_type = COND_NONE;
+        if (accept("and"))
+            cond_type = COND_AND;
+        else if (accept("or"))
+            cond_type = COND_OR;
+
+        if (cond_type != COND_NONE) {
+            Compare* right_cmp = parseCompExpr();
+            if (!right_cmp) {
+                error("'and', 'or' and 'xor' expect two expressions");
+                return nullptr;
+            }
+
+            left_cmp->cond_options = right_cmp->cond_options = CondOptions(if_label, else_label, cond_type);
+
+            if (cmp)
+                cmp = new Cond(cmp, new Cond(left_cmp, right_cmp));
+            else
+                cmp = new Cond(left_cmp, right_cmp);
+
+            continue;
+        }
+
+        // No CondType? Assume COND_AND
+        left_cmp->cond_options = CondOptions(if_label, else_label, COND_AND);
+        if (!cmp)
+            cmp = left_cmp;
+        else {
+            error("Need either 'and' or 'or' to concat conditions");
+            return nullptr;
+        }
+
+        break;
+    }
+
+    return cmp;
 }
 
 Compare* Parser::parseCompExpr() {
@@ -330,79 +438,7 @@ Compare* Parser::parseCompExpr() {
     return new NotEqualOp(exp, new NumExpr(0));
 }
 
-void Parser::parseIf() {
-    if (accept("if")) {
-        accept("("); // not expect
-
-        const std::string if_label = make_unique_label("I");
-        const std::string else_label = make_unique_label("E");
-
-        Compare* cmp = nullptr;
-        while (!eof() && !_error) {
-            Compare* left_cmp = parseCompExpr();
-            if (!left_cmp) {
-                if (!cmp) {
-                    error("No expression was found for if");
-                    return;
-                }
-                break;
-            }
-
-            if (accept("&&") || accept("||")) {
-                error("Use 'and' instead of '&&' and 'or' instead of '||'");
-                return;
-            }
-
-            CondType cond_type = COND_NONE;
-            if (accept("and"))
-                cond_type = COND_AND;
-            else if (accept("or"))
-                cond_type = COND_OR;
-
-            if (cond_type != COND_NONE) {
-                Compare* right_cmp = parseCompExpr();
-                if (!right_cmp) {
-                    error("'and', 'or' and 'xor' expect two expressions");
-                    return;
-                }
-
-                left_cmp->cond_options = right_cmp->cond_options = CondOptions(if_label, else_label, cond_type);
-
-                if (cmp)
-                    cmp = new Cond(cmp, new Cond(left_cmp, right_cmp));
-                else
-                    cmp = new Cond(left_cmp, right_cmp);
-
-                continue;
-            }
-
-            // No CondType? Assume COND_AND
-            left_cmp->cond_options = CondOptions(if_label, else_label, COND_AND);
-            if (!cmp)
-                cmp = left_cmp;
-            else {
-                error("Need either 'and' or 'or' to concat conditions");
-                return;
-            }
-
-            break;
-        }
-
-        accept(")"); // not expect
-
-        Scope* scope = nullptr;
-        parseScope(&scope);
-
-        _cur_scope = scope->predecessor;
-        _cur_scope->addStmt(new IfStmt(if_label, else_label, cmp, scope));
-    }
-}
-
-void Parser::parseElse() {
-
-}
-
-void Parser::parseLoop() {
+void Parser::parseArray() {
 
 }
 

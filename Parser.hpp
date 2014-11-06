@@ -6,6 +6,8 @@
 #include "DataSection.hpp"
 #include "Cond.hpp"
 
+struct ElseStmt;
+
 struct Parser {
 	char* _pos;
 	const char* _end;
@@ -68,11 +70,14 @@ struct Parser {
 	void parseScope(Scope**);
 
 	void parseStmt();
-	void parsePrint();
-	void parseIf();
-	void parseElse();
-	void parseLoop();
+	void parsePrintStmt();
+	void parseIfStmt();
 
+	ElseStmt* parseElseStmt(const std::string&);
+
+	void parseLoopStmt();
+
+	Compare* parseCondExpr(const std::string&, const std::string&);
 	Compare* parseCompExpr();
 
 	void parseArray();

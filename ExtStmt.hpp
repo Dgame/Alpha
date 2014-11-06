@@ -8,14 +8,28 @@
 #include "Cond.hpp"
 #include "Scope.hpp"
 
+struct ElseStmt;
+
 struct IfStmt : public Statement {
 	std::string if_label;
 	std::string else_label;
 
 	std::unique_ptr<const Compare> cond;
 	std::unique_ptr<Scope> scope;
+	std::unique_ptr<const ElseStmt> else_stmt;
 
 	explicit IfStmt(const std::string&, const std::string&, const Compare*, Scope*);
+
+	virtual void eval(std::ostream&) const override;
+};
+
+struct ElseStmt : public Statement {
+	std::string end_label;
+
+	std::unique_ptr<const Compare> cond;
+	std::unique_ptr<Scope> scope;
+
+	explicit ElseStmt(const std::string&, const Compare*, Scope*);
 
 	virtual void eval(std::ostream&) const override;
 };
