@@ -34,4 +34,17 @@ struct ElseStmt : public Statement {
 	virtual void eval(std::ostream&) const override;
 };
 
+struct WhileLoopStmt : public Statement {
+	std::string top_label;
+	std::string start_label;
+	std::string end_label;
+
+	std::unique_ptr<const Compare> cond;
+	std::unique_ptr<Scope> scope;
+
+	explicit WhileLoopStmt(const std::string&, const std::string&, const std::string&, const Compare*, Scope*);
+
+	virtual void eval(std::ostream&) const override;
+};
+
 #endif

@@ -171,7 +171,7 @@ namespace gas {
 
 	// jmp
 	void jmp(std::ostream& out, JCond jc, const std::string& label) {
-		out << "\tj" << JumpPostFix[jc] << "\t" << label << std::endl;
+		out << "\tj" << JumpPostFix[jc] << "\t\t" << label << std::endl;
 	}
 
 	// cmp

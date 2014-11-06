@@ -90,6 +90,8 @@ main() {
 
 	print "a = ", a
 
+	print " :: If Test mit Else: "
+
 	if a < 2 {
 		print "a ist kleiner als 2"
 	} else {
@@ -101,6 +103,16 @@ main() {
 	} else if a == 2 {
 		print "a ist nicht mehr als 2, sondern genau 2!"
 	}
+
+	print " :: While Loop Test"
+
+	i = 4
+	while (i > 0) {
+		i--
+		print "i ist jetzt ", i
+	}
+
+	print "Und nun ist i = ", i
 
 	#i, j = 0
 	#i = 1

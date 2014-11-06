@@ -226,6 +226,7 @@ void Parser::parseScope(Scope** scope) {
 void Parser::parseStmt() {
     parsePrintStmt();
     parseIfStmt();
+    parseLoopStmt();
 }
 
 void Parser::parsePrintStmt() {
@@ -293,7 +294,6 @@ ElseStmt* Parser::parseElseStmt(const std::string& else_label) {
         const std::string end_label = make_unique_label("END");
 
         if (accept("if")) {
-             std::cout << "FOUND ELSE IF" << std::endl;
             accept("("); // not expect
 
             cmp = parseCondExpr(else_label, end_label);
@@ -317,7 +317,27 @@ ElseStmt* Parser::parseElseStmt(const std::string& else_label) {
 }
 
 void Parser::parseLoopStmt() {
+    if (accept("while")) {
+        accept("(");
 
+        const std::string top_label = make_unique_label("WL");
+        const std::string start_label = make_unique_label("LB");
+        const std::string end_label = make_unique_label("LE");
+
+        Compare* cmp = parseCondExpr(start_label, end_label);
+        if (!cmp) {
+            error("No while expression was found");
+            return;
+        }
+
+        accept(")");
+
+        Scope* scope = nullptr;
+        parseScope(&scope);
+
+        _cur_scope = scope->predecessor;
+        _cur_scope->addStmt(new WhileLoopStmt(top_label, start_label, end_label, cmp, scope));
+    }
 }
 
 Compare* Parser::parseCondExpr(const std::string& if_label, const std::string& else_label) {
@@ -444,26 +464,44 @@ void Parser::parseArray() {
 
 const Var* Parser::readVar() {
     std::string ident;
-    if (readIdentifier(&ident))
-        return _cur_scope->getVar(ident);
+    if (readIdentifier(&ident)) {
+        return getVar(ident);
+    }
+
+    return nullptr;
+}
+
+const Var* Parser::getVar(std::string& ident) {
+    Scope* scope = _cur_scope;
+    while (scope) {
+        const Var* var = scope->getVar(ident);
+        if (var)
+            return var;
+        scope = scope->predecessor;
+    }
+
     return nullptr;
 }
 
 void Parser::parseVar() {
-    std::string name;
-    if (readIdentifier(&name)) {
+    std::string ident;
+    if (readIdentifier(&ident)) {
         // since the 'accept's below will override '_old_pos', store it...
         char* my_old_pos = _old_pos;
 
         if (accept("=")) {
             // By Value
-            parseVarVal(name);
+            parseVarVal(ident);
         } else if (accept("->")) {
             // Reference
-            parseVarEnRef(name);
+            parseVarEnRef(ident);
         } else if (accept("<-")) {
             // Dereference
-            parseVarDeRef(name);
+            parseVarDeRef(ident);
+        } else if (accept("++")) {
+            parseVarInc(ident);
+        } else if (accept("--")) {
+            parseVarDec(ident);
         } else {
             // ...and reset it correctly.
             _pos = my_old_pos;
@@ -471,34 +509,55 @@ void Parser::parseVar() {
     }
 }
 
-void Parser::parseVarVal(std::string& name) {
+void Parser::parseVarVal(std::string& ident) {
     // By Value
     const Expr* exp = parseExpr();
     if (!exp) {
-        error("No assignment found for variable " + name);
+        error("No assignment found for variable " + ident);
         return;
     }
-    _cur_scope->makeVar(name, exp);
+
+    _cur_scope->makeVar(ident, exp);
 }
 
-void Parser::parseVarEnRef(std::string& name) {
+void Parser::parseVarEnRef(std::string& ident) {
     // Reference
     const Var* var = readVar();
     if (var)
-        _cur_scope->makeVar(name, var, RefType::EnRef);
+        _cur_scope->makeVar(ident, var, RefType::EnRef);
     else {
-        error("Need valid variable for reference.");
+        error("Need valid variable for reference");
         pop();
     }
 }
 
-void Parser::parseVarDeRef(std::string& name) {
+void Parser::parseVarDeRef(std::string& ident) {
     // Dereference
     const Var* var = readVar();
     if (var)
-        _cur_scope->makeVar(name, var, RefType::DeRef);
+        _cur_scope->makeVar(ident, var, RefType::DeRef);
     else {
-        error("Need valid variable for dereference.");
+        error("Need valid variable for dereference");
+        pop();
+    }
+}
+
+void Parser::parseVarInc(std::string& name) {
+    const Var* var = getVar(name);
+    if (var)
+        _cur_scope->addStmt(new IncStmt(var->offset));
+    else {
+        error("Need existing variable for increase");
+        pop();
+    }
+}
+
+void Parser::parseVarDec(std::string& ident) {
+    const Var* var = getVar(ident);
+    if (var)
+        _cur_scope->addStmt(new DecStmt(var->offset));
+    else {
+        error("Need existing variable for decrease");
         pop();
     }
 }

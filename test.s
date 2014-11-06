@@ -5,7 +5,7 @@
 _alpha_main:
 	pushl	%ebp
 	movl	%esp, %ebp
-	subl	$56, %esp
+	subl	$60, %esp
 # Begin print
 	pushl	$LS_01
 	call	_println_string
@@ -449,7 +449,7 @@ _alpha_main:
 	movl	$0, %eax
 # End NumExpr 
 	cmpl	%eax, %ebx
-	je	LE_15
+	je		LE_15
 LI_14:
 # Begin print
 	pushl	$LS_16
@@ -470,7 +470,7 @@ LE_15:
 	movl	$0, %eax
 # End NumExpr 
 	cmpl	%eax, %ebx
-	je	LE_18
+	je		LE_18
 LI_17:
 # Begin print
 	pushl	$LS_19
@@ -488,7 +488,7 @@ LE_18:
 	movl	$0, %eax
 # End NumExpr 
 	cmpl	%eax, %ebx
-	jne	LE_21
+	jne		LE_21
 LI_20:
 # Begin print
 	pushl	$LS_22
@@ -529,7 +529,7 @@ LE_21:
 	movl	$2, %eax
 # End NumExpr 
 	cmpl	%eax, %ebx
-	jne	LE_25
+	jne		LE_25
 LI_24:
 # Begin print
 	pushl	$LS_26
@@ -547,7 +547,7 @@ LE_25:
 	movl	$3, %eax
 # End NumExpr 
 	cmpl	%eax, %ebx
-	je	LE_28
+	je		LE_28
 LI_27:
 # Begin print
 	pushl	$LS_29
@@ -565,7 +565,7 @@ LE_28:
 	movl	$1, %eax
 # End NumExpr 
 	cmpl	%eax, %ebx
-	jle	LE_31
+	jle		LE_31
 # Begin VarExpr 
 	movl	52(%esp), %eax
 # End VarExpr 
@@ -574,7 +574,7 @@ LE_28:
 	movl	$3, %eax
 # End NumExpr 
 	cmpl	%eax, %ebx
-	jge	LE_31
+	jge		LE_31
 LI_30:
 # Begin print
 	pushl	$LS_32
@@ -596,6 +596,11 @@ LE_31:
 	call	_println_int
 	addl	$4, %esp
 # End print
+# Begin print
+	pushl	$LS_34
+	call	_println_string
+	addl	$4, %esp
+# End print
 # Begin if
 # Begin VarExpr 
 	movl	52(%esp), %eax
@@ -605,21 +610,21 @@ LE_31:
 	movl	$2, %eax
 # End NumExpr 
 	cmpl	%eax, %ebx
-	jge	LE_35
-LI_34:
+	jge		LE_36
+LI_35:
 # Begin print
-	pushl	$LS_36
+	pushl	$LS_37
 	call	_println_string
 	addl	$4, %esp
 # End print
-LE_35:
+LE_36:
 # Begin else
 # Begin print
-	pushl	$LS_38
+	pushl	$LS_39
 	call	_println_string
 	addl	$4, %esp
 # End print
-LEND_37:
+LEND_38:
 # End else
 # End if
 # Begin if
@@ -631,14 +636,14 @@ LEND_37:
 	movl	$2, %eax
 # End NumExpr 
 	cmpl	%eax, %ebx
-	jle	LE_40
-LI_39:
+	jle		LE_41
+LI_40:
 # Begin print
-	pushl	$LS_41
+	pushl	$LS_42
 	call	_println_string
 	addl	$4, %esp
 # End print
-LE_40:
+LE_41:
 # Begin else
 # Begin VarExpr 
 	movl	52(%esp), %eax
@@ -648,16 +653,68 @@ LE_40:
 	movl	$2, %eax
 # End NumExpr 
 	cmpl	%eax, %ebx
-	jne	LEND_42
+	jne		LEND_43
 # Begin print
-	pushl	$LS_43
+	pushl	$LS_44
 	call	_println_string
 	addl	$4, %esp
 # End print
-LEND_42:
+LEND_43:
 # End else
 # End if
-	addl	$56, %esp
+# Begin print
+	pushl	$LS_45
+	call	_println_string
+	addl	$4, %esp
+# End print
+# Begin Var 
+	movl	$4, 56(%esp)
+# End Var 
+# Begin while
+LWL_46:
+# Begin VarExpr 
+	movl	56(%esp), %eax
+# End VarExpr 
+	movl	%eax, %ebx
+# Begin NumExpr 
+	movl	$0, %eax
+# End NumExpr 
+	cmpl	%eax, %ebx
+	jle		LLE_48
+LLB_47:
+# Begin Loop
+	decl	56(%esp)
+# Begin print
+	pushl	$LS_49
+	call	_print_string
+	addl	$4, %esp
+# End print
+# Begin print
+# Begin VarExpr 
+	movl	56(%esp), %eax
+# End VarExpr 
+	pushl	%eax
+	call	_println_int
+	addl	$4, %esp
+# End print
+# End Loop
+	jmp		LWL_46
+LLE_48:
+# End while
+# Begin print
+	pushl	$LS_50
+	call	_print_string
+	addl	$4, %esp
+# End print
+# Begin print
+# Begin VarExpr 
+	movl	56(%esp), %eax
+# End VarExpr 
+	pushl	%eax
+	call	_println_int
+	addl	$4, %esp
+# End print
+	addl	$60, %esp
 	popl	%ebp
 	ret
 .data
@@ -682,7 +739,11 @@ LEND_42:
 	LS_29:	.ascii "a ist nicht 3\0"
 	LS_32:	.ascii "a muss 2 sein\0"
 	LS_33:	.ascii "a = \0"
-	LS_36:	.ascii "a ist kleiner als 2\0"
-	LS_38:	.ascii "a ist nicht kleiner als 2\0"
-	LS_41:	.ascii "a ist mehr als 2\0"
-	LS_43:	.ascii "a ist nicht mehr als 2, sondern genau 2!\0"
+	LS_34:	.ascii " :: If Test mit Else: \0"
+	LS_37:	.ascii "a ist kleiner als 2\0"
+	LS_39:	.ascii "a ist nicht kleiner als 2\0"
+	LS_42:	.ascii "a ist mehr als 2\0"
+	LS_44:	.ascii "a ist nicht mehr als 2, sondern genau 2!\0"
+	LS_45:	.ascii " :: While Loop Test\0"
+	LS_49:	.ascii "i ist jetzt \0"
+	LS_50:	.ascii "Und nun ist i = \0"

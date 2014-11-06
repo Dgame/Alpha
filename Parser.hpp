@@ -83,10 +83,15 @@ struct Parser {
 	void parseArray();
 
 	const Var* readVar();
+	const Var* getVar(std::string&);
+
 	void parseVar();
-	void parseVarVal(std::string& name);
-	void parseVarEnRef(std::string& name);
-	void parseVarDeRef(std::string& name);
+	void parseVarVal(std::string&);
+	void parseVarEnRef(std::string&);
+	void parseVarDeRef(std::string&);
+
+	void parseVarInc(std::string&);
+	void parseVarDec(std::string&);
 
 	Expr* parseExpr();
 	Expr* parseTerm();

@@ -33,4 +33,21 @@ struct MultiplePrintStmt : public Statement {
 	virtual void eval(std::ostream&) const override;
 };
 
+
+struct IncStmt : public Statement {
+	u32_t offset;
+
+	explicit IncStmt(u32_t the_offset);
+
+	virtual void eval(std::ostream&) const override;
+};
+
+struct DecStmt : public Statement {
+	u32_t offset;
+
+	explicit DecStmt(u32_t the_offset);
+
+	virtual void eval(std::ostream&) const override;
+};
+
 #endif

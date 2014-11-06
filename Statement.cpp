@@ -56,3 +56,20 @@ void MultiplePrintStmt::eval(std::ostream& out) const {
 		print->eval(out);
 	}
 }
+
+
+IncStmt::IncStmt(u32_t the_offset) : offset(the_offset) {
+
+}
+
+void IncStmt::eval(std::ostream& out) const {
+	gas::inc(out, gas::Offset(this->offset, P_STACK));
+}
+
+DecStmt::DecStmt(u32_t the_offset) : offset(the_offset) {
+
+}
+
+void DecStmt::eval(std::ostream& out) const {
+	gas::dec(out, gas::Offset(this->offset, P_STACK));
+}
