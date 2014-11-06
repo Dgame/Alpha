@@ -5,7 +5,7 @@
 _alpha_main:
 	pushl	%ebp
 	movl	%esp, %ebp
-	subl	$48, %esp
+	subl	$56, %esp
 # Begin print
 	pushl	$LS_01
 	call	_println_string
@@ -491,7 +491,41 @@ LI_20:
 	addl	$4, %esp
 # End print
 LE_21:
-	addl	$48, %esp
+# Begin Var 
+# Begin AddOp 
+# Begin NumExpr 
+	movl	$1, %eax
+# End NumExpr 
+	addl	44(%esp), %eax
+# End AddOp 
+	movl	%eax, 48(%esp)
+# End Var 
+# Begin Var 
+# Begin MulOp 
+# Begin NumExpr 
+	movl	$2, %eax
+# End NumExpr 
+	imull	48(%esp), %eax
+# End MulOp 
+	movl	%eax, 52(%esp)
+# End Var 
+# Begin VarExpr 
+	movl	52(%esp), %eax
+# End VarExpr 
+	movl	%eax, %ebx
+# Begin NumExpr 
+	movl	$2, %eax
+# End NumExpr 
+	cmpl	%eax, %ebx
+	jne	LE_24
+LI_23:
+# Begin print
+	pushl	$LS_25
+	call	_println_string
+	addl	$4, %esp
+# End print
+LE_24:
+	addl	$56, %esp
 	popl	%ebp
 	ret
 .data
@@ -511,3 +545,4 @@ LE_21:
 	LS_16:	.ascii "A ist valide\0"
 	LS_19:	.ascii "A ist immer noch valide\0"
 	LS_22:	.ascii "A ist 0\0"
+	LS_25:	.ascii "Richtige Rechnung mit a\0"
