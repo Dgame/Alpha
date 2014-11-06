@@ -440,6 +440,7 @@ _alpha_main:
 	call	_println_string
 	addl	$4, %esp
 # End print
+# Begin if
 # Begin VarExpr 
 	movl	8(%esp), %eax
 # End VarExpr 
@@ -456,9 +457,11 @@ LI_14:
 	addl	$4, %esp
 # End print
 LE_15:
+# End if
 # Begin Var 
 	movl	$0, 44(%esp)
 # End Var 
+# Begin if
 # Begin VarExpr 
 	movl	44(%esp), %eax
 # End VarExpr 
@@ -475,6 +478,8 @@ LI_17:
 	addl	$4, %esp
 # End print
 LE_18:
+# End if
+# Begin if
 # Begin VarExpr 
 	movl	44(%esp), %eax
 # End VarExpr 
@@ -491,6 +496,7 @@ LI_20:
 	addl	$4, %esp
 # End print
 LE_21:
+# End if
 # Begin Var 
 # Begin AddOp 
 # Begin NumExpr 
@@ -509,6 +515,7 @@ LE_21:
 # End MulOp 
 	movl	%eax, 52(%esp)
 # End Var 
+# Begin if
 # Begin VarExpr 
 	movl	52(%esp), %eax
 # End VarExpr 
@@ -525,6 +532,8 @@ LI_23:
 	addl	$4, %esp
 # End print
 LE_24:
+# End if
+# Begin if
 # Begin VarExpr 
 	movl	52(%esp), %eax
 # End VarExpr 
@@ -541,6 +550,7 @@ LI_26:
 	addl	$4, %esp
 # End print
 LE_27:
+# End if
 	addl	$56, %esp
 	popl	%ebp
 	ret

@@ -9,8 +9,12 @@ IfStmt::IfStmt(const std::string& the_if_label, const std::string& the_else_labe
 }
 
 void IfStmt::eval(std::ostream& out) const {
+	out << "# Begin if" << std::endl;
+
 	this->cond->eval(out);
 	out << this->if_label << ':' << std::endl;
 	this->scope->eval(out);
 	out << this->else_label << ':' << std::endl;
+
+	out << "# End if" << std::endl;
 }
