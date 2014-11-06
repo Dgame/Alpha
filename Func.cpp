@@ -13,11 +13,15 @@ void Function::eval(std::ostream& out) const {
 
 	gas::push(out, P_BASE);
 	gas::mov(out, P_STACK, P_BASE);
-	gas::sub(out, this->scope->stack_size, P_STACK);
+
+	if (this->scope->stack_size != 0)
+		gas::sub(out, this->scope->stack_size, P_STACK);
 
 	this->scope->eval(out);
 
-	gas::add(out, this->scope->stack_size, P_STACK);
+	if (this->scope->stack_size != 0)
+		gas::add(out, this->scope->stack_size, P_STACK);
+	
 	gas::pop(out, P_BASE);
 	gas::ret(out);
 }

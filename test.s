@@ -525,6 +525,22 @@ LI_23:
 	addl	$4, %esp
 # End print
 LE_24:
+# Begin VarExpr 
+	movl	52(%esp), %eax
+# End VarExpr 
+	movl	%eax, %ebx
+# Begin NumExpr 
+	movl	$3, %eax
+# End NumExpr 
+	cmpl	%eax, %ebx
+	je	LE_27
+LI_26:
+# Begin print
+	pushl	$LS_28
+	call	_println_string
+	addl	$4, %esp
+# End print
+LE_27:
 	addl	$56, %esp
 	popl	%ebp
 	ret
@@ -545,4 +561,5 @@ LE_24:
 	LS_16:	.ascii "A ist valide\0"
 	LS_19:	.ascii "A ist immer noch valide\0"
 	LS_22:	.ascii "A ist 0\0"
-	LS_25:	.ascii "Richtige Rechnung mit a\0"
+	LS_25:	.ascii "a ist 2\0"
+	LS_28:	.ascii "a ist nicht 3\0"
