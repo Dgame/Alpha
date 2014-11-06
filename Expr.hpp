@@ -31,7 +31,7 @@ struct NumExpr : public Expr {
 
 	explicit NumExpr(i32_t val);
 
-	virtual void cte(const i32_t** ptr) const {
+	virtual void cte(const i32_t** ptr) const override {
 		*ptr = &this->value;
 	}
 
@@ -47,7 +47,7 @@ struct VarExpr : public Expr {
 		return this->offset;
 	}
 
-	virtual bool requireStoring() const {
+	virtual bool requireStoring() const override {
 		return false;
 	}
 
