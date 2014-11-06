@@ -55,7 +55,7 @@ main() {
 
 	print "Hallo,", "Welt"
 
-	print " :: If Test ohne else"
+	print " :: If Test ohne else aber mit Klammern:"
 
 	if (a) {
 		print "A ist valide"
@@ -71,6 +71,8 @@ main() {
 		print "A ist 0"
 	}
 
+	print " :: If Test ohne else und ohne Klammern:"
+
 	a = a + 1
 	a = a * 2
 
@@ -80,6 +82,20 @@ main() {
 
 	if a != 3 {
 		print "a ist nicht 3"
+	}
+
+	if a > 1 and a < 3 {
+		print "a muss 2 sein"
+	}
+
+	print "a = ", a
+
+	if a < 2 {
+		print "a ist kleiner als 2"
+	}
+
+	if a > 2 {
+		print "a ist größer als 2"
 	}
 
 	#i, j = 0

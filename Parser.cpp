@@ -339,11 +339,13 @@ void Parser::parseIf() {
 
         Compare* cmp = nullptr;
         while (!eof() && !_error) {
-            cmp = parseCompExpr();
-            
-            if (!cmp) {
-                error("No expression was found for if");
-                return;
+            Compare* left_cmp = parseCompExpr();
+            if (!left_cmp) {
+                if (!cmp) {
+                    error("No expression was found for if");
+                    return;
+                }
+                break;
             }
 
             if (accept("&&") || accept("||")) {
@@ -364,14 +366,24 @@ void Parser::parseIf() {
                     return;
                 }
 
-                cmp->cond_options = right_cmp->cond_options = CondOptions(if_label, else_label, cond_type);
-                cmp = new Cond(cmp, right_cmp);
+                left_cmp->cond_options = right_cmp->cond_options = CondOptions(if_label, else_label, cond_type);
+
+                if (cmp)
+                    cmp = new Cond(cmp, new Cond(left_cmp, right_cmp));
+                else
+                    cmp = new Cond(left_cmp, right_cmp);
 
                 continue;
             }
 
             // No CondType? Assume COND_AND
-            cmp->cond_options = CondOptions(if_label, else_label, COND_AND);
+            left_cmp->cond_options = CondOptions(if_label, else_label, COND_AND);
+            if (!cmp)
+                cmp = left_cmp;
+            else {
+                error("Need either 'and' or 'or' to concat conditions");
+                return;
+            }
 
             break;
         }

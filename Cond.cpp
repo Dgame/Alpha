@@ -26,7 +26,7 @@ GreaterOp::GreaterOp(const Expr* left, const Expr* right) : Compare(left, right)
 void GreaterOp::eval(std::ostream& out) const {
 	Compare::eval(out);
 	if (this->cond_options.cond_type == COND_AND)
-		gas::jmp(out, JMP_IF_LOWER, this->cond_options.else_label);
+		gas::jmp(out, JMP_IF_LOWER_OR_EQUAL, this->cond_options.else_label);
 	else if (this->cond_options.cond_type == COND_OR)
 		gas::jmp(out, JMP_IF_GREATER, this->cond_options.if_label);
 }
@@ -39,7 +39,7 @@ GreaterEqualOp::GreaterEqualOp(const Expr* left, const Expr* right) : Compare(le
 void GreaterEqualOp::eval(std::ostream& out) const {
 	Compare::eval(out);
 	if (this->cond_options.cond_type == COND_AND)
-		gas::jmp(out, JMP_IF_LOWER_OR_EQUAL, this->cond_options.else_label);
+		gas::jmp(out, JMP_IF_LOWER, this->cond_options.else_label);
 	else if (this->cond_options.cond_type == COND_OR)
 		gas::jmp(out, JMP_IF_GREATER_OR_EQUAL, this->cond_options.if_label);
 }
@@ -52,7 +52,7 @@ LowerOp::LowerOp(const Expr* left, const Expr* right) : Compare(left, right)
 void LowerOp::eval(std::ostream& out) const {
 	Compare::eval(out);
 	if (this->cond_options.cond_type == COND_AND)
-		gas::jmp(out, JMP_IF_GREATER, this->cond_options.else_label);
+		gas::jmp(out, JMP_IF_GREATER_OR_EQUAL, this->cond_options.else_label);
 	else if (this->cond_options.cond_type == COND_OR)
 		gas::jmp(out, JMP_IF_LOWER, this->cond_options.if_label);
 }
@@ -65,7 +65,7 @@ LowerEqualOp::LowerEqualOp(const Expr* left, const Expr* right) : Compare(left, 
 void LowerEqualOp::eval(std::ostream& out) const {
 	Compare::eval(out);
 	if (this->cond_options.cond_type == COND_AND)
-		gas::jmp(out, JMP_IF_GREATER_OR_EQUAL, this->cond_options.else_label);
+		gas::jmp(out, JMP_IF_GREATER, this->cond_options.else_label);
 	else if (this->cond_options.cond_type == COND_OR)
 		gas::jmp(out, JMP_IF_LOWER_OR_EQUAL, this->cond_options.if_label);
 }

@@ -497,6 +497,11 @@ LI_20:
 # End print
 LE_21:
 # End if
+# Begin print
+	pushl	$LS_23
+	call	_println_string
+	addl	$4, %esp
+# End print
 # Begin Var 
 # Begin AddOp 
 # Begin NumExpr 
@@ -524,14 +529,14 @@ LE_21:
 	movl	$2, %eax
 # End NumExpr 
 	cmpl	%eax, %ebx
-	jne	LE_24
-LI_23:
+	jne	LE_25
+LI_24:
 # Begin print
-	pushl	$LS_25
+	pushl	$LS_26
 	call	_println_string
 	addl	$4, %esp
 # End print
-LE_24:
+LE_25:
 # End if
 # Begin if
 # Begin VarExpr 
@@ -542,14 +547,90 @@ LE_24:
 	movl	$3, %eax
 # End NumExpr 
 	cmpl	%eax, %ebx
-	je	LE_27
-LI_26:
+	je	LE_28
+LI_27:
 # Begin print
-	pushl	$LS_28
+	pushl	$LS_29
 	call	_println_string
 	addl	$4, %esp
 # End print
-LE_27:
+LE_28:
+# End if
+# Begin if
+# Begin VarExpr 
+	movl	52(%esp), %eax
+# End VarExpr 
+	movl	%eax, %ebx
+# Begin NumExpr 
+	movl	$1, %eax
+# End NumExpr 
+	cmpl	%eax, %ebx
+	jle	LE_31
+# Begin VarExpr 
+	movl	52(%esp), %eax
+# End VarExpr 
+	movl	%eax, %ebx
+# Begin NumExpr 
+	movl	$3, %eax
+# End NumExpr 
+	cmpl	%eax, %ebx
+	jge	LE_31
+LI_30:
+# Begin print
+	pushl	$LS_32
+	call	_println_string
+	addl	$4, %esp
+# End print
+LE_31:
+# End if
+# Begin print
+	pushl	$LS_33
+	call	_print_string
+	addl	$4, %esp
+# End print
+# Begin print
+# Begin VarExpr 
+	movl	52(%esp), %eax
+# End VarExpr 
+	pushl	%eax
+	call	_println_int
+	addl	$4, %esp
+# End print
+# Begin if
+# Begin VarExpr 
+	movl	52(%esp), %eax
+# End VarExpr 
+	movl	%eax, %ebx
+# Begin NumExpr 
+	movl	$2, %eax
+# End NumExpr 
+	cmpl	%eax, %ebx
+	jge	LE_35
+LI_34:
+# Begin print
+	pushl	$LS_36
+	call	_println_string
+	addl	$4, %esp
+# End print
+LE_35:
+# End if
+# Begin if
+# Begin VarExpr 
+	movl	52(%esp), %eax
+# End VarExpr 
+	movl	%eax, %ebx
+# Begin NumExpr 
+	movl	$2, %eax
+# End NumExpr 
+	cmpl	%eax, %ebx
+	jle	LE_38
+LI_37:
+# Begin print
+	pushl	$LS_39
+	call	_println_string
+	addl	$4, %esp
+# End print
+LE_38:
 # End if
 	addl	$56, %esp
 	popl	%ebp
@@ -567,9 +648,14 @@ LE_27:
 	LS_10:	.ascii " :: Pointer Arithmetik:\0"
 	LS_11:	.ascii "Hallo,\0"
 	LS_12:	.ascii "Welt\0"
-	LS_13:	.ascii " :: If Test ohne else\0"
+	LS_13:	.ascii " :: If Test ohne else aber mit Klammern:\0"
 	LS_16:	.ascii "A ist valide\0"
 	LS_19:	.ascii "A ist immer noch valide\0"
 	LS_22:	.ascii "A ist 0\0"
-	LS_25:	.ascii "a ist 2\0"
-	LS_28:	.ascii "a ist nicht 3\0"
+	LS_23:	.ascii " :: If Test ohne else und ohne Klammern:\0"
+	LS_26:	.ascii "a ist 2\0"
+	LS_29:	.ascii "a ist nicht 3\0"
+	LS_32:	.ascii "a muss 2 sein\0"
+	LS_33:	.ascii "a = \0"
+	LS_36:	.ascii "a ist kleiner als 2\0"
+	LS_39:	.ascii "a ist größer als 2\0"
