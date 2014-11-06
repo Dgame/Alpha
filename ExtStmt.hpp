@@ -9,11 +9,13 @@
 #include "Scope.hpp"
 
 struct IfStmt : public Statement {
-	std::string no_label;
-	std::unique_ptr<Compare> cond;
+	std::string if_label;
+	std::string else_label;
+
+	std::unique_ptr<const Compare> cond;
 	std::unique_ptr<Scope> scope;
 
-	explicit IfStmt(const std::string&, Compare*, Scope*);
+	explicit IfStmt(const std::string&, const std::string&, const Compare*, Scope*);
 
 	virtual void eval(std::ostream&) const override;
 };

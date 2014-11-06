@@ -11,7 +11,7 @@ AddOp::AddOp(const Expr* left, const Expr* right) : Operation(left, right) {
 
 void AddOp::eval(std::ostream& out) const {
 	out << "# Begin AddOp " << std::endl;
-#if 0
+
 	if (this->lhs->requireStoring()) {
 		this->lhs->eval(out);
 		gas::push(out, E_AX);
@@ -22,12 +22,7 @@ void AddOp::eval(std::ostream& out) const {
 
 	if (this->lhs->requireStoring())
 		gas::add(out, 4, P_STACK);
-#else
-	this->lhs->eval(out);
-	gas::mov(out, E_AX, E_BX);
-	this->rhs->eval(out);
-	gas::add(out, E_BX, E_AX);
-#endif
+
 	out << "# End AddOp " << std::endl;
 }
 

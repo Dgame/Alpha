@@ -200,23 +200,23 @@ namespace gas {
 	void neg(std::ostream&, Offset o);
 
 	// not
-	void bit_not(std::ostream&, Reg r);
-	void bit_not(std::ostream&, Offset o);
+	void logic_not(std::ostream&, Reg r);
+	void logic_not(std::ostream&, Offset o);
 
 	// and
-	void bit_and(std::ostream&, Reg r1, Reg r2);
-	void bit_and(std::ostream&, Reg r, Offset o);
-	void bit_and(std::ostream&, Offset o, Reg r);
+	void logic_and(std::ostream&, Reg r1, Reg r2);
+	void logic_and(std::ostream&, Reg r, Offset o);
+	void logic_and(std::ostream&, Offset o, Reg r);
 
 	// or
-	void bit_or(std::ostream&, Reg r1, Reg r2);
-	void bit_or(std::ostream&, Reg r, Offset o);
-	void bit_or(std::ostream&, Offset o, Reg r);
+	void logic_or(std::ostream&, Reg r1, Reg r2);
+	void logic_or(std::ostream&, Reg r, Offset o);
+	void logic_or(std::ostream&, Offset o, Reg r);
 
 	// xor
-	void bit_xor(std::ostream&, Reg r1, Reg r2);
-	void bit_xor(std::ostream&, Reg r, Offset o);
-	void bit_xor(std::ostream&, Offset o, Reg r);
+	void logic_xor(std::ostream&, Reg r1, Reg r2);
+	void logic_xor(std::ostream&, Reg r, Offset o);
+	void logic_xor(std::ostream&, Offset o, Reg r);
 }
 
 #endif

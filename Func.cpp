@@ -2,13 +2,14 @@
 #include "Func.hpp"
 
 Function::Function(const std::string& the_name, Scope* the_scope) : name(the_name), scope(the_scope) {
-	if (this->name == "main")
-		this->name = "alpha_main"; // Hack
+
 }
 
 void Function::eval(std::ostream& out) const {
-	out << ".globl\t_" << this->name << "\n.def\t_" << this->name << "\n" << std::endl;
-	out << '_' << this->name << ':' << std::endl;
+	const std::string& my_name = (this->name == "main") ? "alpha_main" : this->name;
+
+	out << ".globl\t_" << my_name << "\n.def\t_" << my_name << "\n" << std::endl;
+	out << '_' << my_name << ':' << std::endl;
 
 	gas::push(out, P_BASE);
 	gas::mov(out, P_STACK, P_BASE);

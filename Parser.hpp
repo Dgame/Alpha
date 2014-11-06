@@ -4,6 +4,7 @@
 #include <fstream>
 #include "Func.hpp"
 #include "DataSection.hpp"
+#include "Cond.hpp"
 
 struct Parser {
 	char* _pos;
@@ -16,6 +17,8 @@ struct Parser {
 	std::string _filename;
 	std::vector<char> _content;
 	char* _old_pos;
+
+	Scope* _cur_scope = nullptr;
 
 	std::vector<std::unique_ptr<Function>> functions;
 
@@ -64,26 +67,25 @@ struct Parser {
 
 	void parseScope(Scope**);
 
-	void parseStmt(Scope*);
-	void parsePrint(Scope*);
-	void parseIf(Scope*);
-	void parseElse(Scope*);
-	void parseLoop(Scope*);
+	void parseStmt();
+	void parsePrint();
+	void parseIf();
+	void parseElse();
+	void parseLoop();
 
-	void parseCompExpr();
-	void parseBoolExpr();
+	Compare* parseCompExpr();
 
-	void parseArray(Scope*);
+	void parseArray();
 
-	const Var* readVar(Scope*);
-	void parseVar(Scope*);
-	void parseVarVal(std::string& name, Scope*);
-	void parseVarEnRef(std::string& name, Scope*);
-	void parseVarDeRef(std::string& name, Scope*);
+	const Var* readVar();
+	void parseVar();
+	void parseVarVal(std::string& name);
+	void parseVarEnRef(std::string& name);
+	void parseVarDeRef(std::string& name);
 
-	Expr* parseExpr(Scope*);
-	Expr* parseTerm(Scope*);
-	Expr* parseFactor(Scope*);
+	Expr* parseExpr();
+	Expr* parseTerm();
+	Expr* parseFactor();
 };
 
 #endif

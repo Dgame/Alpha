@@ -205,50 +205,50 @@ namespace gas {
 	}
 
 	// not
-	void bit_not(std::ostream& out, Reg r) {
+	void logic_not(std::ostream& out, Reg r) {
 		out << "\tnot" << SUFFIX << "\t" << Register[r] << std::endl;
 	}
 
-	void bit_not(std::ostream& out, Offset o) {
+	void logic_not(std::ostream& out, Offset o) {
 		out << "\tnot" << SUFFIX << "\t" << o.id << std::endl;
 	}
 
 	// and
-	void bit_and(std::ostream& out, Reg r1, Reg r2) {
+	void logic_and(std::ostream& out, Reg r1, Reg r2) {
 		out << "\tand" << SUFFIX << "\t" << Register[r1] << ", " << Register[r2] << std::endl;
 	}
 
-	void bit_and(std::ostream& out, Reg r, Offset o) {
+	void logic_and(std::ostream& out, Reg r, Offset o) {
 		out << "\tand" << SUFFIX << "\t" << Register[r] << ", " << o.id << std::endl;
 	}
 
-	void bit_and(std::ostream& out, Offset o, Reg r) {
+	void logic_and(std::ostream& out, Offset o, Reg r) {
 		out << "\tand" << SUFFIX << "\t" << o.id << ", " << Register[r] << std::endl;
 	}
 
 	// or
-	void bit_or(std::ostream& out, Reg r1, Reg r2) {
+	void logic_or(std::ostream& out, Reg r1, Reg r2) {
 		out << "\tor" << SUFFIX << "\t" << Register[r1] << ", " << Register[r2] << std::endl;
 	}
 
-	void bit_or(std::ostream& out, Reg r, Offset o) {
+	void logic_or(std::ostream& out, Reg r, Offset o) {
 		out << "\tor" << SUFFIX << "\t" << Register[r] << ", " << o.id << std::endl;
 	}
 
-	void bit_or(std::ostream& out, Offset o, Reg r) {
+	void logic_or(std::ostream& out, Offset o, Reg r) {
 		out << "\tor" << SUFFIX << "\t" << o.id << ", " << Register[r] << std::endl;
 	}
 
 	// xor
-	void bit_xor(std::ostream& out, Reg r1, Reg r2) {
+	void logic_xor(std::ostream& out, Reg r1, Reg r2) {
 		out << "\txor" << SUFFIX << "\t" << Register[r1] << ", " << Register[r2] << std::endl;
 	}
 
-	void bit_xor(std::ostream& out, Reg r, Offset o) {
+	void logic_xor(std::ostream& out, Reg r, Offset o) {
 		out << "\txor" << SUFFIX << "\t" << Register[r] << ", " << o.id << std::endl;
 	}
 
-	void bit_xor(std::ostream& out, Offset o, Reg r) {
+	void logic_xor(std::ostream& out, Offset o, Reg r) {
 		out << "\txor" << SUFFIX << "\t" << o.id << ", " << Register[r] << std::endl;
 	}
 }

@@ -17,41 +17,57 @@ main() {
 	print a
 	print b
 
-	print a + b
+	print " :: Math. prints:"
+	print 2 + 2 + 2 + 2
+	print 2 - 2 - 2 - 2
+	print 2 * 2
+	print 25 + 5
+	print 1 + 2 * 3
 
-	# print " :: Math. prints:"
-	# print 2 * 2
-	# print 25 + 5
-	# print 1 + 2 * 3
+	print " :: Math. variables:"
+	c = 1 + 2 * 3
+	d = (1 + 2) * 3
+	e = 2 - 3 * 2
+	f = (2 - 3) * 2
 
-	# print " :: Math. variables:"
-	# c = 1 + 2 * 3
-	# d = (1 + 2) * 3
-	# e = 2 - 3 * 2
-	# f = (2 - 3) * 2
+	print c
+	print d
+	print e
+	print f
 
-	# print c
-	# print d
-	# print e
-	# print f
+	print " :: Math. prints with variables:"
+	print c + d
+	print d + c
 
-	# print " :: Math. prints with variables:"
-	# print c + d
-	# print d + c
+	print " :: Math. with variables and stored into variables:"
 
-	# print " :: Math. with variables and stored into variables:"
+	c = c + d
 
-	# c = c + d
+	print " > c is now ", c
+	print " > But d is still ", d
 
-	# print " > c is now ", c
-	# print " > But d is still ", d
+	print " :: Pointer Arithmetik:"
+	g -> b
+	h <- g
 
-	# print " :: Pointer Arithmetik:"
-	# g -> b
-	# h <- g
+	print g
+	print h
 
-	# print g
-	# print h
+	print "Hallo,", "Welt"
 
-	# print "Hallo,", "Welt"
+	print " :: If Test ohne else"
+
+	if (a) {
+		print "A ist valide"
+	}
+
+	a = 0
+
+	if (a) {
+		print "A ist immer noch valide"
+	}
+
+	if (a == 0) {
+		print "A ist 0"
+	}
 }

@@ -40,11 +40,11 @@ std::string escape_str(const std::string& in) {
     return out;
 }
 
-std::string make_unique_label() {
+std::string make_unique_label(std::string prefix) {
     static u32_t label_num = 0;
 
     label_num += 1;
-    const std::string prefix = (label_num < 10) ? "_0" : "_";
+    prefix = prefix + ((label_num < 10) ? "_0" : "_");
 
     return "L" + prefix + std::to_string(label_num);
 }

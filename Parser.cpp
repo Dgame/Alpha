@@ -3,6 +3,7 @@
 #include <locale>
 
 #include "Operation.hpp"
+#include "ExtStmt.hpp"
 #include "Var.hpp"
 #include "util.hpp"
 
@@ -19,6 +20,20 @@ Parser::Parser(const std::string& file) : _line(1), _filename(file) {
 }
 
 void Parser::eval(std::ostream& out) const {
+    // check for main
+    bool found_main = false;
+    for (auto& func : this->functions) {
+        if (func->name == "main") {
+            found_main = true;
+            break;
+        }
+    }
+
+    if (!found_main) {
+        std::cerr << "Error: No main function was found." << std::endl;
+        return;
+    }
+
     out << ".text" << std::endl;
     
     for (auto& func : this->functions) {
@@ -191,12 +206,14 @@ void Parser::parseScope(Scope** scope) {
     expect("{");
 
     *scope = new Scope();
+    (*scope)->predecessor = _cur_scope;
+    _cur_scope = *scope;
 
     while (!eof() && !_error) {
         const u32_t stmt_count = (*scope)->statements.size();
 
-        parseStmt(*scope);
-        parseVar(*scope);
+        parseStmt();
+        parseVar();
 
         // No new elements?
         if (stmt_count == (*scope)->statements.size())
@@ -206,23 +223,23 @@ void Parser::parseScope(Scope** scope) {
     expect("}");
 }
 
-void Parser::parseStmt(Scope* scope) {
-    parsePrint(scope);
-    parseIf(scope);
+void Parser::parseStmt() {
+    parsePrint();
+    parseIf();
 }
 
-void Parser::parsePrint(Scope* scope) {
+void Parser::parsePrint() {
     if (accept("print")) {
         MultiplePrintStmt* multi_print = new MultiplePrintStmt();
-        while (!_error) {
+        while (!eof() && !_error) {
             const u32_t print_size = multi_print->prints.size();
             
-            if (const Expr* exp = parseExpr(scope))
+            if (const Expr* exp = parseExpr())
                 multi_print->append(new PrintStmt(exp));
             else {
                 std::string ident;
                 if (readString(&ident)) {
-                    const std::string label = make_unique_label();
+                    const std::string label = make_unique_label("S");
                     this->data_section.addDataSection(label, ident);
 
                     multi_print->append(new PrintStmt(label));
@@ -237,42 +254,154 @@ void Parser::parsePrint(Scope* scope) {
         }
         // adjust, so that the first (N - 1) prints does not have a new line
         multi_print->adjust();
-        scope->addStmt(multi_print);
+        _cur_scope->addStmt(multi_print);
     }
 }
 
-void Parser::parseArray(Scope*) {
+void Parser::parseArray() {
 
 }
 
-void Parser::parseCompExpr() {
+Compare* Parser::parseCompExpr() {
+    const Expr* exp = parseExpr();
+    if (!exp)
+        return nullptr;
 
-} 
-  
-void Parser::parseBoolExpr() { 
+    if (accept(">=")) {
+        const Expr* right_exp = parseExpr();
+        if (!right_exp) {
+            error("Expected right hand side expression for compare.");
+            return nullptr;
+        }
+
+        return new GreaterEqualOp(exp, right_exp);
+    }
+
+    if (accept("<=")) {
+        const Expr* right_exp = parseExpr();
+        if (!right_exp) {
+            error("Expected right hand side expression for compare.");
+            return nullptr;
+        }
+
+        return new LowerEqualOp(exp, right_exp);
+    }
+
+    if (accept("==")) {
+        const Expr* right_exp = parseExpr();
+        if (!right_exp) {
+            error("Expected right hand side expression for compare.");
+            return nullptr;
+        }
+
+        return new EqualOp(exp, right_exp);
+    }
+
+    if (accept("!=")) {
+        const Expr* right_exp = parseExpr();
+        if (!right_exp) {
+            error("Expected right hand side expression for compare.");
+            return nullptr;
+        }
+
+        return new NotEqualOp(exp, right_exp);
+    }
+
+    if (accept(">")) {
+        const Expr* right_exp = parseExpr();
+        if (!right_exp) {
+            error("Expected right hand side expression for compare.");
+            return nullptr;
+        }
+
+        return new GreaterOp(exp, right_exp);
+    }
+
+    if (accept("<")) {
+        const Expr* right_exp = parseExpr();
+        if (!right_exp) {
+            error("Expected right hand side expression for compare.");
+            return nullptr;
+        }
+
+        return new LowerOp(exp, right_exp);
+    }
+    
+    return new NotEqualOp(exp, new NumExpr(0));
+}
+
+void Parser::parseIf() {
+    if (accept("if")) {
+        accept("("); // not expect
+
+        const std::string if_label = make_unique_label("I");
+        const std::string else_label = make_unique_label("E");
+
+        Compare* cmp = nullptr;
+        while (!eof() && !_error) {
+            cmp = parseCompExpr();
+            
+            if (!cmp) {
+                error("No expression was found for if");
+                return;
+            }
+
+            if (accept("&&") || accept("||")) {
+                error("Use 'and' instead of '&&' and 'or' instead of '||'");
+                return;
+            }
+
+            CondType cond_type = COND_NONE;
+            if (accept("and"))
+                cond_type = COND_AND;
+            else if (accept("or"))
+                cond_type = COND_OR;
+
+            if (cond_type != COND_NONE) {
+                Compare* right_cmp = parseCompExpr();
+                if (!right_cmp) {
+                    error("'and', 'or' and 'xor' expect two expressions");
+                    return;
+                }
+
+                cmp->cond_options = right_cmp->cond_options = CondOptions(if_label, else_label, cond_type);
+                cmp = new Cond(cmp, right_cmp);
+
+                continue;
+            }
+
+            // No CondType? Assume COND_AND
+            cmp->cond_options = CondOptions(if_label, else_label, COND_AND);
+
+            break;
+        }
+
+        accept(")"); // not expect
+
+        Scope* scope = nullptr;
+        parseScope(&scope);
+
+        _cur_scope = scope->predecessor;
+        _cur_scope->addStmt(new IfStmt(if_label, else_label, cmp, scope));
+    }
+}
+
+void Parser::parseElse() {
 
 }
 
-void Parser::parseIf(Scope*) {
+void Parser::parseLoop() {
 
 }
 
-void Parser::parseElse(Scope*) {
-
-}
-
-void Parser::parseLoop(Scope*) {
-
-}
-
-const Var* Parser::readVar(Scope* scope) {
+const Var* Parser::readVar() {
     std::string ident;
     if (readIdentifier(&ident))
-        return scope->getVar(ident);
+        return _cur_scope->getVar(ident);
     return nullptr;
 }
 
-void Parser::parseVar(Scope* scope) {
+void Parser::parseVar() {
     std::string name;
     if (readIdentifier(&name)) {
         // since the 'accept's below will override '_old_pos', store it...
@@ -280,13 +409,13 @@ void Parser::parseVar(Scope* scope) {
 
         if (accept("=")) {
             // By Value
-            parseVarVal(name, scope);
+            parseVarVal(name);
         } else if (accept("->")) {
             // Reference
-            parseVarEnRef(name, scope);
+            parseVarEnRef(name);
         } else if (accept("<-")) {
             // Dereference
-            parseVarDeRef(name, scope);
+            parseVarDeRef(name);
         } else {
             // ...and reset it correctly.
             _pos = my_old_pos;
@@ -294,45 +423,44 @@ void Parser::parseVar(Scope* scope) {
     }
 }
 
-void Parser::parseVarVal(std::string& name, Scope* scope) {
+void Parser::parseVarVal(std::string& name) {
     // By Value
-    const Expr* exp = parseExpr(scope);
+    const Expr* exp = parseExpr();
     if (!exp) {
         error("No assignment found for variable " + name);
-
         return;
     }
-    scope->makeVar(name, exp);
+    _cur_scope->makeVar(name, exp);
 }
 
-void Parser::parseVarEnRef(std::string& name, Scope* scope) {
+void Parser::parseVarEnRef(std::string& name) {
     // Reference
-    const Var* var = readVar(scope);
+    const Var* var = readVar();
     if (var)
-        scope->makeVar(name, var, RefType::EnRef);
+        _cur_scope->makeVar(name, var, RefType::EnRef);
     else {
         error("Need valid variable for reference.");
         pop();
     }
 }
 
-void Parser::parseVarDeRef(std::string& name, Scope* scope) {
+void Parser::parseVarDeRef(std::string& name) {
     // Dereference
-    const Var* var = readVar(scope);
+    const Var* var = readVar();
     if (var)
-        scope->makeVar(name, var, RefType::DeRef);
+        _cur_scope->makeVar(name, var, RefType::DeRef);
     else {
         error("Need valid variable for dereference.");
         pop();
     }
 }
 
-Expr* Parser::parseExpr(Scope* scope) {
-    Expr* lhs = parseTerm(scope);
+Expr* Parser::parseExpr() {
+    Expr* lhs = parseTerm();
     if (lhs) {
         while (true) {
             if (accept("+")) {
-                Expr* rhs = parseTerm(scope);
+                Expr* rhs = parseTerm();
                 if (!rhs) {
                     error("Expected factor after +");
 
@@ -344,7 +472,7 @@ Expr* Parser::parseExpr(Scope* scope) {
 
                 lhs = new AddOp(lhs, rhs);
             } else if (accept("-")) {
-                Expr* rhs = parseTerm(scope);
+                Expr* rhs = parseTerm();
                 if (!rhs) {
                     error("Expected factor after -");
 
@@ -363,12 +491,12 @@ Expr* Parser::parseExpr(Scope* scope) {
     return lhs;
 }
 
-Expr* Parser::parseTerm(Scope* scope) {
-    Expr* lhs = parseFactor(scope);
+Expr* Parser::parseTerm() {
+    Expr* lhs = parseFactor();
     if (lhs) {
         while (true) {
             if (accept("*")) {
-                Expr* rhs = parseFactor(scope);
+                Expr* rhs = parseFactor();
                 if (!rhs) {
                     error("Expected factor after *");
 
@@ -380,7 +508,7 @@ Expr* Parser::parseTerm(Scope* scope) {
 
                 lhs = new MulOp(lhs, rhs);
             } else if (accept("/")) {
-                Expr* rhs = parseFactor(scope);
+                Expr* rhs = parseFactor();
                 if (!rhs) {
                     error("Expected factor after /");
 
@@ -399,7 +527,7 @@ Expr* Parser::parseTerm(Scope* scope) {
     return lhs;
 }
 
-Expr* Parser::parseFactor(Scope* scope) {
+Expr* Parser::parseFactor() {
     const bool negate = accept("-");
   
     i32_t num;
@@ -409,12 +537,12 @@ Expr* Parser::parseFactor(Scope* scope) {
 
         return new NumExpr(num);
     } else if (accept("(")) {
-        Expr* exp = parseExpr(scope);
+        Expr* exp = parseExpr();
         expect(")");
 
         return exp;
     } else {
-        const Var* var = readVar(scope);
+        const Var* var = readVar();
         if (var)
             return new VarExpr(var->offset);
         pop();

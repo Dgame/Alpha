@@ -1,21 +1,33 @@
-Base test
+ :: Base test:
 42
 23
-First variables
+ :: First variables:
 42
 42
-Reassigned variables
+ :: Reassigned variables:
 4
 2
-Math. prints
+ :: Math. prints:
+8
+-4
 4
 30
 7
-Math. variable
+ :: Math. variables:
 7
 9
 -4
 -2
-Math. prints with variables
+ :: Math. prints with variables:
 16
 16
+ :: Math. with variables and stored into variables:
+ > c is now 16
+ > But d is still 9
+ :: Pointer Arithmetik:
+2686564
+2
+Hallo,Welt
+ :: If Test ohne else
+A ist valide
+A ist 0

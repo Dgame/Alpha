@@ -5,7 +5,7 @@ int main() {
 	int b = 4;
 
 	int c = 23;
-	if (a > b) {
+	if (a > b && a < b) {
 		c = 42;
 	}
 

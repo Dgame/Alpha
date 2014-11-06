@@ -8,7 +8,7 @@
 char unescape_char(char c);
 std::string escape_str(const std::string&);
 
-std::string make_unique_label();
+std::string make_unique_label(std::string prefix = "");
 
 struct DataSection {
 	std::map<std::string, std::string> data_sections;

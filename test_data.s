@@ -16,16 +16,11 @@ _main:
 	movl	$4, 20(%esp)
 	movl	$23, 28(%esp)
 	movl	24(%esp), %eax
-	# Begin NumExpr
-        movl    $1, %eax
-# End NumExpr
-        # pushl   %eax
-# Begin NumExpr
-        # movl    $2, %eax
-# End NumExpr
-        cmpl    $1, %eax
-        # addl    $4, %esp
+	cmpl	20(%esp), %eax
 	jle	L2
+	movl	24(%esp), %eax
+	cmpl	20(%esp), %eax
+	jge	L2
 	movl	$42, 28(%esp)
 L2:
 	movl	28(%esp), %eax

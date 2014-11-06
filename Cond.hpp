@@ -4,8 +4,25 @@
 #include <iostream>
 #include "Operation.hpp"
 
+enum CondType {
+	COND_NONE,
+	COND_AND,
+	COND_OR,
+	COND_XOR
+};
+
+struct CondOptions {
+	std::string if_label;
+	std::string else_label;
+
+	CondType cond_type = COND_AND;
+
+	CondOptions() = default;
+	explicit CondOptions(const std::string&, const std::string&, CondType the_cond_type);
+};
+
 struct Compare : public Operation {
-	std::string no_label;
+	CondOptions cond_options;
 
 	explicit Compare(const Expr*, const Expr*);
 
@@ -13,37 +30,43 @@ struct Compare : public Operation {
 };
 
 struct GreaterOp : public Compare {
-	bool equal;
+	explicit GreaterOp(const Expr*, const Expr*);
 
-	explicit GreaterOp(const Expr*, const Expr*, bool eq = false);
+	virtual void eval(std::ostream&) const override;
+};
+
+struct GreaterEqualOp : public Compare {
+	explicit GreaterEqualOp(const Expr*, const Expr*);
 
 	virtual void eval(std::ostream&) const override;
 };
 
 struct LowerOp : public Compare {
-	bool equal;
+	explicit LowerOp(const Expr*, const Expr*);
 
-	explicit LowerOp(const Expr*, const Expr*, bool eq = false);
+	virtual void eval(std::ostream&) const override;
+};
+
+struct LowerEqualOp : public Compare {
+	explicit LowerEqualOp(const Expr*, const Expr*);
 
 	virtual void eval(std::ostream&) const override;
 };
 
 struct EqualOp : public Compare {
-	bool equal;
-
-	explicit EqualOp(const Expr*, const Expr*, bool eq = true);
+	explicit EqualOp(const Expr*, const Expr*);
 
 	virtual void eval(std::ostream&) const override;
 };
 
-struct AndOp : public Operation {
-	explicit AndOp(const Expr*, const Expr*);
+struct NotEqualOp : public Compare {
+	explicit NotEqualOp(const Expr*, const Expr*);
 
 	virtual void eval(std::ostream&) const override;
 };
 
-struct OrOp : public Operation {
-	explicit OrOp(const Expr*, const Expr*);
+struct Cond : public Compare {
+	explicit Cond(const Compare*, const Compare*);
 
 	virtual void eval(std::ostream&) const override;
 };

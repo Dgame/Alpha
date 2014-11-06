@@ -18,7 +18,7 @@ struct Expr {
 		*ptr = nullptr;
 	}
 
-	//
+	// Requires storage?
 	virtual bool requireStoring() const {
 		return true;
 	}
