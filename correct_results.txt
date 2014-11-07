@@ -25,7 +25,7 @@
  > c is now 16
  > But d is still 9
  :: Pointer Arithmetik:
-2686568
+2686552
 2
 Hallo,Welt
  :: If Test ohne else aber mit Klammern:
@@ -45,3 +45,36 @@ i ist jetzt 2
 i ist jetzt 1
 i ist jetzt 0
 Und nun ist i = 0
+ :: Div, Mod und Mul:
+6
+4
+96
+div: a = 24, b = 4, j = 6
+mod: a = 24, c = 5, k = 4
+a ist durch b ohne rest teilbar
+Between 1 and 100 the following prime numbers exist:
+Prime: 2
+Prime: 3
+Prime: 5
+Prime: 7
+Prime: 11
+Prime: 13
+Prime: 17
+Prime: 19
+Prime: 23
+Prime: 29
+Prime: 31
+Prime: 37
+Prime: 41
+Prime: 43
+Prime: 47
+Prime: 53
+Prime: 59
+Prime: 61
+Prime: 67
+Prime: 71
+Prime: 73
+Prime: 79
+Prime: 83
+Prime: 89
+Prime: 97

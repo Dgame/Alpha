@@ -183,10 +183,11 @@ bool Parser::parseFunc() {
     if (readIdentifier(&name)) {
         parseParam();
 
-        Scope* my_scope = nullptr;
-        parseScope(&my_scope);
+        Scope* scope = nullptr;
+        parseScope(&scope);
 
-        functions.emplace_back(new Function(name, my_scope));
+        functions.emplace_back(new Function(name, scope));
+        _cur_scope = nullptr;
 
         return true;
     }
@@ -205,8 +206,7 @@ void Parser::parseParam() {
 void Parser::parseScope(Scope** scope) {
     expect("{");
 
-    *scope = new Scope();
-    (*scope)->predecessor = _cur_scope;
+    *scope = new Scope(_cur_scope);
     _cur_scope = *scope;
 
     while (!eof() && !_error) {
@@ -464,21 +464,8 @@ void Parser::parseArray() {
 
 const Var* Parser::readVar() {
     std::string ident;
-    if (readIdentifier(&ident)) {
-        return getVar(ident);
-    }
-
-    return nullptr;
-}
-
-const Var* Parser::getVar(std::string& ident) {
-    Scope* scope = _cur_scope;
-    while (scope) {
-        const Var* var = scope->getVar(ident);
-        if (var)
-            return var;
-        scope = scope->predecessor;
-    }
+    if (readIdentifier(&ident))
+        return _cur_scope->getVar(ident);
 
     return nullptr;
 }
@@ -488,7 +475,6 @@ void Parser::parseVar() {
     if (readIdentifier(&ident)) {
         // since the 'accept's below will override '_old_pos', store it...
         char* my_old_pos = _old_pos;
-
         if (accept("=")) {
             // By Value
             parseVarVal(ident);
@@ -516,7 +502,6 @@ void Parser::parseVarVal(std::string& ident) {
         error("No assignment found for variable " + ident);
         return;
     }
-
     _cur_scope->addVar(ident, exp);
 }
 
@@ -543,7 +528,7 @@ void Parser::parseVarDeRef(std::string& ident) {
 }
 
 void Parser::parseVarInc(std::string& name) {
-    const Var* var = getVar(name);
+    const Var* var = _cur_scope->getVar(name);
     if (var)
         _cur_scope->addStmt(new IncStmt(var->offset));
     else {
@@ -553,7 +538,7 @@ void Parser::parseVarInc(std::string& name) {
 }
 
 void Parser::parseVarDec(std::string& ident) {
-    const Var* var = getVar(ident);
+    const Var* var = _cur_scope->getVar(ident);
     if (var)
         _cur_scope->addStmt(new DecStmt(var->offset));
     else {
@@ -626,6 +611,18 @@ Expr* Parser::parseTerm() {
                 }
 
                 lhs = new DivOp(rhs, lhs);
+            } else if (accept("%")) {
+                Expr* rhs = parseFactor();
+                if (!rhs) {
+                    error("Expected factor after %");
+
+                    delete lhs;
+                    delete rhs;
+
+                    return nullptr;
+                }
+
+                lhs = new ModOp(rhs, lhs);
             } else 
                 break;
         }

@@ -75,5 +75,24 @@ DivOp::DivOp(const Expr* left, const Expr* right) : Operation(left, right) {
 void DivOp::eval(std::ostream& out) const {
 	out << "# Begin DivOp " << std::endl;
 
+	this->lhs->eval(out);
+	gas::mov(out, E_AX, E_BX);
+	this->rhs->eval(out);
+	gas::mov(out, 0, E_DX);
+	gas::idiv(out, E_BX);
+
 	out << "# End DivOp " << std::endl;
+}
+
+ModOp::ModOp(const Expr* left, const Expr* right) : DivOp(left, right) {
+
+}
+
+void ModOp::eval(std::ostream& out) const {
+	out << "# Begin ModOp " << std::endl;
+
+	DivOp::eval(out);
+	gas::mov(out, E_DX, E_AX);
+
+	out << "# End ModOp " << std::endl;
 }

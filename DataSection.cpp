@@ -2,6 +2,16 @@
 #include "types.hpp"
 #include "util.hpp"
 
+#define MAX_LABEL_ZEROS 5
+
+std::string leading_zeros(u32_t num) {
+    const std::string str = std::to_string(num);
+    const i32_t zeros = MAX_LABEL_ZEROS - str.length();
+    if (zeros <= 0)
+        return "";
+    return std::string(zeros, '0');
+}
+
 char unescape_char(char c) {
     switch (c) {
         case 'n':
@@ -44,9 +54,9 @@ std::string make_unique_label(std::string prefix) {
     static u32_t label_num = 0;
 
     label_num += 1;
-    prefix = prefix + ((label_num < 10) ? "_0" : "_");
+    prefix = prefix + '_' + leading_zeros(label_num);
 
-    return "L" + prefix + std::to_string(label_num);
+    return 'L' + prefix + std::to_string(label_num);
 }
 
 void DataSection::addDataSection(const std::string& label, const std::string& data) {

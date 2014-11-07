@@ -12,11 +12,12 @@ enum class RefType;
 
 struct Scope {
 	u32_t stack_size = 0;
-
 	Scope* predecessor = nullptr;
 
 	std::map<std::string, const Var*> vars;
 	std::vector<std::unique_ptr<const Statement>> statements;
+
+	explicit Scope(Scope*);
 
 	u32_t grow(u32_t size = 4);
 	u32_t getOffsetOf(const std::string&, u32_t size = 4);

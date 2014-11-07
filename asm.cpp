@@ -32,7 +32,7 @@ namespace gas {
 
 	// pop
 	void pop(std::ostream& out, Reg r) {
-		out << "\top" << SUFFIX << "\t" << Register[r] << std::endl; 
+		out << "\tpop" << SUFFIX << "\t" << Register[r] << std::endl; 
 	}
 
 	void pop(std::ostream& out, Offset o) {

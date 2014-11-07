@@ -83,7 +83,6 @@ struct Parser {
 	void parseArray();
 
 	const Var* readVar();
-	const Var* getVar(std::string&);
 
 	void parseVar();
 	void parseVarVal(std::string&);

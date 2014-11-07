@@ -36,4 +36,10 @@ struct DivOp : public Operation {
 	virtual void eval(std::ostream&) const override;
 };
 
+struct ModOp : public DivOp {
+	explicit ModOp(const Expr*, const Expr*);
+
+	virtual void eval(std::ostream&) const override;
+};
+
 #endif

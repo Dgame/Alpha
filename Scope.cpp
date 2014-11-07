@@ -2,14 +2,24 @@
 #include "Var.hpp"
 #include "Expr.hpp"
 
+Scope::Scope(Scope* scope) : predecessor(scope) {
+	if (scope)
+		this->stack_size = this->predecessor->stack_size;
+}
+
 u32_t Scope::grow(u32_t size) {
 	const u32_t old_size = this->stack_size;
 	this->stack_size += size;
+
+	if (this->predecessor)
+		this->predecessor->stack_size += size;
+
 	return old_size;
 }
 
 u32_t Scope::getOffsetOf(const std::string& name, u32_t size) {
-	if (const Var* var = this->getVar(name))
+	const Var* var = this->getVar(name);
+	if (var)
 		return var->offset;
 	return this->grow();
 }
@@ -29,9 +39,13 @@ void Scope::addVar(const std::string& name, const Expr* exp) {
 }
 
 const Var* Scope::getVar(const std::string& name) const {
-	auto it = this->vars.find(name);
-	if (it != this->vars.end())
-		return it->second;
+	const Scope* scope = this;
+    while (scope) {
+        auto it = scope->vars.find(name);
+		if (it != scope->vars.end())
+			return it->second;
+        scope = scope->predecessor;
+    }
 	return nullptr;
 }
 

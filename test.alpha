@@ -114,7 +114,58 @@ main() {
 
 	print "Und nun ist i = ", i
 
+	print " :: Div, Mod und Mul:"
+
+	a = 24
+	b = 4
+	c = 5
+
+	print a / b
+	print a % c
+	print b * a
+
+	j = a / b
+	print "div: a = ", a, ", b = ", b, ", j = ", j
+	k = a % c
+	print "mod: a = ", a, ", c = ", c, ", k = ", k
+
+	if (a % b == 0) {
+		print "a ist durch b ohne rest teilbar"
+	}
+
+	print "Between 1 and 100 the following prime numbers exist:"
+
+    p = 2
+    while p < 100 {
+        l = 2
+        is_prime = 1
+
+        while l < p {
+            if p % l == 0 {
+                is_prime = 0
+                # print "p ist durch l ohne rest teilbar"
+            }
+
+            l++
+            #print "l = ", l, " and p = ", p
+        }
+
+        if is_prime != 0 {
+            print "Prime: ", p
+        }
+
+        # print "p = ", p
+        p++
+    }
+
+    # print "l = ", l # Nothing to print!
+    l = 42
+    print "l = ", l
+
 	#i, j = 0
 	#i = 1
 	#i, j = j, i
+
+	#k = fib(12)
+	#l = fak(8)
 }
