@@ -25,7 +25,7 @@
  > c is now 16
  > But d is still 9
  :: Pointer Arithmetik:
-2686556
+2686568
 2
 Hallo,Welt
  :: If Test ohne else aber mit Klammern:
@@ -36,3 +36,12 @@ a ist 2
 a ist nicht 3
 a muss 2 sein
 a = 2
+ :: If Test mit Else:
+a ist nicht kleiner als 2
+a ist nicht mehr als 2, sondern genau 2!
+ :: While Loop Test
+i ist jetzt 3
+i ist jetzt 2
+i ist jetzt 1
+i ist jetzt 0
+Und nun ist i = 0

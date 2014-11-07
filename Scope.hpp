@@ -19,9 +19,10 @@ struct Scope {
 	std::vector<std::unique_ptr<const Statement>> statements;
 
 	u32_t grow(u32_t size = 4);
+	u32_t getOffsetOf(const std::string&, u32_t size = 4);
 
-	void makeVar(const std::string&, const Var*, RefType rt);
-	void makeVar(const std::string&, const Expr*);
+	void addVar(const std::string&, const Var*, RefType rt);
+	void addVar(const std::string&, const Expr*);
 
 	const Var* getVar(const std::string&) const;
 

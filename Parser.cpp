@@ -517,14 +517,14 @@ void Parser::parseVarVal(std::string& ident) {
         return;
     }
 
-    _cur_scope->makeVar(ident, exp);
+    _cur_scope->addVar(ident, exp);
 }
 
 void Parser::parseVarEnRef(std::string& ident) {
     // Reference
     const Var* var = readVar();
     if (var)
-        _cur_scope->makeVar(ident, var, RefType::EnRef);
+        _cur_scope->addVar(ident, var, RefType::EnRef);
     else {
         error("Need valid variable for reference");
         pop();
@@ -535,7 +535,7 @@ void Parser::parseVarDeRef(std::string& ident) {
     // Dereference
     const Var* var = readVar();
     if (var)
-        _cur_scope->makeVar(ident, var, RefType::DeRef);
+        _cur_scope->addVar(ident, var, RefType::DeRef);
     else {
         error("Need valid variable for dereference");
         pop();

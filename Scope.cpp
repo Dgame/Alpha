@@ -5,19 +5,24 @@
 u32_t Scope::grow(u32_t size) {
 	const u32_t old_size = this->stack_size;
 	this->stack_size += size;
-
 	return old_size;
 }
 
-void Scope::makeVar(const std::string& name, const Var* var, RefType rt) {
-	const VarRef* vr = new VarRef(this->grow(), var, rt);
+u32_t Scope::getOffsetOf(const std::string& name, u32_t size) {
+	if (const Var* var = this->getVar(name))
+		return var->offset;
+	return this->grow();
+}
+
+void Scope::addVar(const std::string& name, const Var* var, RefType rt) {
+	const VarRef* vr = new VarRef(this->getOffsetOf(name), var, rt);
 
 	this->vars[name] = vr;
 	this->addStmt(vr);
 }
 
-void Scope::makeVar(const std::string& name, const Expr* exp) {
-	const VarVal* vv = new VarVal(this->grow(), exp);
+void Scope::addVar(const std::string& name, const Expr* exp) {
+	const VarVal* vv = new VarVal(this->getOffsetOf(name), exp);
 
 	this->vars[name] = vv;
 	this->addStmt(vv);

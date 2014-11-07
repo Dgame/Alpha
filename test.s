@@ -5,7 +5,7 @@
 _alpha_main:
 	pushl	%ebp
 	movl	%esp, %ebp
-	subl	$60, %esp
+	subl	$36, %esp
 # Begin print
 	pushl	$LS_01
 	call	_println_string
@@ -52,10 +52,10 @@ _alpha_main:
 	addl	$4, %esp
 # End print
 # Begin Var 
-	movl	$4, 8(%esp)
+	movl	$4, 0(%esp)
 # End Var 
 # Begin Var 
-	movl	$2, 12(%esp)
+	movl	$2, 4(%esp)
 # End Var 
 # Begin print
 	pushl	$LS_03
@@ -64,7 +64,7 @@ _alpha_main:
 # End print
 # Begin print
 # Begin VarExpr 
-	movl	8(%esp), %eax
+	movl	0(%esp), %eax
 # End VarExpr 
 	pushl	%eax
 	call	_println_int
@@ -72,7 +72,7 @@ _alpha_main:
 # End print
 # Begin print
 # Begin VarExpr 
-	movl	12(%esp), %eax
+	movl	4(%esp), %eax
 # End VarExpr 
 	pushl	%eax
 	call	_println_int
@@ -228,7 +228,7 @@ _alpha_main:
 	addl	0(%esp), %eax
 	addl	$4, %esp
 # End AddOp 
-	movl	%eax, 16(%esp)
+	movl	%eax, 8(%esp)
 # End Var 
 # Begin Var 
 # Begin MulOp 
@@ -250,52 +250,68 @@ _alpha_main:
 	imull	0(%esp), %eax
 	addl	$4, %esp
 # End MulOp 
+	movl	%eax, 12(%esp)
+# End Var 
+# Begin Var 
+# Begin SubOp 
+# Begin MulOp 
+# Begin NumExpr 
+	movl	$3, %eax
+# End NumExpr 
+	pushl	%eax
+# Begin NumExpr 
+	movl	$2, %eax
+# End NumExpr 
+	imull	0(%esp), %eax
+	addl	$4, %esp
+# End MulOp 
+	pushl	%eax
+# Begin NumExpr 
+	movl	$2, %eax
+# End NumExpr 
+	subl	0(%esp), %eax
+	addl	$4, %esp
+# End SubOp 
+	movl	%eax, 16(%esp)
+# End Var 
+# Begin Var 
+# Begin MulOp 
+# Begin SubOp 
+# Begin NumExpr 
+	movl	$3, %eax
+# End NumExpr 
+	pushl	%eax
+# Begin NumExpr 
+	movl	$2, %eax
+# End NumExpr 
+	subl	0(%esp), %eax
+	addl	$4, %esp
+# End SubOp 
+	pushl	%eax
+# Begin NumExpr 
+	movl	$2, %eax
+# End NumExpr 
+	imull	0(%esp), %eax
+	addl	$4, %esp
+# End MulOp 
 	movl	%eax, 20(%esp)
 # End Var 
-# Begin Var 
-# Begin SubOp 
-# Begin MulOp 
-# Begin NumExpr 
-	movl	$3, %eax
-# End NumExpr 
+# Begin print
+# Begin VarExpr 
+	movl	8(%esp), %eax
+# End VarExpr 
 	pushl	%eax
-# Begin NumExpr 
-	movl	$2, %eax
-# End NumExpr 
-	imull	0(%esp), %eax
+	call	_println_int
 	addl	$4, %esp
-# End MulOp 
+# End print
+# Begin print
+# Begin VarExpr 
+	movl	12(%esp), %eax
+# End VarExpr 
 	pushl	%eax
-# Begin NumExpr 
-	movl	$2, %eax
-# End NumExpr 
-	subl	0(%esp), %eax
+	call	_println_int
 	addl	$4, %esp
-# End SubOp 
-	movl	%eax, 24(%esp)
-# End Var 
-# Begin Var 
-# Begin MulOp 
-# Begin SubOp 
-# Begin NumExpr 
-	movl	$3, %eax
-# End NumExpr 
-	pushl	%eax
-# Begin NumExpr 
-	movl	$2, %eax
-# End NumExpr 
-	subl	0(%esp), %eax
-	addl	$4, %esp
-# End SubOp 
-	pushl	%eax
-# Begin NumExpr 
-	movl	$2, %eax
-# End NumExpr 
-	imull	0(%esp), %eax
-	addl	$4, %esp
-# End MulOp 
-	movl	%eax, 28(%esp)
-# End Var 
+# End print
 # Begin print
 # Begin VarExpr 
 	movl	16(%esp), %eax
@@ -307,22 +323,6 @@ _alpha_main:
 # Begin print
 # Begin VarExpr 
 	movl	20(%esp), %eax
-# End VarExpr 
-	pushl	%eax
-	call	_println_int
-	addl	$4, %esp
-# End print
-# Begin print
-# Begin VarExpr 
-	movl	24(%esp), %eax
-# End VarExpr 
-	pushl	%eax
-	call	_println_int
-	addl	$4, %esp
-# End print
-# Begin print
-# Begin VarExpr 
-	movl	28(%esp), %eax
 # End VarExpr 
 	pushl	%eax
 	call	_println_int
@@ -336,9 +336,9 @@ _alpha_main:
 # Begin print
 # Begin AddOp 
 # Begin VarExpr 
-	movl	20(%esp), %eax
+	movl	12(%esp), %eax
 # End VarExpr 
-	addl	16(%esp), %eax
+	addl	8(%esp), %eax
 # End AddOp 
 	pushl	%eax
 	call	_println_int
@@ -347,9 +347,9 @@ _alpha_main:
 # Begin print
 # Begin AddOp 
 # Begin VarExpr 
-	movl	16(%esp), %eax
+	movl	8(%esp), %eax
 # End VarExpr 
-	addl	20(%esp), %eax
+	addl	12(%esp), %eax
 # End AddOp 
 	pushl	%eax
 	call	_println_int
@@ -363,11 +363,11 @@ _alpha_main:
 # Begin Var 
 # Begin AddOp 
 # Begin VarExpr 
-	movl	20(%esp), %eax
+	movl	12(%esp), %eax
 # End VarExpr 
-	addl	16(%esp), %eax
+	addl	8(%esp), %eax
 # End AddOp 
-	movl	%eax, 32(%esp)
+	movl	%eax, 8(%esp)
 # End Var 
 # Begin print
 	pushl	$LS_08
@@ -376,7 +376,7 @@ _alpha_main:
 # End print
 # Begin print
 # Begin VarExpr 
-	movl	32(%esp), %eax
+	movl	8(%esp), %eax
 # End VarExpr 
 	pushl	%eax
 	call	_println_int
@@ -389,7 +389,7 @@ _alpha_main:
 # End print
 # Begin print
 # Begin VarExpr 
-	movl	20(%esp), %eax
+	movl	12(%esp), %eax
 # End VarExpr 
 	pushl	%eax
 	call	_println_int
@@ -401,17 +401,17 @@ _alpha_main:
 	addl	$4, %esp
 # End print
 # Begin EnRef 
-	leal	12(%esp), %eax
-	movl	%eax, 36(%esp)
+	leal	4(%esp), %eax
+	movl	%eax, 24(%esp)
 # End EnRef 
 # Begin DeRef 
-	movl	36(%esp), %eax
+	movl	24(%esp), %eax
 	movl	0(%eax), %eax
-	movl	%eax, 40(%esp)
+	movl	%eax, 28(%esp)
 # End DeRef 
 # Begin print
 # Begin VarExpr 
-	movl	36(%esp), %eax
+	movl	24(%esp), %eax
 # End VarExpr 
 	pushl	%eax
 	call	_println_int
@@ -419,7 +419,7 @@ _alpha_main:
 # End print
 # Begin print
 # Begin VarExpr 
-	movl	40(%esp), %eax
+	movl	28(%esp), %eax
 # End VarExpr 
 	pushl	%eax
 	call	_println_int
@@ -442,7 +442,7 @@ _alpha_main:
 # End print
 # Begin if
 # Begin VarExpr 
-	movl	8(%esp), %eax
+	movl	0(%esp), %eax
 # End VarExpr 
 	movl	%eax, %ebx
 # Begin NumExpr 
@@ -459,11 +459,11 @@ LI_14:
 LE_15:
 # End if
 # Begin Var 
-	movl	$0, 44(%esp)
+	movl	$0, 0(%esp)
 # End Var 
 # Begin if
 # Begin VarExpr 
-	movl	44(%esp), %eax
+	movl	0(%esp), %eax
 # End VarExpr 
 	movl	%eax, %ebx
 # Begin NumExpr 
@@ -481,7 +481,7 @@ LE_18:
 # End if
 # Begin if
 # Begin VarExpr 
-	movl	44(%esp), %eax
+	movl	0(%esp), %eax
 # End VarExpr 
 	movl	%eax, %ebx
 # Begin NumExpr 
@@ -507,22 +507,22 @@ LE_21:
 # Begin NumExpr 
 	movl	$1, %eax
 # End NumExpr 
-	addl	44(%esp), %eax
+	addl	0(%esp), %eax
 # End AddOp 
-	movl	%eax, 48(%esp)
+	movl	%eax, 0(%esp)
 # End Var 
 # Begin Var 
 # Begin MulOp 
 # Begin NumExpr 
 	movl	$2, %eax
 # End NumExpr 
-	imull	48(%esp), %eax
+	imull	0(%esp), %eax
 # End MulOp 
-	movl	%eax, 52(%esp)
+	movl	%eax, 0(%esp)
 # End Var 
 # Begin if
 # Begin VarExpr 
-	movl	52(%esp), %eax
+	movl	0(%esp), %eax
 # End VarExpr 
 	movl	%eax, %ebx
 # Begin NumExpr 
@@ -540,7 +540,7 @@ LE_25:
 # End if
 # Begin if
 # Begin VarExpr 
-	movl	52(%esp), %eax
+	movl	0(%esp), %eax
 # End VarExpr 
 	movl	%eax, %ebx
 # Begin NumExpr 
@@ -558,7 +558,7 @@ LE_28:
 # End if
 # Begin if
 # Begin VarExpr 
-	movl	52(%esp), %eax
+	movl	0(%esp), %eax
 # End VarExpr 
 	movl	%eax, %ebx
 # Begin NumExpr 
@@ -567,7 +567,7 @@ LE_28:
 	cmpl	%eax, %ebx
 	jle		LE_31
 # Begin VarExpr 
-	movl	52(%esp), %eax
+	movl	0(%esp), %eax
 # End VarExpr 
 	movl	%eax, %ebx
 # Begin NumExpr 
@@ -590,7 +590,7 @@ LE_31:
 # End print
 # Begin print
 # Begin VarExpr 
-	movl	52(%esp), %eax
+	movl	0(%esp), %eax
 # End VarExpr 
 	pushl	%eax
 	call	_println_int
@@ -603,7 +603,7 @@ LE_31:
 # End print
 # Begin if
 # Begin VarExpr 
-	movl	52(%esp), %eax
+	movl	0(%esp), %eax
 # End VarExpr 
 	movl	%eax, %ebx
 # Begin NumExpr 
@@ -629,7 +629,7 @@ LEND_38:
 # End if
 # Begin if
 # Begin VarExpr 
-	movl	52(%esp), %eax
+	movl	0(%esp), %eax
 # End VarExpr 
 	movl	%eax, %ebx
 # Begin NumExpr 
@@ -646,7 +646,7 @@ LI_40:
 LE_41:
 # Begin else
 # Begin VarExpr 
-	movl	52(%esp), %eax
+	movl	0(%esp), %eax
 # End VarExpr 
 	movl	%eax, %ebx
 # Begin NumExpr 
@@ -668,12 +668,12 @@ LEND_43:
 	addl	$4, %esp
 # End print
 # Begin Var 
-	movl	$4, 56(%esp)
+	movl	$4, 32(%esp)
 # End Var 
 # Begin while
 LWL_46:
 # Begin VarExpr 
-	movl	56(%esp), %eax
+	movl	32(%esp), %eax
 # End VarExpr 
 	movl	%eax, %ebx
 # Begin NumExpr 
@@ -683,7 +683,7 @@ LWL_46:
 	jle		LLE_48
 LLB_47:
 # Begin Loop
-	decl	56(%esp)
+	decl	32(%esp)
 # Begin print
 	pushl	$LS_49
 	call	_print_string
@@ -691,7 +691,7 @@ LLB_47:
 # End print
 # Begin print
 # Begin VarExpr 
-	movl	56(%esp), %eax
+	movl	32(%esp), %eax
 # End VarExpr 
 	pushl	%eax
 	call	_println_int
@@ -708,13 +708,13 @@ LLE_48:
 # End print
 # Begin print
 # Begin VarExpr 
-	movl	56(%esp), %eax
+	movl	32(%esp), %eax
 # End VarExpr 
 	pushl	%eax
 	call	_println_int
 	addl	$4, %esp
 # End print
-	addl	$60, %esp
+	addl	$36, %esp
 	popl	%ebp
 	ret
 .data
