@@ -65,7 +65,7 @@ struct Parser {
 	void parse();
 
 	bool parseFunc();
-	void parseParam();
+	std::vector<std::string> parseParam();
 
 	void parseScope(Scope**);
 

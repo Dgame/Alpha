@@ -1,7 +1,7 @@
 #include "asm.hpp"
 #include "Func.hpp"
 
-Function::Function(const std::string& the_name, Scope* the_scope) : name(the_name), scope(the_scope) {
+Function::Function(const std::string& the_name, const std::vector<std::string>& the_args, Scope* the_scope) : name(the_name), args(the_args), scope(the_scope) {
 
 }
 

@@ -181,12 +181,12 @@ void Parser::parse() {
 bool Parser::parseFunc() {
     std::string name;
     if (readIdentifier(&name)) {
-        parseParam();
+        std::vector<std::string> args = parseParam();
 
         Scope* scope = nullptr;
         parseScope(&scope);
 
-        functions.emplace_back(new Function(name, scope));
+        functions.emplace_back(new Function(name, args, scope));
         _cur_scope = nullptr;
 
         return true;
@@ -195,12 +195,24 @@ bool Parser::parseFunc() {
     return false;
 }
 
-void Parser::parseParam() {
+std::vector<std::string> Parser::parseParam() {
     expect("(");
 
-    // TODO: parse parameter
+    std::vector<std::string> args;
+    while (!eof() && !_error) {
+        std::string ident;
+        if (readIdentifier(&ident))
+            args.push_back(ident);
+        else
+            break;
+
+        if (!accept(","))
+            break;
+    }
 
     expect(")");
+
+    return args;
 }
 
 void Parser::parseScope(Scope** scope) {
