@@ -7,6 +7,14 @@
 #include "Var.hpp"
 #include "util.hpp"
 
+bool is_keyword(const std::string& word) {
+    for (const std::string& kw : KEYWORDS) {
+        if (word == kw)
+            return true;
+    }
+    return false;
+}
+
 Parser::Parser(const std::string& file) : _line(1), _filename(file) {
     std::ifstream in(_filename);
 
@@ -102,6 +110,7 @@ bool Parser::readIdentifier(std::string* ident) {
   
 bool Parser::readString(std::string* ident) { 
     skipSpaces();
+    push();
 
     if (!eof() && *_pos == '"') {
         ++_pos; 
@@ -182,11 +191,12 @@ bool Parser::parseFunc() {
     std::string name;
     if (readIdentifier(&name)) {
         std::vector<std::string> args = parseParam();
+        Function* func = new Function(name, args, new Scope(nullptr));
 
-        Scope* scope = nullptr;
-        parseScope(&scope);
+        if (!accept(";"))
+            parseScope(func->scope.get());
 
-        functions.emplace_back(new Function(name, args, scope));
+        functions.emplace_back(func);
         _cur_scope = nullptr;
 
         return true;
@@ -215,6 +225,58 @@ std::vector<std::string> Parser::parseParam() {
     return args;
 }
 
+void Parser::parseFuncCall() {
+    std::string ident;
+    if (readIdentifier(&ident)) {
+        if (is_keyword(ident)) {
+            pop();
+            return;
+        }
+
+        char* my_old_pos = _old_pos;
+
+        if (accept("(")) {
+            FuncCallStmt* func_call = new FuncCallStmt(ident);
+            // no function name check, because the function could come later
+            while (!eof() && !_error) {
+                Expr* exp = parseExpr();
+                if (!exp) {
+                    if (func_call->params.size() != 0) {
+                        error("Expected valid parameter for function call");
+                        return;
+                    }
+                    break;
+                }
+                func_call->params.emplace_back(exp);
+
+                if (!accept(","))
+                    break;
+            }
+            expect(")");
+
+            _cur_scope->addStmt(func_call);
+        } else {
+            _pos = my_old_pos;
+        }
+    }
+}
+
+void Parser::parseScope(Scope* scope) {
+    expect("{");
+
+    _cur_scope = scope;
+
+    while (!eof() && !_error) {
+        const u32_t stmt_count = scope->statements.size();
+        parseStmt();
+        // No new elements?
+        if (stmt_count == scope->statements.size())
+            break;
+    }
+
+    expect("}");
+}
+
 void Parser::parseScope(Scope** scope) {
     expect("{");
 
@@ -223,10 +285,7 @@ void Parser::parseScope(Scope** scope) {
 
     while (!eof() && !_error) {
         const u32_t stmt_count = (*scope)->statements.size();
-
         parseStmt();
-        parseVar();
-
         // No new elements?
         if (stmt_count == (*scope)->statements.size())
             break;
@@ -236,9 +295,11 @@ void Parser::parseScope(Scope** scope) {
 }
 
 void Parser::parseStmt() {
+    parseVar();
     parsePrintStmt();
     parseIfStmt();
     parseLoopStmt();
+    parseFuncCall();
 }
 
 void Parser::parsePrintStmt() {
@@ -273,7 +334,7 @@ void Parser::parsePrintStmt() {
 
 void Parser::parseIfStmt() {
     if (accept("if")) {
-        accept("("); // not expect
+        const bool open_lhs_paren = accept("("); // not expect
 
         const std::string if_label = make_unique_label("I");
         const std::string else_label = make_unique_label("E");
@@ -284,7 +345,8 @@ void Parser::parseIfStmt() {
             return;
         }
 
-        accept(")"); // not expect
+        if (open_lhs_paren)
+            expect(")");
 
         Scope* scope = nullptr;
         parseScope(&scope);
@@ -306,7 +368,7 @@ ElseStmt* Parser::parseElseStmt(const std::string& else_label) {
         const std::string end_label = make_unique_label("END");
 
         if (accept("if")) {
-            accept("("); // not expect
+            const bool open_lhs_paren = accept("("); // not expect
 
             cmp = parseCondExpr(else_label, end_label);
             if (!cmp) {
@@ -314,7 +376,8 @@ ElseStmt* Parser::parseElseStmt(const std::string& else_label) {
                 return nullptr;
             }
 
-            accept(")"); // not expect
+            if (open_lhs_paren)
+                expect(")");
         }
 
         Scope* scope = nullptr;
@@ -330,7 +393,7 @@ ElseStmt* Parser::parseElseStmt(const std::string& else_label) {
 
 void Parser::parseLoopStmt() {
     if (accept("while")) {
-        accept("(");
+        const bool open_lhs_paren = accept("("); // not expect
 
         const std::string top_label = make_unique_label("WL");
         const std::string start_label = make_unique_label("LB");
@@ -342,7 +405,8 @@ void Parser::parseLoopStmt() {
             return;
         }
 
-        accept(")");
+        if (open_lhs_paren)
+            expect(")");
 
         Scope* scope = nullptr;
         parseScope(&scope);

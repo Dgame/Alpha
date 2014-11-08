@@ -47,4 +47,12 @@ struct WhileLoopStmt : public Statement {
 	virtual void eval(std::ostream&) const override;
 };
 
+struct FuncCallStmt : public Statement {
+	std::string label;
+	std::vector<std::unique_ptr<const Expr>> params;
+
+	explicit FuncCallStmt(const std::string&);
+	virtual void eval(std::ostream&) const override;
+};
+
 #endif

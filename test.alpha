@@ -166,6 +166,12 @@ main() {
 	#i = 1
 	#i, j = j, i
 
+	say(42)
+
 	#k = fib(12)
 	#l = fak(8)
+}
+
+say(num) {
+	print "Paramater #1 von Function 'say' ist ", num
 }

@@ -1,7 +1,5 @@
 .text
 .globl	_alpha_main
-.def	_alpha_main
-
 _alpha_main:
 	pushl	%ebp
 	movl	%esp, %ebp
@@ -1031,9 +1029,41 @@ LLE_00064:
 	call	_println_int
 	addl	$4, %esp
 # End print
+# Begin function call
+	pushl	$42
+	call	_say
+	addl	$4, %esp
+# End function call
 	addl	$60, %esp
 	popl	%ebp
 	ret
+
+.globl	_say
+_say:
+	pushl	%ebp
+	movl	%esp, %ebp
+	subl	$4, %esp
+# Begin Parameters
+	movl	8(%ebp), %eax
+	movl	%eax, 0(%esp)
+# End Parameters
+# Begin print
+	pushl	$LS_00074
+	call	_print_string
+	addl	$4, %esp
+# End print
+# Begin print
+# Begin VarExpr 
+	movl	0(%esp), %eax
+# End VarExpr 
+	pushl	%eax
+	call	_println_int
+	addl	$4, %esp
+# End print
+	addl	$4, %esp
+	popl	%ebp
+	ret
+
 .data
 	LS_00001:	.ascii " :: Base test:\0"
 	LS_00002:	.ascii " :: First variables:\0"
@@ -1075,3 +1105,4 @@ LLE_00064:
 	LS_00061:	.ascii "Between 1 and 100 the following prime numbers exist:\0"
 	LS_00072:	.ascii "Prime: \0"
 	LS_00073:	.ascii "l = \0"
+	LS_00074:	.ascii "Paramater #1 von Function 'say' ist \0"

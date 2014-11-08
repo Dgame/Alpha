@@ -1,13 +1,12 @@
 #include <stdio.h>
 
+void foo(int a, int b, int c, int d, int e, int f, int g, int h, int i) {
+	int my_a = a;
+	int my_b = b;
+}
+
 int main() {
-	int a = 4;
-	int b = 4;
+	int a = 42;
 
-	int c = 23;
-	if (a > b && a < b) {
-		c = 42;
-	}
-
-	printf("c = %d\n", c);
+	foo(1, 2, 3, 4, 5, 6, 7, 8, 9);
 }

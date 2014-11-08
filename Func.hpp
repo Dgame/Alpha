@@ -6,10 +6,12 @@
 #include <memory>
 
 #include "Scope.hpp"
+#include "Var.hpp"
 
 struct Function {
 	std::string name;
 	std::vector<std::string> args;
+	std::vector<std::unique_ptr<const Var>> params; // just for automatic clean up
 	// TODO: Return
 	std::unique_ptr<Scope> scope;
 

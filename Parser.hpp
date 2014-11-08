@@ -1,10 +1,15 @@
 #ifndef ALPHA_PARSER_HPP
 #define ALPHA_PARSER_HPP
 
+#include <string>
 #include <fstream>
 #include "Func.hpp"
 #include "DataSection.hpp"
 #include "Cond.hpp"
+
+const std::string KEYWORDS[] = {"print", "if", "else", "while"};
+
+bool is_keyword(const std::string&);
 
 struct ElseStmt;
 
@@ -66,7 +71,9 @@ struct Parser {
 
 	bool parseFunc();
 	std::vector<std::string> parseParam();
+	void parseFuncCall();
 
+	void parseScope(Scope*);
 	void parseScope(Scope**);
 
 	void parseStmt();

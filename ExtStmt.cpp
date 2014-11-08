@@ -60,3 +60,30 @@ void WhileLoopStmt::eval(std::ostream& out) const {
 
 	out << "# End while" << std::endl;
 }
+
+FuncCallStmt::FuncCallStmt(const std::string& the_label) : label(the_label) {
+	if (this->label[0] != '_')
+		this->label = '_' + this->label;
+}
+
+void FuncCallStmt::eval(std::ostream& out) const {
+	out << "# Begin function call" << std::endl;
+
+	for (auto& param : this->params) {
+		const i32_t* value = nullptr;
+		param->cte(&value);
+
+		if (value)
+			gas::push(out, *value);
+		else {
+			param->eval(out);
+			gas::push(out, E_AX);
+		}
+	}
+
+	gas::call(out, this->label);
+	if (this->params.size() != 0)
+		gas::add(out, this->params.size() * 4, P_STACK);
+
+	out << "# End function call" << std::endl;
+}
