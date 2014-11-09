@@ -1,1 +1,0 @@
-gcc -o test.exe test.s rt.c

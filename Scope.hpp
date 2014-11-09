@@ -1,35 +1,29 @@
 #ifndef ALPHA_SCOPE_HPP
 #define ALPHA_SCOPE_HPP
 
-#include <map>
+#include <ostream>
+#include <string>
+#include <memory>
 #include <vector>
-#include "Statement.hpp"
+#include <map>
+
 #include "types.hpp"
+#include "Var.hpp"
 
-struct Expr;
-struct Var;
-enum class RefType;
+class Scope {
+private:
+	std::vector<std::unique_ptr<const Var>> _tmpVars;
+	std::map<std::string, std::unique_ptr<const Var>> _vars;
 
-struct Scope {
-	u32_t stack_size = 0;
-	Scope* predecessor = nullptr;
-
-	std::map<std::string, const Var*> vars;
-	std::vector<std::unique_ptr<const Statement>> statements;
+public:
+	Scope* predecessor;
 
 	explicit Scope(Scope*);
 
-	u32_t grow(u32_t size = 4);
-	u32_t getOffsetOf(const std::string&, u32_t size = 4);
-
-	void addVar(const std::string&, const Var*, RefType rt);
-	void addVar(const std::string&, const Expr*);
-
+	void addVar(const std::string&, const Var*, bool tmp = false);
 	const Var* getVar(const std::string&) const;
 
-	void addStmt(const Statement*);
-
-	void eval(std::ostream&) const;
+	virtual void eval(std::ostream&) const;
 };
 
 #endif

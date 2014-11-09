@@ -1,1 +1,0 @@
-g++ -o main.exe main.cpp asm.cpp Var.cpp Expr.cpp Operation.cpp Func.cpp Scope.cpp Statement.cpp DataSection.cpp Cond.cpp ExtStmt.cpp Parser.cpp -std=c++1y -O3 -Wall

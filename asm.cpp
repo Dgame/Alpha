@@ -1,12 +1,19 @@
 #include "asm.hpp"
+#include "util.hpp"
+
+Offset::Offset(int the_offset, Ptr ptr) : id(ptr), offset(the_offset), is_ptr(true) {
+
+}
+
+Offset::Offset(int the_offset, Reg reg) : id(reg), offset(the_offset), is_ptr(false) {
+
+}
 
 namespace gas {
-	Offset::Offset(int offset, Ptr ptr) {
-		this->id = std::to_string(offset) + '(' + Pointer[ptr] + ')';
-	}
-
-	Offset::Offset(int offset, Reg reg) {
-		this->id = std::to_string(offset) + '(' + Register[reg] + ')';
+	std::string conv_offset(const Offset& off) {
+		if (off.is_ptr)
+			return std::to_string(off.offset) + '(' + Pointer[off.id] + ')';
+		return std::to_string(off.offset) + '(' + Register[off.id] + ')';
 	}
 
 	// push
@@ -19,7 +26,7 @@ namespace gas {
 	}
 
 	void push(std::ostream& out, Offset o) {
-		out << "\tpush" << SUFFIX << "\t" << o.id << std::endl; 
+		out << "\tpush" << SUFFIX << "\t" << conv_offset(o) << std::endl; 
 	}
 
 	void push(std::ostream& out, Ptr p) {
@@ -36,7 +43,7 @@ namespace gas {
 	}
 
 	void pop(std::ostream& out, Offset o) {
-		out << "\tpop" << SUFFIX << "\t" << o.id << std::endl; 
+		out << "\tpop" << SUFFIX << "\t" << conv_offset(o) << std::endl; 
 	}
 
 	void pop(std::ostream& out, Ptr p) {
@@ -49,7 +56,7 @@ namespace gas {
 	}
 
 	void inc(std::ostream& out, Offset o) {
-		out << "\tinc" << SUFFIX << "\t" << o.id << std::endl; 
+		out << "\tinc" << SUFFIX << "\t" << conv_offset(o) << std::endl; 
 	}
 
 	// dec
@@ -58,7 +65,7 @@ namespace gas {
 	}
 
 	void dec(std::ostream& out, Offset o) {
-		out << "\tdec" << SUFFIX << "\t" << o.id << std::endl; 
+		out << "\tdec" << SUFFIX << "\t" << conv_offset(o) << std::endl; 
 	}
 
 	// mov
@@ -67,7 +74,7 @@ namespace gas {
 	}
 
 	void mov(std::ostream& out, int num, Offset o) {
-		out << "\tmov" << SUFFIX << "\t$" << num << ", " << o.id << std::endl; 
+		out << "\tmov" << SUFFIX << "\t$" << num << ", " << conv_offset(o) << std::endl; 
 	}
 
 	void mov(std::ostream& out, Reg r1, Reg r2) {
@@ -75,11 +82,11 @@ namespace gas {
 	}
 
 	void mov(std::ostream& out, Reg r, Offset o) {
-		out << "\tmov" << SUFFIX << "\t" << Register[r] << ", " << o.id << std::endl; 
+		out << "\tmov" << SUFFIX << "\t" << Register[r] << ", " << conv_offset(o) << std::endl; 
 	}
 
 	void mov(std::ostream& out, Offset o, Reg r) {
-		out << "\tmov" << SUFFIX << "\t" << o.id << ", " << Register[r] << std::endl; 
+		out << "\tmov" << SUFFIX << "\t" << conv_offset(o) << ", " << Register[r] << std::endl; 
 	}
 
 	void mov(std::ostream& out, Ptr p1, Ptr p2) {
@@ -96,7 +103,7 @@ namespace gas {
 	}
 
 	void add(std::ostream& out, int num, Offset o) {
-		out << "\tadd" << SUFFIX << "\t$" << num << ", " << o.id << std::endl;
+		out << "\tadd" << SUFFIX << "\t$" << num << ", " << conv_offset(o) << std::endl;
 	}
 
 	void add(std::ostream& out, Reg r1, Reg r2) {
@@ -104,11 +111,11 @@ namespace gas {
 	}
 
 	void add(std::ostream& out, Reg r, Offset o) {
-		out << "\tadd" << SUFFIX << "\t" << Register[r] << ", " << o.id << std::endl;
+		out << "\tadd" << SUFFIX << "\t" << Register[r] << ", " << conv_offset(o) << std::endl;
 	}
 
 	void add(std::ostream& out, Offset o, Reg r) {
-		out << "\tadd" << SUFFIX << "\t" << o.id << ", " << Register[r] << std::endl;
+		out << "\tadd" << SUFFIX << "\t" << conv_offset(o) << ", " << Register[r] << std::endl;
 	}
 
 	// sub
@@ -121,7 +128,7 @@ namespace gas {
 	}
 
 	void sub(std::ostream& out, int num, Offset o) {
-		out << "\tsub" << SUFFIX << "\t$" << num << ", " << o.id << std::endl;
+		out << "\tsub" << SUFFIX << "\t$" << num << ", " << conv_offset(o) << std::endl;
 	}
 
 	void sub(std::ostream& out, Reg r1, Reg r2) {
@@ -129,11 +136,11 @@ namespace gas {
 	}
 
 	void sub(std::ostream& out, Reg r, Offset o) {
-		out << "\tsub" << SUFFIX << "\t" << Register[r] << ", " << o.id << std::endl;
+		out << "\tsub" << SUFFIX << "\t" << Register[r] << ", " << conv_offset(o) << std::endl;
 	}
 
 	void sub(std::ostream& out, Offset o, Reg r) {
-		out << "\tsub" << SUFFIX << "\t" << o.id << ", " << Register[r] << std::endl;
+		out << "\tsub" << SUFFIX << "\t" << conv_offset(o) << ", " << Register[r] << std::endl;
 	}
 
 	// imul
@@ -142,7 +149,7 @@ namespace gas {
 	}
 
 	void imul(std::ostream& out, Offset o, Reg r) {
-		out << "\timul" << SUFFIX << "\t" << o.id << ", " << Register[r] << std::endl; 
+		out << "\timul" << SUFFIX << "\t" << conv_offset(o) << ", " << Register[r] << std::endl; 
 	}
 
 	// idiv
@@ -151,12 +158,12 @@ namespace gas {
 	}
 
 	void idiv(std::ostream& out, Offset o) {
-		out << "\tidiv" << SUFFIX << "\t" << o.id << std::endl; 
+		out << "\tidiv" << SUFFIX << "\t" << conv_offset(o) << std::endl; 
 	}
 
 	// lea
 	void lea(std::ostream& out, Offset o, Reg r) {
-		out << "\tlea" << SUFFIX << "\t" << o.id << ", " << Register[r] << std::endl; 
+		out << "\tlea" << SUFFIX << "\t" << conv_offset(o) << ", " << Register[r] << std::endl; 
 	}
 
 	// ret
@@ -180,7 +187,7 @@ namespace gas {
 	}
 
 	void cmp(std::ostream& out, int num, Offset o) {
-		out << "\tcmp" << SUFFIX << "\t$" << num << ", " << o.id << std::endl;
+		out << "\tcmp" << SUFFIX << "\t$" << num << ", " << conv_offset(o) << std::endl;
 	}
 
 	void cmp(std::ostream& out, Reg r1, Reg r2) {
@@ -188,11 +195,11 @@ namespace gas {
 	}
 
 	void cmp(std::ostream& out, Offset o, Reg r) {
-		out << "\tcmp" << SUFFIX << "\t" << o.id << ", " << Register[r] << std::endl;
+		out << "\tcmp" << SUFFIX << "\t" << conv_offset(o) << ", " << Register[r] << std::endl;
 	}
 
 	void cmp(std::ostream& out, Reg r, Offset o) {
-		out << "\tcmp" << SUFFIX << "\t" << Register[r] << ", " << o.id << std::endl;
+		out << "\tcmp" << SUFFIX << "\t" << Register[r] << ", " << conv_offset(o) << std::endl;
 	}
 
 	// neg
@@ -201,7 +208,7 @@ namespace gas {
 	}
 
 	void neg(std::ostream& out, Offset o) {
-		out << "\tneg" << SUFFIX << "\t" << o.id << std::endl;
+		out << "\tneg" << SUFFIX << "\t" << conv_offset(o) << std::endl;
 	}
 
 	// not
@@ -210,7 +217,7 @@ namespace gas {
 	}
 
 	void logic_not(std::ostream& out, Offset o) {
-		out << "\tnot" << SUFFIX << "\t" << o.id << std::endl;
+		out << "\tnot" << SUFFIX << "\t" << conv_offset(o) << std::endl;
 	}
 
 	// and
@@ -219,11 +226,11 @@ namespace gas {
 	}
 
 	void logic_and(std::ostream& out, Reg r, Offset o) {
-		out << "\tand" << SUFFIX << "\t" << Register[r] << ", " << o.id << std::endl;
+		out << "\tand" << SUFFIX << "\t" << Register[r] << ", " << conv_offset(o) << std::endl;
 	}
 
 	void logic_and(std::ostream& out, Offset o, Reg r) {
-		out << "\tand" << SUFFIX << "\t" << o.id << ", " << Register[r] << std::endl;
+		out << "\tand" << SUFFIX << "\t" << conv_offset(o) << ", " << Register[r] << std::endl;
 	}
 
 	// or
@@ -232,11 +239,11 @@ namespace gas {
 	}
 
 	void logic_or(std::ostream& out, Reg r, Offset o) {
-		out << "\tor" << SUFFIX << "\t" << Register[r] << ", " << o.id << std::endl;
+		out << "\tor" << SUFFIX << "\t" << Register[r] << ", " << conv_offset(o) << std::endl;
 	}
 
 	void logic_or(std::ostream& out, Offset o, Reg r) {
-		out << "\tor" << SUFFIX << "\t" << o.id << ", " << Register[r] << std::endl;
+		out << "\tor" << SUFFIX << "\t" << conv_offset(o) << ", " << Register[r] << std::endl;
 	}
 
 	// xor
@@ -245,10 +252,10 @@ namespace gas {
 	}
 
 	void logic_xor(std::ostream& out, Reg r, Offset o) {
-		out << "\txor" << SUFFIX << "\t" << Register[r] << ", " << o.id << std::endl;
+		out << "\txor" << SUFFIX << "\t" << Register[r] << ", " << conv_offset(o) << std::endl;
 	}
 
 	void logic_xor(std::ostream& out, Offset o, Reg r) {
-		out << "\txor" << SUFFIX << "\t" << o.id << ", " << Register[r] << std::endl;
+		out << "\txor" << SUFFIX << "\t" << conv_offset(o) << ", " << Register[r] << std::endl;
 	}
 }

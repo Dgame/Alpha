@@ -2,7 +2,7 @@
 #define ALPHA_ASM_HPP
 
 #include <iostream>
-#include "util.hpp"
+#include "types.hpp"
 
 #define BIT_SIZE 32
 
@@ -65,8 +65,17 @@ enum JCond {
 	JMP_IF_BELOW
 };
 
+struct Offset {
+	i32_t id;
+	i32_t offset;
+	bool is_ptr;
+
+	explicit Offset(i32_t offset, Ptr ptr);
+	explicit Offset(i32_t offset, Reg reg);
+};
+
 namespace gas {
-	const std::string Pointer[] = {
+	const std::string Poi32_ter[] = {
 #if BIT_SIZE == 32
 		// 32 Bit
 		"%esp",
@@ -117,15 +126,10 @@ namespace gas {
 		"b",
 	};
 
-	struct Offset {
-		std::string id;
-
-		explicit Offset(int offset, Ptr ptr);
-		explicit Offset(int offset, Reg reg);
-	};
+	std::string conv_offset(const Offset&);
 
 	// push
-	void push(std::ostream&, int num);
+	void push(std::ostream&, i32_t num);
 	void push(std::ostream&, Reg r);
 	void push(std::ostream&, Offset o);
 	void push(std::ostream&, Ptr p);
@@ -145,25 +149,25 @@ namespace gas {
 	void dec(std::ostream&, Offset o);
 
 	// mov
-	void mov(std::ostream&, int num, Reg r);
-	void mov(std::ostream&, int num, Offset o);
+	void mov(std::ostream&, i32_t num, Reg r);
+	void mov(std::ostream&, i32_t num, Offset o);
 	void mov(std::ostream&, Reg r1, Reg r2);
 	void mov(std::ostream&, Reg r, Offset o);
 	void mov(std::ostream&, Offset o, Reg r);
 	void mov(std::ostream&, Ptr p1, Ptr p2);
 
 	// add
-	void add(std::ostream&, int num, Ptr p);
-	void add(std::ostream&, int num, Reg r);
-	void add(std::ostream&, int num, Offset o);
+	void add(std::ostream&, i32_t num, Ptr p);
+	void add(std::ostream&, i32_t num, Reg r);
+	void add(std::ostream&, i32_t num, Offset o);
 	void add(std::ostream&, Reg r1, Reg r2);
 	void add(std::ostream&, Reg r, Offset o);
 	void add(std::ostream&, Offset o, Reg r);
 
 	// sub
-	void sub(std::ostream&, int num, Ptr p);
-	void sub(std::ostream&, int num, Reg r);
-	void sub(std::ostream&, int num, Offset o);
+	void sub(std::ostream&, i32_t num, Ptr p);
+	void sub(std::ostream&, i32_t num, Reg r);
+	void sub(std::ostream&, i32_t num, Offset o);
 	void sub(std::ostream&, Reg r1, Reg r2);
 	void sub(std::ostream&, Reg r, Offset o);
 	void sub(std::ostream&, Offset o, Reg r);
@@ -189,8 +193,8 @@ namespace gas {
 	void jmp(std::ostream&, JCond jc, const std::string&);
 
 	// cmp
-	void cmp(std::ostream&, int num, Reg r);
-	void cmp(std::ostream&, int num, Offset o);
+	void cmp(std::ostream&, i32_t num, Reg r);
+	void cmp(std::ostream&, i32_t num, Offset o);
 	void cmp(std::ostream&, Reg r1, Reg r2);
 	void cmp(std::ostream&, Offset o, Reg r);
 	void cmp(std::ostream&, Reg r, Offset o);

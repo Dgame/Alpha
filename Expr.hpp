@@ -1,26 +1,22 @@
 #ifndef ALPHA_EXPR_HPP
 #define ALPHA_EXPR_HPP
 
-#include <iostream>
-#include <memory>
+#include <ostream>
 #include "types.hpp"
 
 struct Expr {
 	virtual ~Expr() { }
 
-	// offset (default 0) used for operations
-	virtual u32_t getOffset() const {
-		return 0;
+	virtual bool isTmpVal() const {
+		return true;
 	}
 
-	// compile time eval. if not possible, ptr is null
+	virtual bool isCTE() const {
+		return false;
+	}
+
 	virtual void cte(const i32_t** ptr) const {
 		*ptr = nullptr;
-	}
-
-	// Requires storage?
-	virtual bool requireStoring() const {
-		return true;
 	}
 
 	virtual void eval(std::ostream&) const = 0;
@@ -38,16 +34,14 @@ struct NumExpr : public Expr {
 	virtual void eval(std::ostream&) const override;
 };
 
+struct Var;
+
 struct VarExpr : public Expr {
-	u32_t offset;
+	const Var* var;
 
-	explicit VarExpr(u32_t the_offset);
+	explicit VarExpr(const Var*);
 
-	virtual u32_t getOffset() const override {
-		return this->offset;
-	}
-
-	virtual bool requireStoring() const override {
+	virtual bool isTmpVal() const override {
 		return false;
 	}
 
