@@ -7,6 +7,11 @@
 
 struct Expr;
 
+enum class Mutable {
+	Yes,
+	No
+};
+
 enum class Mode {
 	Value,
 	Reference,
@@ -17,14 +22,20 @@ class Var {
 private:
 	u32_t _offset;
 	std::unique_ptr<const Expr> _expr;
+
 	Mode _mode;
+	Mutable _mut;
 
 public:
-	explicit Var(const Expr*, Mode mode);
+	explicit Var(const Expr*, Mode mode = Mode::Value, Mutable mut = Mutable::Yes);
 	virtual ~Var() { }
 
 	Mode getMode() const {
 		return _mode;
+	}
+
+	bool isMutable() const {
+		return _mut == Mutable::Yes;
 	}
 
 	void setOffset(u32_t offset) {
