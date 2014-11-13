@@ -4,26 +4,34 @@
 #include <ostream>
 #include <string>
 #include <memory>
-#include <vector>
 #include <map>
+#include <vector>
 
 #include "types.hpp"
-#include "Var.hpp"
+#include "Instruction.hpp"
+
+class Var;
 
 class Scope {
 private:
-	std::vector<std::unique_ptr<const Var>> _tmpVars;
-	std::map<std::string, std::unique_ptr<const Var>> _vars;
+    std::map<std::string, std::vector<Var*>> _existing_vars;
+    std::vector<std::unique_ptr<const Instruction>> _instructions;
 
 public:
-	Scope* predecessor;
+    Scope* predecessor;
 
-	explicit Scope(Scope*);
+    explicit Scope(Scope*);
+    virtual ~Scope() { }
 
-	void addVar(const std::string&, const Var*, bool tmp = false);
-	const Var* getVar(const std::string&) const;
+    void addVar(const std::string&, Var*);
+    const Var* getVar(const std::string&) const;
 
-	virtual void eval(std::ostream&) const;
+    void addInstruction(const Instruction*);
+    void prepare();
+
+    virtual void eval(std::ostream&) const;
 };
+
+const Var* searchVarInAllScopes(const std::string&, const Scope*);
 
 #endif

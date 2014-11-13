@@ -1,11 +1,11 @@
 #include "asm.hpp"
 #include "util.hpp"
 
-Offset::Offset(int the_offset, Ptr ptr) : id(ptr), offset(the_offset), is_ptr(true) {
+Offset::Offset(i32_t the_offset, Ptr ptr) : id(ptr), offset(the_offset), is_ptr(true) {
 
 }
 
-Offset::Offset(int the_offset, Reg reg) : id(reg), offset(the_offset), is_ptr(false) {
+Offset::Offset(i32_t the_offset, Reg reg) : id(reg), offset(the_offset), is_ptr(false) {
 
 }
 

@@ -1,51 +1,46 @@
 #ifndef ALPHA_VAR_HPP
 #define ALPHA_VAR_HPP
 
-#include <ostream>
 #include <memory>
+#include "Instruction.hpp"
 #include "types.hpp"
 
-struct Expr;
+#include "Expr.hpp"
 
-enum class Mode {
-	Value,
-	Reference,
-	Dereference
-};
-
-class Var {
+class Var : public Instruction {
 private:
-	u32_t _offset;
+	u32_t _stack_offset;
+	i32_t _base_offset;
+
 	std::unique_ptr<const Expr> _expr;
 
-	Mode _mode;
 	bool _mut;
 
 public:
-	explicit Var(const Expr*, Mode mode = Mode::Value, bool mut = true);
+	explicit Var(const Expr*, bool mut = true);
 	virtual ~Var() { }
-
-	Mode getMode() const {
-		return _mode;
-	}
 
 	bool isMutable() const {
 		return _mut;
 	}
 
-	void setOffset(u32_t offset) {
-		_offset = offset;
+	void setStackOffset(u32_t offset) {
+		_stack_offset = offset;
 	}
 
-	u32_t getOffset() const {
-		return _offset;
+	void setBaseOffset(u32_t offset) {
+		_base_offset = offset;
 	}
 
-	const Expr* getExpr() const {
-		return _expr.get();
+	u32_t getStackOffset() const {
+		return _stack_offset;
 	}
 
-	virtual void eval(std::ostream&) const;
+	u32_t getBaseOffset() const {
+		return _base_offset;
+	}
+
+	virtual void eval(std::ostream&) const override;
 };
 
 #endif

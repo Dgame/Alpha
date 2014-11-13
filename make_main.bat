@@ -1,0 +1,1 @@
+g++ -o main.exe main.cpp asm.cpp Expr.cpp Var.cpp Scope.cpp Parser.cpp -std=c++1y -Wall

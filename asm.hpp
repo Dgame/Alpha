@@ -75,7 +75,7 @@ struct Offset {
 };
 
 namespace gas {
-	const std::string Poi32_ter[] = {
+	const std::string Pointer[] = {
 #if BIT_SIZE == 32
 		// 32 Bit
 		"%esp",
