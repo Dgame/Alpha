@@ -2,6 +2,7 @@
 #define ALPHA_EXPR_HPP
 
 #include <ostream>
+#include <string>
 #include <memory>
 #include "types.hpp"
 
@@ -9,16 +10,17 @@ class Expr {
 public:
 	virtual ~Expr() { }
 
-	// Has Compile Time Evaluation?
-	virtual bool hasCTE() const {
+	// Compile Time Evaluation
+	virtual bool cte(i32_t*) const {
 		return false;
 	}
 
-	// Get Compile Time Evaluation
-	virtual i32_t cte() const {
-		return -1;
+	// Compile Time Evaluation
+	virtual bool cte(std::string*) const {
+		return false;
 	}
 
+	// Normal Evaluation
 	virtual void eval(std::ostream&) const = 0;
 };
 
@@ -29,12 +31,26 @@ private:
 public:
 	explicit NumExpr(i32_t val);
 
-	virtual bool hasCTE() const override {
+	// Compile Time Evaluation
+	virtual bool cte(i32_t* num) const override {
+		*num = _value;
 		return true;
 	}
 
-	virtual i32_t cte() const override {
-		return _value;
+	virtual void eval(std::ostream&) const override;
+};
+
+class StringExpr : public Expr {
+private:
+	std::string _label;
+
+public:
+	explicit StringExpr(const std::string&);
+
+	// Compile Time Evaluation
+	virtual bool cte(std::string* str) const override {
+		*str = _label;
+		return true;
 	}
 
 	virtual void eval(std::ostream&) const override;

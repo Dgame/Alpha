@@ -10,6 +10,14 @@ void NumExpr::eval(std::ostream& out) const {
 	gas::mov(out, _value, E_AX);
 }
 
+StringExpr::StringExpr(const std::string& label) : _label(label) {
+
+}
+
+void StringExpr::eval(std::ostream& out) const {
+	gas::mov(out, _label, E_AX);
+}
+
 VarExpr::VarExpr(const Var* var) : _var(var) {
 
 }
@@ -49,8 +57,9 @@ AddOp::AddOp(const Expr* left, const Expr* right) : Operation(left, right) {
 void AddOp::eval(std::ostream& out) const {
 	out << "# Begin AddOp " << std::endl;
 
-	if (this->lhs->hasCTE())
-		gas::push(out, this->lhs->cte());
+	i32_t val;
+	if (this->lhs->cte(&val))
+		gas::push(out, val);
 	else {
 		this->lhs->eval(out);
 		gas::push(out, E_AX);
@@ -70,8 +79,9 @@ SubOp::SubOp(const Expr* left, const Expr* right) : Operation(left, right) {
 void SubOp::eval(std::ostream& out) const {
 	out << "# Begin SubOp " << std::endl;
 
-	if (this->lhs->hasCTE())
-		gas::push(out, this->lhs->cte());
+	i32_t val;
+	if (this->lhs->cte(&val))
+		gas::push(out, val);
 	else {
 		this->lhs->eval(out);
 		gas::push(out, E_AX);
@@ -91,8 +101,9 @@ MulOp::MulOp(const Expr* left, const Expr* right) : Operation(left, right) {
 void MulOp::eval(std::ostream& out) const {
 	out << "# Begin MulOp " << std::endl;
 
-	if (this->lhs->hasCTE())
-		gas::push(out, this->lhs->cte());
+	i32_t val;
+	if (this->lhs->cte(&val))
+		gas::push(out, val);
 	else {
 		this->lhs->eval(out);
 		gas::push(out, E_AX);

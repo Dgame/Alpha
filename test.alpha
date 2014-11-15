@@ -1,0 +1,9 @@
+main() {
+	a = 42
+	b = 23
+	c = a
+
+	print "a = ", a
+	print "b = ", b
+	print "c = ", c
+}

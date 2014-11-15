@@ -77,6 +77,14 @@ namespace gas {
 		out << "\tmov" << SUFFIX << "\t$" << num << ", " << conv_offset(o) << std::endl; 
 	}
 
+	void mov(std::ostream& out, const std::string& label, Reg r) {
+		out << "\tmovl" << SUFFIX << "\t$" << label <<", " << Register[r] << std::endl;
+	}
+
+	void mov(std::ostream& out, const std::string& label, Offset o) {
+		out << "\tmovl" << SUFFIX << "\t$" << label <<", " << conv_offset(o) << std::endl;
+	}
+
 	void mov(std::ostream& out, Reg r1, Reg r2) {
 		out << "\tmov" << SUFFIX << "\t" << Register[r1] << ", " << Register[r2] << std::endl; 
 	}

@@ -3,29 +3,23 @@
 
 #include <string>
 #include "types.hpp"
+#include "Loc.hpp"
+#include "Env.hpp"
 
 class Expr;
+class StringExpr;
+class Scope;
 
-struct Loc {
-    const char* pos;
-    const char* end;
-    u32_t lineNr = 0;
+class Parser {
+private:
+    Loc _loc;
+    Scope* _cur_scope = nullptr;
+    bool _errors = false;
 
-    char current() const {
-        return *(this->pos);
-    }
+    Env _env;
 
-    bool eof() const {
-        return this->pos == this->end;
-    }
-};
-
-struct Parser {
-    Loc loc;
-
-    void error(const std::string&) {
-        
-    }
+public:
+    void error(const std::string&);
 
     void skip_spaces();
 
@@ -35,7 +29,15 @@ struct Parser {
     bool read_identifier(std::string&);
     bool read_number(i32_t&);
 
-    void parse(const std::string&);
+    Env* parse(const std::string&);
+    
+    void parseFunc();
+    void parseScope();
+
+    void parsePrint();
+    bool parseVar(const std::string&);
+
+    StringExpr* parseStringExpr();
 
     Expr* parseExpr();
     Expr* parseTerm();

@@ -70,6 +70,7 @@ struct Offset {
 	i32_t offset;
 	bool is_ptr;
 
+	Offset() = default;
 	explicit Offset(i32_t offset, Ptr ptr);
 	explicit Offset(i32_t offset, Reg reg);
 };
@@ -151,6 +152,8 @@ namespace gas {
 	// mov
 	void mov(std::ostream&, i32_t num, Reg r);
 	void mov(std::ostream&, i32_t num, Offset o);
+	void mov(std::ostream&, const std::string&, Reg r);
+	void mov(std::ostream&, const std::string&, Offset o);
 	void mov(std::ostream&, Reg r1, Reg r2);
 	void mov(std::ostream&, Reg r, Offset o);
 	void mov(std::ostream&, Offset o, Reg r);

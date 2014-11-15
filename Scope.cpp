@@ -2,13 +2,22 @@
 #include "Var.hpp"
 #include "asm.hpp"
 
-Scope::Scope(Scope* pred_scope) : predecessor(pred_scope) {
+Scope::Scope(Scope* pred_scope) : _prev_used_storage(pred_scope ? pred_scope->usedStorage() : 0) , predecessor(pred_scope) {
 
+}
+
+u32_t Scope::usedStorage() const {
+    u32_t size = _prev_used_storage;
+   for (auto& pair : _existing_vars) {
+        size += pair.second[0]->sizeOf();
+    }
+
+    return size;
 }
 
 void Scope::addVar(const std::string& name, Var* var) {
     _existing_vars[name].push_back(var);
-    this->addInstruction(var);
+    this->addInstr(var);
 }
 
 const Var* Scope::getVar(const std::string& name) const {
@@ -18,39 +27,46 @@ const Var* Scope::getVar(const std::string& name) const {
     return nullptr;
 }
 
-void Scope::addInstruction(const Instruction* instr) {
+void Scope::addInstr(const Instr* instr) {
     _instructions.emplace_back(instr);
 }
 
 void Scope::prepare() {
-    u32_t stack_size = 0;
+    u32_t stack_size = _prev_used_storage;
     for (auto& pair : _existing_vars) {
-        for (auto& var : pair.second) {
+        for (Var* var : pair.second) {
             var->setStackOffset(stack_size);
         }
-        stack_size += 4;
+        stack_size += pair.second[0]->sizeOf();
     }
 
     for (auto& pair : _existing_vars) {
-        for (auto& var : pair.second) {
+        for (Var* var : pair.second) {
             var->setBaseOffset(stack_size * -1);
         }
-        stack_size -= 4;
-    }
-
-    Scope* cur_scope = this->predecessor;
-    while (cur_scope) {
-        cur_scope->prepare();
+        stack_size -= pair.second[0]->sizeOf();
     }
 }
 
 void Scope::eval(std::ostream& out) const {
+    out << "# Begin Scope" << std::endl;
+
+    const u32_t storage = this->usedStorage() - _prev_used_storage;
+
+    if (storage != 0)
+        gas::sub(out, storage, P_STACK);
+
     for (auto& instr : _instructions) {
         instr->eval(out);
     }
+
+    if (storage != 0)
+        gas::add(out, storage, P_STACK);
+
+    out << "# End Scope" << std::endl;
 }
 
-const Var* searchVarInAllScopes(const std::string& name, const Scope* cur_scope) {
+const Var* seekingDown(const std::string& name, const Scope* cur_scope) {
     const Scope* scope = cur_scope;
     while (scope) {
         const Var* var = scope->getVar(name);

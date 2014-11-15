@@ -8,14 +8,16 @@
 #include <vector>
 
 #include "types.hpp"
-#include "Instruction.hpp"
+#include "Instr.hpp"
 
 class Var;
 
 class Scope {
 private:
+    const u32_t _prev_used_storage;
+
     std::map<std::string, std::vector<Var*>> _existing_vars;
-    std::vector<std::unique_ptr<const Instruction>> _instructions;
+    std::vector<std::unique_ptr<const Instr>> _instructions;
 
 public:
     Scope* predecessor;
@@ -23,15 +25,17 @@ public:
     explicit Scope(Scope*);
     virtual ~Scope() { }
 
+    u32_t usedStorage() const;
+
     void addVar(const std::string&, Var*);
     const Var* getVar(const std::string&) const;
 
-    void addInstruction(const Instruction*);
+    void addInstr(const Instr*);
     void prepare();
 
     virtual void eval(std::ostream&) const;
 };
 
-const Var* searchVarInAllScopes(const std::string&, const Scope*);
+const Var* seekingDown(const std::string&, const Scope*);
 
 #endif
