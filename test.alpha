@@ -6,4 +6,6 @@ main() {
 	print "a = ", a
 	print "b = ", b
 	print "c = ", c
+
+	print "a + (b * 3) = ", a + (b * 3)
 }

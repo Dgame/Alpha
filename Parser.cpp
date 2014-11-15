@@ -292,10 +292,16 @@ Expr* Parser::parseFactor() {
 
     if (read_number(num))
         return new NumExpr(negate ? (num * -1) : num);
-    else if (read_identifier(ident)) {
+    else if (accept("(")) {
+        Expr* exp = parseExpr();
+        expect(")");
+
+        return exp;
+    } else if (read_identifier(ident)) {
         const Var* var = seekingDown(ident, _cur_scope);
         if (var)
             return new VarExpr(var);
+        error("No such variable found: '" + ident + "'");
     }
 
     return nullptr;
