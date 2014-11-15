@@ -301,6 +301,7 @@ Expr* Parser::parseFactor() {
         const Var* var = seekingDown(ident, _cur_scope);
         if (var)
             return new VarExpr(var);
+        
         error("No such variable found: '" + ident + "'");
     }
 

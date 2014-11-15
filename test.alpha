@@ -8,4 +8,8 @@ main() {
 	print "c = ", c
 
 	print "a + (b * 3) = ", a + (b * 3)
+
+	c = 3 * 3
+
+	print "c = ", c
 }
