@@ -46,11 +46,11 @@ void DerefExpr::eval(std::ostream& out) const {
 	gas::mov(out, Offset(0, E_AX), E_AX);
 }
 
-Operation::Operation(const Expr* left, const Expr* right) : lhs(left), rhs(right) {
+BinaryExpr::BinaryExpr(const Expr* left, const Expr* right) : lhs(left), rhs(right) {
 
 }
 
-AddOp::AddOp(const Expr* left, const Expr* right) : Operation(left, right) {
+AddOp::AddOp(const Expr* left, const Expr* right) : BinaryExpr(left, right) {
 
 }
 
@@ -72,7 +72,7 @@ void AddOp::eval(std::ostream& out) const {
 	out << "# End AddOp " << std::endl;
 }
 
-SubOp::SubOp(const Expr* left, const Expr* right) : Operation(left, right) {
+SubOp::SubOp(const Expr* left, const Expr* right) : BinaryExpr(left, right) {
 
 }
 
@@ -94,7 +94,7 @@ void SubOp::eval(std::ostream& out) const {
 	out << "# End SubOp " << std::endl;
 }
 
-MulOp::MulOp(const Expr* left, const Expr* right) : Operation(left, right) {
+MulOp::MulOp(const Expr* left, const Expr* right) : BinaryExpr(left, right) {
 
 }
 
@@ -116,7 +116,7 @@ void MulOp::eval(std::ostream& out) const {
 	out << "# End MulOp " << std::endl;
 }
 
-DivOp::DivOp(const Expr* left, const Expr* right) : Operation(left, right) {
+DivOp::DivOp(const Expr* left, const Expr* right) : BinaryExpr(left, right) {
 
 }
 

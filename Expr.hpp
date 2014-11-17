@@ -80,34 +80,34 @@ class DerefExpr : public VarExpr {
 	virtual void eval(std::ostream&) const override;
 };
 
-struct Operation : public Expr {
+struct BinaryExpr : public Expr {
 	std::unique_ptr<const Expr> lhs;
 	std::unique_ptr<const Expr> rhs;
 
-	explicit Operation(const Expr*, const Expr*);
+	explicit BinaryExpr(const Expr*, const Expr*);
 
-	virtual ~Operation() { }
+	virtual ~BinaryExpr() { }
 };
 
-struct AddOp : public Operation {
+struct AddOp : public BinaryExpr {
 	explicit AddOp(const Expr*, const Expr*);
 
 	virtual void eval(std::ostream&) const override;
 };
 
-struct SubOp : public Operation {
+struct SubOp : public BinaryExpr {
 	explicit SubOp(const Expr*, const Expr*);
 
 	virtual void eval(std::ostream&) const override;
 };
 
-struct MulOp : public Operation {
+struct MulOp : public BinaryExpr {
 	explicit MulOp(const Expr*, const Expr*);
 
 	virtual void eval(std::ostream&) const override;
 };
 
-struct DivOp : public Operation {
+struct DivOp : public BinaryExpr {
 	explicit DivOp(const Expr*, const Expr*);
 
 	virtual void eval(std::ostream&) const override;
