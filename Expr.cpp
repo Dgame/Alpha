@@ -50,12 +50,12 @@ BinaryExpr::BinaryExpr(const Expr* left, const Expr* right) : lhs(left), rhs(rig
 
 }
 
-AddOp::AddOp(const Expr* left, const Expr* right) : BinaryExpr(left, right) {
+AddExpr::AddExpr(const Expr* left, const Expr* right) : BinaryExpr(left, right) {
 
 }
 
-void AddOp::eval(std::ostream& out) const {
-	out << "# Begin AddOp " << std::endl;
+void AddExpr::eval(std::ostream& out) const {
+	out << "# Begin AddExpr " << std::endl;
 
 	i32_t val;
 	if (this->lhs->cte(&val))
@@ -69,15 +69,15 @@ void AddOp::eval(std::ostream& out) const {
 	gas::add(out, Offset(0, P_STACK), E_AX);
 	gas::add(out, 4, P_STACK);
 
-	out << "# End AddOp " << std::endl;
+	out << "# End AddExpr " << std::endl;
 }
 
-SubOp::SubOp(const Expr* left, const Expr* right) : BinaryExpr(left, right) {
+SubExpr::SubExpr(const Expr* left, const Expr* right) : BinaryExpr(left, right) {
 
 }
 
-void SubOp::eval(std::ostream& out) const {
-	out << "# Begin SubOp " << std::endl;
+void SubExpr::eval(std::ostream& out) const {
+	out << "# Begin SubExpr " << std::endl;
 
 	i32_t val;
 	if (this->lhs->cte(&val))
@@ -91,15 +91,15 @@ void SubOp::eval(std::ostream& out) const {
 	gas::sub(out, Offset(0, P_STACK), E_AX);
 	gas::add(out, 4, P_STACK);
 
-	out << "# End SubOp " << std::endl;
+	out << "# End SubExpr " << std::endl;
 }
 
-MulOp::MulOp(const Expr* left, const Expr* right) : BinaryExpr(left, right) {
+MulExpr::MulExpr(const Expr* left, const Expr* right) : BinaryExpr(left, right) {
 
 }
 
-void MulOp::eval(std::ostream& out) const {
-	out << "# Begin MulOp " << std::endl;
+void MulExpr::eval(std::ostream& out) const {
+	out << "# Begin MulExpr " << std::endl;
 
 	i32_t val;
 	if (this->lhs->cte(&val))
@@ -113,15 +113,15 @@ void MulOp::eval(std::ostream& out) const {
 	gas::imul(out, Offset(0, P_STACK), E_AX);
 	gas::add(out, 4, P_STACK);
 
-	out << "# End MulOp " << std::endl;
+	out << "# End MulExpr " << std::endl;
 }
 
-DivOp::DivOp(const Expr* left, const Expr* right) : BinaryExpr(left, right) {
+DivExpr::DivExpr(const Expr* left, const Expr* right) : BinaryExpr(left, right) {
 
 }
 
-void DivOp::eval(std::ostream& out) const {
-	out << "# Begin DivOp " << std::endl;
+void DivExpr::eval(std::ostream& out) const {
+	out << "# Begin DivExpr " << std::endl;
 
 	this->lhs->eval(out);
 	gas::mov(out, E_AX, E_BX);
@@ -130,18 +130,18 @@ void DivOp::eval(std::ostream& out) const {
 	gas::mov(out, 0, E_DX);
 	gas::idiv(out, E_BX);
 
-	out << "# End DivOp " << std::endl;
+	out << "# End DivExpr " << std::endl;
 }
 
-ModOp::ModOp(const Expr* left, const Expr* right) : DivOp(left, right) {
+ModExpr::ModExpr(const Expr* left, const Expr* right) : DivExpr(left, right) {
 
 }
 
-void ModOp::eval(std::ostream& out) const {
-	out << "# Begin ModOp " << std::endl;
+void ModExpr::eval(std::ostream& out) const {
+	out << "# Begin ModExpr " << std::endl;
 
-	DivOp::eval(out);
+	DivExpr::eval(out);
 	gas::mov(out, E_DX, E_AX);
 
-	out << "# End ModOp " << std::endl;
+	out << "# End ModExpr " << std::endl;
 }

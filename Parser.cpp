@@ -223,7 +223,7 @@ Expr* Parser::parseExpr() {
 
                 return nullptr;
             }
-            lhs = new AddOp(lhs, rhs);
+            lhs = new AddExpr(lhs, rhs);
         } else if (accept("-")) {
             Expr* rhs = parseTerm();
             if (!rhs) {
@@ -233,7 +233,7 @@ Expr* Parser::parseExpr() {
 
                 return nullptr;
             }
-            lhs = new SubOp(rhs, lhs);
+            lhs = new SubExpr(rhs, lhs);
         } else
             break;
     }
@@ -256,7 +256,7 @@ Expr* Parser::parseTerm() {
 
                 return nullptr;
             }
-            lhs = new MulOp(lhs, rhs);
+            lhs = new MulExpr(lhs, rhs);
         } else if (accept("/")) {
             Expr* rhs = parseFactor();
             if (!rhs) {
@@ -266,7 +266,7 @@ Expr* Parser::parseTerm() {
 
                 return nullptr;
             }
-            lhs = new DivOp(rhs, lhs);
+            lhs = new DivExpr(rhs, lhs);
         } else if (accept("%")) {
             Expr* rhs = parseFactor();
             if (!rhs) {
@@ -276,7 +276,7 @@ Expr* Parser::parseTerm() {
 
                 return nullptr;
             }
-            lhs = new ModOp(rhs, lhs);
+            lhs = new ModExpr(rhs, lhs);
         } else 
             break;
     }

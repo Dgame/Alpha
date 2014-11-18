@@ -6,8 +6,7 @@
 #include <memory>
 #include "types.hpp"
 
-class Expr {
-public:
+struct Expr {
 	virtual ~Expr() { }
 
 	// Compile Time Evaluation
@@ -68,13 +67,13 @@ public:
 	virtual void eval(std::ostream&) const override;
 };
 
-class PtrExpr : public VarExpr {
+struct PtrExpr : public VarExpr {
 	explicit PtrExpr(const Var*);
 
 	virtual void eval(std::ostream&) const override;
 };
 
-class DerefExpr : public VarExpr {
+struct DerefExpr : public VarExpr {
 	explicit DerefExpr(const Var*);
 
 	virtual void eval(std::ostream&) const override;
@@ -89,32 +88,32 @@ struct BinaryExpr : public Expr {
 	virtual ~BinaryExpr() { }
 };
 
-struct AddOp : public BinaryExpr {
-	explicit AddOp(const Expr*, const Expr*);
+struct AddExpr : public BinaryExpr {
+	explicit AddExpr(const Expr*, const Expr*);
 
 	virtual void eval(std::ostream&) const override;
 };
 
-struct SubOp : public BinaryExpr {
-	explicit SubOp(const Expr*, const Expr*);
+struct SubExpr : public BinaryExpr {
+	explicit SubExpr(const Expr*, const Expr*);
 
 	virtual void eval(std::ostream&) const override;
 };
 
-struct MulOp : public BinaryExpr {
-	explicit MulOp(const Expr*, const Expr*);
+struct MulExpr : public BinaryExpr {
+	explicit MulExpr(const Expr*, const Expr*);
 
 	virtual void eval(std::ostream&) const override;
 };
 
-struct DivOp : public BinaryExpr {
-	explicit DivOp(const Expr*, const Expr*);
+struct DivExpr : public BinaryExpr {
+	explicit DivExpr(const Expr*, const Expr*);
 
 	virtual void eval(std::ostream&) const override;
 };
 
-struct ModOp : public DivOp {
-	explicit ModOp(const Expr*, const Expr*);
+struct ModExpr : public DivExpr {
+	explicit ModExpr(const Expr*, const Expr*);
 
 	virtual void eval(std::ostream&) const override;
 };
