@@ -1,7 +1,7 @@
 #include "Parser.hpp"
 #include "Expr.hpp"
 #include "Scope.hpp"
-#include "Var.hpp"
+#include "VarDecl.hpp"
 
 #include <locale>
 #include <vector>
@@ -132,9 +132,9 @@ void Parser::parseScope() {
         std::string ident;
 
         if (accept("print")) {
-            parsePrint();
+            parsePrintDecl();
         } else if (read_identifier(ident)) {
-            if (parseVar(ident)) {
+            if (parseVarDecl(ident)) {
                 // pass
             }
         } else {
@@ -145,8 +145,8 @@ void Parser::parseScope() {
     expect("}");
 }
 
-void Parser::parsePrint() {
-    PrintInstr* pi = new PrintInstr();
+void Parser::parsePrintDecl() {
+    PrintDecl* pi = new PrintDecl();
     while (!_loc.eof()) {
         const Expr* exp = parseExpr();
         if (exp)
@@ -165,10 +165,10 @@ void Parser::parsePrint() {
             break;
     }
 
-    _cur_scope->addInstr(pi);
+    _cur_scope->addDecl(pi);
 }
 
-bool Parser::parseVar(const std::string& ident) {
+bool Parser::parseVarDecl(const std::string& ident) {
     if (accept("=")) {
         Expr* exp = parseExpr();
         if (!exp) {
@@ -176,7 +176,7 @@ bool Parser::parseVar(const std::string& ident) {
             return false;
         }
 
-        _cur_scope->addVar(ident, new Var(exp));
+        _cur_scope->addVarDecl(ident, new VarDecl(exp));
 
         return true;
     } else if (accept("->")) {
@@ -298,7 +298,7 @@ Expr* Parser::parseFactor() {
 
         return exp;
     } else if (read_identifier(ident)) {
-        const Var* var = seekingDown(ident, _cur_scope);
+        const VarDecl* var = seekingDown(ident, _cur_scope);
         if (var)
             return new VarExpr(var);
         

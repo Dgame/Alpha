@@ -1,11 +1,11 @@
-#include "Var.hpp"
+#include "VarDecl.hpp"
 #include "asm.hpp"
 
-Var::Var(const Expr* exp, bool mut, u32_t size) : _byte_size(size), _mut(mut), _expr(exp) {
+VarDecl::VarDecl(const Expr* exp, bool mut, u32_t size) : _byte_size(size), _mut(mut), _expr(exp) {
 
 }
 
-void Var::eval(std::ostream& out) const {
+void VarDecl::eval(std::ostream& out) const {
 	out << "# Begin Var" << std::endl;
 
 	i32_t val;

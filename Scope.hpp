@@ -8,16 +8,16 @@
 #include <vector>
 
 #include "types.hpp"
-#include "Instr.hpp"
+#include "Decl.hpp"
 
-class Var;
+class VarDecl;
 
 class Scope {
 private:
     const u32_t _prev_used_storage;
 
-    std::map<std::string, std::vector<Var*>> _existing_vars;
-    std::vector<std::unique_ptr<const Instr>> _instructions;
+    std::map<std::string, std::vector<VarDecl*>> _existing_vars;
+    std::vector<std::unique_ptr<const Decl>> _decls;
 
 public:
     Scope* predecessor;
@@ -27,15 +27,15 @@ public:
 
     u32_t usedStorage() const;
 
-    void addVar(const std::string&, Var*);
-    const Var* getVar(const std::string&) const;
+    void addVarDecl(const std::string&, VarDecl*);
+    const VarDecl* getVarDecl(const std::string&) const;
 
-    void addInstr(const Instr*);
+    void addDecl(const Decl*);
     void prepare();
 
     virtual void eval(std::ostream&) const;
 };
 
-const Var* seekingDown(const std::string&, const Scope*);
+const VarDecl* seekingDown(const std::string&, const Scope*);
 
 #endif

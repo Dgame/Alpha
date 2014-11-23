@@ -55,26 +55,26 @@ public:
 	virtual void eval(std::ostream&) const override;
 };
 
-class Var;
+class VarDecl;
 
 class VarExpr : public Expr {
 protected:
-	const Var* _var;
+	const VarDecl* _var;
 
 public:
-	explicit VarExpr(const Var*);
+	explicit VarExpr(const VarDecl*);
 
 	virtual void eval(std::ostream&) const override;
 };
 
 struct PtrExpr : public VarExpr {
-	explicit PtrExpr(const Var*);
+	explicit PtrExpr(const VarDecl*);
 
 	virtual void eval(std::ostream&) const override;
 };
 
 struct DerefExpr : public VarExpr {
-	explicit DerefExpr(const Var*);
+	explicit DerefExpr(const VarDecl*);
 
 	virtual void eval(std::ostream&) const override;
 };

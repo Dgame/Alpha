@@ -34,8 +34,8 @@ public:
     void parseFunc();
     void parseScope();
 
-    void parsePrint();
-    bool parseVar(const std::string&);
+    void parsePrintDecl();
+    bool parseVarDecl(const std::string&);
 
     StringExpr* parseStringExpr();
 

@@ -1,15 +1,15 @@
-#include "Instr.hpp"
+#include "Decl.hpp"
 #include "asm.hpp"
 
-PrintInstr::PrintInstr(const Expr* exp) {
+PrintDecl::PrintDecl(const Expr* exp) {
 	this->addExpr(exp);
 }
 
-void PrintInstr::addExpr(const Expr* exp) {
+void PrintDecl::addExpr(const Expr* exp) {
 	_exprs.emplace_back(exp);
 }
 
-void PrintInstr::eval(std::ostream& out) const {
+void PrintDecl::eval(std::ostream& out) const {
 	out << "# Begin print" << std::endl;
 
 	i32_t val;

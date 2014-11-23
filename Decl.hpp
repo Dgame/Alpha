@@ -1,5 +1,5 @@
-#ifndef ALPHA_INSTR_HPP
-#define ALPHA_INSTR_HPP
+#ifndef ALPHA_DECL_HPP
+#define ALPHA_DECL_HPP
 
 #include <ostream>
 #include <vector>
@@ -7,20 +7,20 @@
 
 #include "Expr.hpp"
 
-class Instr {
+class Decl {
 public:
-	virtual ~Instr() { }
+	virtual ~Decl() { }
 
 	virtual void eval(std::ostream&) const = 0;
 };
 
-class PrintInstr : public Instr {
+class PrintDecl : public Decl {
 private:
 	std::vector<std::unique_ptr<const Expr>> _exprs;
 
 public:
-	PrintInstr() = default;
-	explicit PrintInstr(const Expr*);
+	PrintDecl() = default;
+	explicit PrintDecl(const Expr*);
 	void addExpr(const Expr*);
 
 	virtual void eval(std::ostream&) const override;

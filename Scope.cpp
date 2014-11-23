@@ -1,5 +1,5 @@
 #include "Scope.hpp"
-#include "Var.hpp"
+#include "VarDecl.hpp"
 #include "asm.hpp"
 
 Scope::Scope(Scope* pred_scope) : _prev_used_storage(pred_scope ? pred_scope->usedStorage() : 0) , predecessor(pred_scope) {
@@ -15,33 +15,33 @@ u32_t Scope::usedStorage() const {
     return size;
 }
 
-void Scope::addVar(const std::string& name, Var* var) {
+void Scope::addVarDecl(const std::string& name, VarDecl* var) {
     _existing_vars[name].push_back(var);
-    this->addInstr(var);
+    this->addDecl(var);
 }
 
-const Var* Scope::getVar(const std::string& name) const {
+const VarDecl* Scope::getVarDecl(const std::string& name) const {
    auto it = _existing_vars.find(name);
     if (it != _existing_vars.end())
         return it->second[0];
     return nullptr;
 }
 
-void Scope::addInstr(const Instr* instr) {
-    _instructions.emplace_back(instr);
+void Scope::addDecl(const Decl* instr) {
+    _decls.emplace_back(instr);
 }
 
 void Scope::prepare() {
     u32_t stack_size = _prev_used_storage;
     for (auto& pair : _existing_vars) {
-        for (Var* var : pair.second) {
+        for (VarDecl* var : pair.second) {
             var->setStackOffset(stack_size);
         }
         stack_size += pair.second[0]->sizeOf();
     }
 
     for (auto& pair : _existing_vars) {
-        for (Var* var : pair.second) {
+        for (VarDecl* var : pair.second) {
             var->setBaseOffset(stack_size * -1);
         }
         stack_size -= pair.second[0]->sizeOf();
@@ -56,8 +56,8 @@ void Scope::eval(std::ostream& out) const {
     if (storage != 0)
         gas::sub(out, storage, P_STACK);
 
-    for (auto& instr : _instructions) {
-        instr->eval(out);
+    for (auto& decl : _decls) {
+        decl->eval(out);
     }
 
     if (storage != 0)
@@ -66,10 +66,10 @@ void Scope::eval(std::ostream& out) const {
     out << "# End Scope" << std::endl;
 }
 
-const Var* seekingDown(const std::string& name, const Scope* cur_scope) {
+const VarDecl* seekingDown(const std::string& name, const Scope* cur_scope) {
     const Scope* scope = cur_scope;
     while (scope) {
-        const Var* var = scope->getVar(name);
+        const VarDecl* var = scope->getVarDecl(name);
         if (var)
             return var;
         scope = scope->predecessor;

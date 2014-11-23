@@ -1,6 +1,6 @@
 #include "Expr.hpp"
 #include "asm.hpp"
-#include "Var.hpp"
+#include "VarDecl.hpp"
 
 NumExpr::NumExpr(i32_t val) : _value(val) {
 
@@ -18,7 +18,7 @@ void StringExpr::eval(std::ostream& out) const {
 	gas::mov(out, _label, E_AX);
 }
 
-VarExpr::VarExpr(const Var* var) : _var(var) {
+VarExpr::VarExpr(const VarDecl* var) : _var(var) {
 
 }
 
@@ -26,7 +26,7 @@ void VarExpr::eval(std::ostream& out) const {
 	gas::mov(out, Offset(_var->getBaseOffset(), P_BASE), E_AX);
 }
 
-PtrExpr::PtrExpr(const Var* var) : VarExpr(var) {
+PtrExpr::PtrExpr(const VarDecl* var) : VarExpr(var) {
 
 }
 
@@ -37,7 +37,7 @@ void PtrExpr::eval(std::ostream& out) const {
 		gas::mov(out, 0, E_AX);
 }
 
-DerefExpr::DerefExpr(const Var* var) : VarExpr(var) {
+DerefExpr::DerefExpr(const VarDecl* var) : VarExpr(var) {
 
 }
 
