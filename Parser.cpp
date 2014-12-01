@@ -290,20 +290,27 @@ Expr* Parser::parseFactor() {
     i32_t num;
     std::string ident;
 
-    if (read_number(num))
-        return new NumExpr(negate ? (num * -1) : num);
-    else if (accept("(")) {
-        Expr* exp = parseExpr();
-        expect(")");
+    Expr* expr = nullptr;
 
-        return exp;
+    if (read_number(num))
+        expr = new NumExpr(num);
+    else if (accept("(")) {
+        expr = parseExpr();
+        expect(")");
     } else if (read_identifier(ident)) {
         const VarDecl* var = seekingDown(ident, _cur_scope);
         if (var)
-            return new VarExpr(var);
-        
-        error("No such variable found: '" + ident + "'");
+            expr = new VarExpr(var);
+        else
+            error("No such variable found: '" + ident + "'");
     }
 
-    return nullptr;
+    if (negate) {
+        if (!expr)
+            error("Nothing that can be negated");
+        else
+            return new NegExpr(expr);
+    }
+    
+    return expr;
 }

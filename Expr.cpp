@@ -10,6 +10,20 @@ void NumExpr::eval(std::ostream& out) const {
 	gas::mov(out, _value, E_AX);
 }
 
+NegExpr::NegExpr(const Expr* exp) : _expr(exp) {
+
+}
+
+void NegExpr::eval(std::ostream& out) const {
+	i32_t val;
+	if (_expr->cte(&val))
+		gas::mov(out, val * -1, E_AX);
+	else {
+		_expr->eval(out);
+		gas::neg(out, E_AX);
+	}
+}
+
 StringExpr::StringExpr(const std::string& label) : _label(label) {
 
 }

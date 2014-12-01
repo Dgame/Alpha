@@ -1,11 +1,18 @@
-#ifndef ALPHA_VAR_HPP
-#define ALPHA_VAR_HPP
+#ifndef ALPHA_VAR_DECL_HPP
+#define ALPHA_VAR_DECL_HPP
 
 #include <memory>
 #include "Decl.hpp"
 #include "types.hpp"
 
 #include "Expr.hpp"
+
+enum SizeOf {
+	Byte_1 = 8,
+	Byte_2 = 16,
+	Byte_3 = 32,
+	Byte_4 = 64
+};
 
 class VarDecl : public Decl {
 private:

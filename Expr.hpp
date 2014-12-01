@@ -39,6 +39,16 @@ public:
 	virtual void eval(std::ostream&) const override;
 };
 
+class NegExpr : public Expr {
+private:
+	std::unique_ptr<const Expr> _expr;
+
+public:
+	explicit NegExpr(const Expr*);
+
+	virtual void eval(std::ostream&) const override;
+};
+
 class StringExpr : public Expr {
 private:
 	std::string _label;

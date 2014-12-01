@@ -1,20 +1,19 @@
 #include <stdio.h>
-#include <string.h>
 
 extern void alpha_main();
 
-void print_int(int num) {
-	printf("%d", num);
+inline void print_int(int num) {
+    printf("%d", num);
 }
 
-void print_str(const char* str) {
-    fwrite(str, 1, strlen(str), stdout);
+inline void print_str(const char* str) {
+    fputs(str, stdout);
 }
 
-void print_ln() {
-	printf("\n");
+inline void print_ln() {
+    putchar('\n');
 }
 
 int main() {
-	alpha_main();
+    alpha_main();
 }
