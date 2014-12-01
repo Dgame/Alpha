@@ -7,16 +7,17 @@
 
 #include "Expr.hpp"
 
-enum SizeOf {
-	Byte_1 = 8,
-	Byte_2 = 16,
-	Byte_3 = 32,
-	Byte_4 = 64
+enum class BitSize : u32_t {
+	B_8 = 8,
+	B_16 = 16,
+	B_32 = 32,
+	B_64 = 64,
+	B_128 = 128
 };
 
 class VarDecl : public Decl {
 private:
-	const u32_t _byte_size;
+	const u32_t _bit_size;
 
 	u32_t _stack_offset;
 	i32_t _base_offset;
@@ -26,15 +27,15 @@ private:
 	std::unique_ptr<const Expr> _expr;
 
 public:
-	explicit VarDecl(const Expr*, bool mut = true, u32_t size = 4);
+	explicit VarDecl(const Expr*, bool mut = true, BitSize size = BitSize::B_32);
 	virtual ~VarDecl() { }
 
 	bool isMutable() const {
 		return _mut;
 	}
 
-	u32_t sizeOf() const {
-		return _byte_size;
+	u32_t sizeInBit() const {
+		return _bit_size;
 	}
 
 	void setStackOffset(u32_t offset) {

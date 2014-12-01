@@ -1,7 +1,7 @@
 #include "VarDecl.hpp"
 #include "asm.hpp"
 
-VarDecl::VarDecl(const Expr* exp, bool mut, u32_t size) : _byte_size(size), _mut(mut), _expr(exp) {
+VarDecl::VarDecl(const Expr* exp, bool mut, BitSize size) : _bit_size(static_cast<u32_t>(size)), _mut(mut), _expr(exp) {
 
 }
 

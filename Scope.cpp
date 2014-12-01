@@ -9,7 +9,7 @@ Scope::Scope(Scope* pred_scope) : _prev_used_storage(pred_scope ? pred_scope->us
 u32_t Scope::usedStorage() const {
     u32_t size = _prev_used_storage;
    for (auto& pair : _existing_vars) {
-        size += pair.second[0]->sizeOf();
+        size += pair.second[0]->sizeInBit();
     }
 
     return size;
@@ -37,14 +37,14 @@ void Scope::prepare() {
         for (VarDecl* var : pair.second) {
             var->setStackOffset(stack_size);
         }
-        stack_size += pair.second[0]->sizeOf();
+        stack_size += pair.second[0]->sizeInBit();
     }
 
     for (auto& pair : _existing_vars) {
         for (VarDecl* var : pair.second) {
             var->setBaseOffset(stack_size * -1);
         }
-        stack_size -= pair.second[0]->sizeOf();
+        stack_size -= pair.second[0]->sizeInBit();
     }
 }
 
