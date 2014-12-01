@@ -7,7 +7,7 @@
 
 #include "Expr.hpp"
 
-enum class BitSize : u32_t {
+enum class BitSize : u16_t {
 	B_8 = 8,
 	B_16 = 16,
 	B_32 = 32,
@@ -17,7 +17,7 @@ enum class BitSize : u32_t {
 
 class VarDecl : public Decl {
 private:
-	const u32_t _bit_size;
+	const u16_t _bit_size;
 
 	u32_t _stack_offset;
 	i32_t _base_offset;
@@ -34,7 +34,7 @@ public:
 		return _mut;
 	}
 
-	u32_t sizeInBit() const {
+	u16_t sizeInBit() const {
 		return _bit_size;
 	}
 
