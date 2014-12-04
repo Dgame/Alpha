@@ -6,6 +6,7 @@
 #include <locale>
 #include <vector>
 #include <fstream>
+#include <sstream>
 #include <iostream>
 
 void Parser::error(const std::string& msg) {
@@ -88,13 +89,10 @@ bool Parser::read_number(i32_t& num) {
 
 Env* Parser::parse(const std::string& filename) {
     std::ifstream in_file(filename);
-
-    std::vector<char> source_code;
-    std::copy(
-        std::istreambuf_iterator<char>(in_file.rdbuf()),
-        std::istreambuf_iterator<char>(),
-        std::back_inserter(source_code));
-
+    std::stringstream buf;
+    buf << in_file.rdbuf();
+    std::string source_code = buf.str();
+    
     _loc.pos = &source_code.front();
     _loc.end = &source_code.back();
     
@@ -104,6 +102,7 @@ Env* Parser::parse(const std::string& filename) {
 
     if (!_errors)
         return &_env;
+
     return nullptr;
 }
 
@@ -311,6 +310,6 @@ Expr* Parser::parseFactor() {
         else
             return new NegExpr(expr);
     }
-    
+
     return expr;
 }

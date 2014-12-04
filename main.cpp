@@ -1,6 +1,7 @@
 #define TEST 0
 
 #include <iostream>
+#include <fstream>
 #if TEST
 #include "Scope.hpp"
 #include "Var.hpp"
@@ -49,9 +50,11 @@ int main() {
 
 	delete func;
 #else
+	std::ofstream output("test.s");
+
 	Parser p;
 	Env* env = p.parse("test.alpha");
 	if (env)
-		env->eval(std::cout);
+		env->eval(output);
 #endif
 }
