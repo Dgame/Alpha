@@ -25,12 +25,18 @@ void Parser::skip_spaces() {
 bool Parser::accept(const std::string& tok) {
     skip_spaces();
 
-    const Loc my_loc = _loc;
-    for (char c : tok) {
-        if (_loc.eof() || c != _loc.current()) {
-            _loc = my_loc;
+    const Loc old_loc = _loc;
+    for (u16_t i = 0; i < tok.length(); i++) {
+        if (tok[i] != _loc.current()) {
+            _loc = old_loc;
             return false;
         }
+
+        if (_loc.eof()) {
+            _loc = old_loc;
+            return false;
+        }
+
         _loc.pos++;
     }
 
@@ -40,11 +46,18 @@ bool Parser::accept(const std::string& tok) {
 bool Parser::expect(const std::string& tok) {
     skip_spaces();
 
-    const Loc my_loc = _loc;
-    for (char c : tok) {
-        if (c != _loc.current()) {
-            _loc = my_loc;
-            error("Did expected '" + tok + "', not: " + _loc.current());
+    const Loc old_loc = _loc;
+    for (u16_t i = 0; i < tok.length(); i++) {
+        if (tok[i] != _loc.current()) {
+            error("Did expected '" + tok + "', not '" + _loc.current() + "'");
+            _loc = old_loc;
+            return false;
+        }
+
+        if (_loc.eof()) {
+            if (i < (tok.length() - 1))
+                error("Unexpected EOF: Could not detect " + tok);
+            _loc = old_loc;
             return false;
         }
 
@@ -133,9 +146,9 @@ void Parser::parseScope() {
         if (accept("print")) {
             parsePrintDecl();
         } else if (read_identifier(ident)) {
-            if (parseVarDecl(ident)) {
-                // pass
-            }
+            const bool isVar = parseVarDecl(ident);
+            if (!isVar)
+                error(ident + " is not a valid variable");
         } else {
             error("Cannot parse: " + _loc.current());
         }
