@@ -46,17 +46,21 @@ bool Parser::accept(const std::string& tok) {
 bool Parser::expect(const std::string& tok) {
     skip_spaces();
 
+    std::string ident;
+
     const Loc old_loc = _loc;
     for (u16_t i = 0; i < tok.length(); i++) {
+        ident += _loc.current();
+
         if (tok[i] != _loc.current()) {
-            error("Did expected '" + tok + "', not '" + _loc.current() + "'");
+            error("Did expected '" + tok + "', not '" + ident + "'");
             _loc = old_loc;
             return false;
         }
 
         if (_loc.eof()) {
             if (i < (tok.length() - 1))
-                error("Unexpected EOF: Could not detect " + tok);
+                error("Unexpected EOF: Could not detect " + tok + ", found " + ident);
             _loc = old_loc;
             return false;
         }
