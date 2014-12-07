@@ -1,10 +1,12 @@
 #ifndef ALPHA_PARSER_HPP
 #define ALPHA_PARSER_HPP
 
-#include <string>
+#include <iostream>
+
 #include "types.hpp"
 #include "Loc.hpp"
 #include "Env.hpp"
+#include "util.hpp"
 
 class Expr;
 class StringExpr;
@@ -19,7 +21,8 @@ private:
     Env _env;
 
 public:
-    void error(const std::string&);
+    template <typename... Args>
+    void error(Args&& ...args);
 
     void skip_spaces();
 
@@ -43,5 +46,11 @@ public:
     Expr* parseTerm();
     Expr* parseFactor();
 };
+ 
+template <typename... Args>
+void Parser::error(Args&& ...args) {
+    _errors = true;
+    out::print(std::cerr, "Error: ", args..., " in line ", _loc.lineNr);
+}
 
 #endif

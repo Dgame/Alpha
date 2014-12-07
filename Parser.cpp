@@ -3,16 +3,11 @@
 #include "Scope.hpp"
 #include "VarDecl.hpp"
 
+#include <string>
 #include <locale>
 #include <vector>
 #include <fstream>
 #include <sstream>
-#include <iostream>
-
-void Parser::error(const std::string& msg) {
-    _errors = true;
-    std::cerr << "Error: " << msg << " in line " << _loc.lineNr << std::endl;
-}
 
 void Parser::skip_spaces() {
     while (!_loc.eof() && std::isspace(_loc.current())) {
@@ -53,14 +48,14 @@ bool Parser::expect(const std::string& tok) {
         ident += _loc.current();
 
         if (tok[i] != _loc.current()) {
-            error("Did expected '" + tok + "', not '" + ident + "'");
+            error("Did expected '", tok, "', not '", ident, '\'');
             _loc = old_loc;
             return false;
         }
 
         if (_loc.eof()) {
             if (i < (tok.length() - 1))
-                error("Unexpected EOF: Could not detect " + tok + ", found " + ident);
+                error("Unexpected EOF: Could not detect ", tok, ", found ", ident);
             _loc = old_loc;
             return false;
         }
@@ -152,9 +147,9 @@ void Parser::parseScope() {
         } else if (read_identifier(ident)) {
             const bool isVar = parseVarDecl(ident);
             if (!isVar)
-                error(ident + " is not a valid variable");
+                error(ident, " is not a valid variable");
         } else {
-            error("Cannot parse: " + _loc.current());
+            error("Cannot parse: ", _loc.current());
         }
     }
 
@@ -188,7 +183,7 @@ bool Parser::parseVarDecl(const std::string& ident) {
     if (accept("=")) {
         Expr* exp = parseExpr();
         if (!exp) {
-            error("Variable '" + ident + "'' need assignment");
+            error("Variable '", ident, "'' need assignment");
             return false;
         }
 
@@ -200,7 +195,7 @@ bool Parser::parseVarDecl(const std::string& ident) {
     } else if (accept("<-")) {
         error("Currently, no pointers are implemented");
     } else {
-        error("Unexpected identifier: " + ident);
+        error("Unexpected identifier: ", ident);
     }
 
     return false;
@@ -318,7 +313,7 @@ Expr* Parser::parseFactor() {
         if (var)
             expr = new VarExpr(var);
         else
-            error("No such variable found: '" + ident + "'");
+            error("No such variable found: '", ident, '\'');
     }
 
     if (negate) {
