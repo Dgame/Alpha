@@ -16,11 +16,13 @@ void Parser::error(const char* s) {
                 ++s;
             else {
                 std::cerr << "invalid format string: missing arguments" << std::endl;
-                return;
+                break;
             }
         }
         std::cerr << *s++;
     }
+
+    _errors = true;
 }
 
 template <typename T, typename... Args>
