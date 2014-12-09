@@ -8,22 +8,22 @@
 
 class Func {
 private:
-	std::string _name;
-	std::unique_ptr<Scope> _scope;
+    std::string _name;
+    std::unique_ptr<Scope> _scope;
 
 public:
-	explicit Func(const std::string&, Scope*);
-	virtual ~Func() { }
+    explicit Func(const std::string&, Scope*);
+    virtual ~Func() { }
 
-	const std::string& getName() const {
-		return _name;
-	}
+    const std::string& getName() const {
+        return _name;
+    }
 
-	Scope* getScope() {
-		return _scope.get();
-	}
+    Scope* getScope() {
+        return _scope.get();
+    }
 
-	virtual void eval(std::ostream&) const;
+    virtual void eval(std::ostream&) const;
 };
 
 #endif

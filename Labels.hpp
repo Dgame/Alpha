@@ -7,11 +7,11 @@
 
 class Labels {
 private:
-	std::map<std::string, std::string> _labels;
+    std::map<std::string, std::string> _labels;
 
 public:
-	std::string addStr(const std::string&, const std::string& = "");
-	void eval(std::ostream&) const;
+    std::string addStr(const std::string&, const std::string& = "");
+    void eval(std::ostream&) const;
 };
 
 #endif

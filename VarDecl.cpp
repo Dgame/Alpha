@@ -6,19 +6,19 @@ VarDecl::VarDecl(const Expr* exp, bool mut, BitSize size) : _bit_size(static_cas
 }
 
 void VarDecl::eval(std::ostream& out) const {
-	out << "# Begin Var" << std::endl;
+    out << "# Begin Var" << std::endl;
 
-	i32_t val;
-	std::string ident;
+    i32_t val;
+    std::string ident;
 
-	if (_expr->cte(&val))
-		gas::mov(out, val, Offset(_stack_offset, P_STACK));
-	else if (_expr->cte(&ident))
-		gas::mov(out, ident, Offset(_stack_offset, P_STACK));
-	else {
-		_expr->eval(out);
-		gas::mov(out, E_AX, Offset(_stack_offset, P_STACK));
-	}
+    if (_expr->cte(&val))
+        gas::mov(out, val, Offset(_stack_offset, P_STACK));
+    else if (_expr->cte(&ident))
+        gas::mov(out, ident, Offset(_stack_offset, P_STACK));
+    else {
+        _expr->eval(out);
+        gas::mov(out, E_AX, Offset(_stack_offset, P_STACK));
+    }
 
-	out << "# End Var" << std::endl;
+    out << "# End Var" << std::endl;
 }

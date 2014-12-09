@@ -16,7 +16,7 @@ _alpha_main:
 	movl	%eax, 64(%esp)
 # End Var
 # Begin print
-	pushl	$LC0
+	pushl	$L_0_STR
 	call	_print_str
 	addl	$4, %esp
 	movl	-96(%ebp), %eax
@@ -26,7 +26,7 @@ _alpha_main:
 	call	_print_ln
 # End print
 # Begin print
-	pushl	$LC1
+	pushl	$L_1_STR
 	call	_print_str
 	addl	$4, %esp
 	movl	-64(%ebp), %eax
@@ -36,7 +36,7 @@ _alpha_main:
 	call	_print_ln
 # End print
 # Begin print
-	pushl	$LC2
+	pushl	$L_2_STR
 	call	_print_str
 	addl	$4, %esp
 	movl	-32(%ebp), %eax
@@ -46,7 +46,7 @@ _alpha_main:
 	call	_print_ln
 # End print
 # Begin print
-	pushl	$LC3
+	pushl	$L_3_STR
 	call	_print_str
 	addl	$4, %esp
 # Begin AddExpr 
@@ -77,7 +77,7 @@ _alpha_main:
 	movl	%eax, 64(%esp)
 # End Var
 # Begin print
-	pushl	$LC4
+	pushl	$L_4_STR
 	call	_print_str
 	addl	$4, %esp
 	movl	-32(%ebp), %eax
@@ -87,7 +87,7 @@ _alpha_main:
 	call	_print_ln
 # End print
 # Begin print
-	pushl	$LC5
+	pushl	$L_5_STR
 	call	_print_str
 	addl	$4, %esp
 	movl	-32(%ebp), %eax
@@ -101,15 +101,15 @@ _alpha_main:
 # End Scope
 	popl	%ebp
 ret
-LC0:
+L_0_STR:
 	.ascii	"a = \0"
-LC1:
+L_1_STR:
 	.ascii	"b = \0"
-LC2:
+L_2_STR:
 	.ascii	"c = \0"
-LC3:
+L_3_STR:
 	.ascii	"a + (b * 3) = \0"
-LC4:
+L_4_STR:
 	.ascii	"c = \0"
-LC5:
+L_5_STR:
 	.ascii	"-c = \0"

@@ -9,6 +9,36 @@
 #include <fstream>
 #include <sstream>
 
+void Parser::error(const char* s) {
+    while (*s) {
+        if (*s == '%') {
+            if (*(s + 1) == '%')
+                ++s;
+            else {
+                std::cerr << "invalid format string: missing arguments" << std::endl;
+                return;
+            }
+        }
+        std::cerr << *s++;
+    }
+}
+
+template <typename T, typename... Args>
+void Parser::error(const char* s, const T& value, Args&& ...args) {
+    while (*s) {
+        if (*s == '%') {
+            if (*(s + 1) == '%')
+                ++s;
+            else {
+                std::cerr << value;
+                s += 2;
+                return error(s, args...); // call even when *s == 0 to detect extra arguments
+            }
+        }
+        std::cerr << *s++;
+    }    
+}
+
 void Parser::skip_spaces() {
     while (!_loc.eof() && std::isspace(_loc.current())) {
         if (_loc.current() == '\n')
@@ -48,14 +78,14 @@ bool Parser::expect(const std::string& tok) {
         ident += _loc.current();
 
         if (tok[i] != _loc.current()) {
-            error("Did expected '", tok, "', not '", ident, '\'');
+            error("Did expected '%s' not '%s'", tok, ident);
             _loc = old_loc;
             return false;
         }
 
         if (_loc.eof()) {
             if (i < (tok.length() - 1))
-                error("Unexpected EOF: Could not detect ", tok, ", found ", ident);
+                error("Unexpected EOF: Could not detect '%s', but found '%s'", tok, ident);
             _loc = old_loc;
             return false;
         }
@@ -147,9 +177,9 @@ void Parser::parseScope() {
         } else if (read_identifier(ident)) {
             const bool isVar = parseVarDecl(ident);
             if (!isVar)
-                error(ident, " is not a valid variable");
+                error("'%s' is not a valid variable", ident);
         } else {
-            error("Cannot parse: ", _loc.current());
+            error("Cannot parse: '%c'", _loc.current());
         }
     }
 
@@ -183,7 +213,7 @@ bool Parser::parseVarDecl(const std::string& ident) {
     if (accept("=")) {
         Expr* exp = parseExpr();
         if (!exp) {
-            error("Variable '", ident, "'' need assignment");
+            error("Variable '%s' need assignment", ident);
             return false;
         }
 
@@ -195,7 +225,7 @@ bool Parser::parseVarDecl(const std::string& ident) {
     } else if (accept("<-")) {
         error("Currently, no pointers are implemented");
     } else {
-        error("Unexpected identifier: ", ident);
+        error("Unexpected identifier: %s", ident);
     }
 
     return false;
@@ -211,7 +241,7 @@ StringExpr* Parser::parseStringExpr() {
 
         expect("\"");
 
-        const std::string label = _env.labels.addStr(str, "C");
+        const std::string label = _env.labels.addStr(str, "STR");
 
         return new StringExpr(label);
     }
@@ -313,7 +343,7 @@ Expr* Parser::parseFactor() {
         if (var)
             expr = new VarExpr(var);
         else
-            error("No such variable found: '", ident, '\'');
+            error("No such variable: '%s'", ident);
     }
 
     if (negate) {

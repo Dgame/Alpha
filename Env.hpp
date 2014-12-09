@@ -12,10 +12,10 @@ private:
     std::vector<std::unique_ptr<const Func>> _funcs;
 
 public:
-	Labels labels;
+    Labels labels;
 
-	void addFunc(const Func*);
-	void eval(std::ostream&) const;
+    void addFunc(const Func*);
+    void eval(std::ostream&) const;
 };
 
 #endif

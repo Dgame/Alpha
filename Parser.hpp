@@ -21,8 +21,10 @@ private:
     Env _env;
 
 public:
-    template <typename... Args>
-    void error(Args&& ...args);
+    void error(const char*);
+ 
+    template <typename T, typename... Args>
+    void error(const char*, const T&, Args&& ...args);
 
     void skip_spaces();
 
@@ -46,11 +48,5 @@ public:
     Expr* parseTerm();
     Expr* parseFactor();
 };
- 
-template <typename... Args>
-void Parser::error(Args&& ...args) {
-    _errors = true;
-    out::print(std::cerr, "Error: ", args..., " in line ", _loc.lineNr);
-}
 
 #endif
