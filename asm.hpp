@@ -5,6 +5,7 @@
 #include "types.hpp"
 
 #define BIT_SIZE 32
+#define GAS 1
 
 #if BIT_SIZE == 64
     const char SUFFIX = 'q';
@@ -65,70 +66,84 @@ enum JCond {
     JMP_IF_BELOW
 };
 
-struct Offset {
-    i32_t id;
-    i32_t offset;
-    bool is_ptr;
+const std::string Pointer[] = {
+#if GAS
+#if BIT_SIZE == 32
+    // 32 Bit
+    "%esp",
+    "%ebp",
+#elif BIT_SIZE == 64
+    // 64 Bit
+    "%rsp",
+    "%rbp"
+#endif
+#else
+#error "Unsupported Assembler"
+#endif
+};
 
-    Offset() = default;
+const std::string Register[] = {
+#if GAS
+    // 32 Bit
+    "%eax",
+    "%ebx",
+    "%ecx",
+    "%edx",
+#if BIT_SIZE == 64
+    // 64 Bit
+    "%rax",
+    "%rbx",
+    "%rcx",
+    "%rdx"
+#endif
+#else
+#error "Unsupported Assembler"
+#endif
+};
+
+const std::string Index[] = {
+#if GAS
+    // 32 Bit
+    "%esi",
+    "%edi",
+#if BIT_SIZE == 64
+    // 64 Bit
+    "%rsi",
+    "%rdi"
+#endif
+#else
+#error "Unsupported Assembler"
+#endif
+};
+
+class Offset {
+private:
+    std::string _ident;
+
+public:
+    // Offset() = default;
     explicit Offset(i32_t offset, Ptr ptr);
     explicit Offset(i32_t offset, Reg reg);
+
+    const std::string& getIdent() const {
+        return _ident;
+    }
+};
+
+const std::string JumpPostFix[] = {
+    "mp",
+    "z",
+    "e",
+    "ne",
+    "g",
+    "ge",
+    "l",
+    "le",
+    "a",
+    "b",
 };
 
 namespace gas {
-    const std::string Pointer[] = {
-#if BIT_SIZE == 32
-        // 32 Bit
-        "%esp",
-        "%ebp",
-#elif BIT_SIZE == 64
-        // 64 Bit
-        "%rsp",
-        "%rbp"
-#endif
-    };
-
-    const std::string Register[] = {
-        // 32 Bit
-        "%eax",
-        "%ebx",
-        "%ecx",
-        "%edx",
-#if BIT_SIZE == 64
-        // 64 Bit
-        "%rax",
-        "%rbx",
-        "%rcx",
-        "%rdx"
-#endif
-    };
-
-    const std::string Index[] = {
-        // 32 Bit
-        "%esi",
-        "%edi",
-#if BIT_SIZE == 64
-        // 64 Bit
-        "%rsi",
-        "%rdi"
-#endif
-    };
-
-    const std::string JumpPostFix[] = {
-        "mp",
-        "z",
-        "e",
-        "ne",
-        "g",
-        "ge",
-        "l",
-        "le",
-        "a",
-        "b",
-    };
-
-    std::string conv_offset(const Offset&);
-
     // push
     void push(std::ostream&, i32_t num);
     void push(std::ostream&, Reg r);

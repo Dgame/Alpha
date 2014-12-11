@@ -6,7 +6,6 @@
 #include "types.hpp"
 #include "Loc.hpp"
 #include "Env.hpp"
-#include "util.hpp"
 
 class Expr;
 class StringExpr;
