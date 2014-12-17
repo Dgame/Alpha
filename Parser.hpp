@@ -27,7 +27,9 @@ public:
 
     void skip_spaces();
 
+    bool accept(char);
     bool accept(const std::string&);
+    bool expect(char);
     bool expect(const std::string&);
 
     bool read_identifier(std::string&);

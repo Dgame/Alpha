@@ -5,9 +5,16 @@
 
 #include <string>
 #include <locale>
-#include <vector>
-#include <fstream>
-#include <sstream>
+
+namespace Tok {
+    const std::string Print = "print";
+    const std::string L_Arrow = "<-";
+    const std::string R_Arrow = "->";
+}
+
+namespace Lbl {
+    const std::string Str = "STR";
+}
 
 void Parser::error(const char* s) {
     while (*s) {
@@ -45,8 +52,19 @@ void Parser::skip_spaces() {
     while (!_loc.eof() && std::isspace(_loc.current())) {
         if (_loc.current() == '\n')
             _loc.lineNr++;
-        ++_loc.pos;
+        _loc.next();
     }
+}
+
+bool Parser::accept(char c) {
+    skip_spaces();
+
+    if (!_loc.eof() && c == _loc.current()) {
+        _loc.next();
+        return true;
+    }
+
+    return false;
 }
 
 bool Parser::accept(const std::string& tok) {
@@ -60,39 +78,31 @@ bool Parser::accept(const std::string& tok) {
         }
 
         if (_loc.eof()) {
+            if (i < (tok.length() - 1))
+                error("Unexpected EOF: Could not detect '%s'", tok);
             _loc = old_loc;
             return false;
         }
 
-        _loc.pos++;
+        _loc.next();
+    }
+
+    return true;
+}
+
+bool Parser::expect(char c) {
+    if (!accept(c)) {
+        error("Did expected '%c'", c);
+        return false;
     }
 
     return true;
 }
 
 bool Parser::expect(const std::string& tok) {
-    skip_spaces();
-
-    std::string ident;
-
-    const Loc old_loc = _loc;
-    for (u16_t i = 0; i < tok.length(); i++) {
-        ident += _loc.current();
-
-        if (tok[i] != _loc.current()) {
-            error("Did expected '%s' not '%s'", tok, ident);
-            _loc = old_loc;
-            return false;
-        }
-
-        if (_loc.eof()) {
-            if (i < (tok.length() - 1))
-                error("Unexpected EOF: Could not detect '%s', but found '%s'", tok, ident);
-            _loc = old_loc;
-            return false;
-        }
-
-        _loc.pos++;
+    if (!accept(tok)) {
+        error("Did expected '%s'", tok);
+        return false;
     }
 
     return true;
@@ -104,7 +114,7 @@ bool Parser::read_identifier(std::string& ident) {
     if (!_loc.eof() && (std::isalpha(_loc.current()) || _loc.current() == '_')) {
         while (!_loc.eof() && std::isalnum(_loc.current())) {
             ident += _loc.current();
-            ++_loc.pos;
+            _loc.next();
         }
 
         return true;
@@ -122,7 +132,7 @@ bool Parser::read_number(i32_t& num) {
             num *= 10;
             num += _loc.current() - '0';
 
-            _loc.pos++;
+            _loc.next();
         } while (!_loc.eof() && std::isdigit(_loc.current()));
 
         return true;
@@ -133,15 +143,12 @@ bool Parser::read_number(i32_t& num) {
 
 Env* Parser::parse(const std::string& filename) {
     std::ifstream in_file(filename);
-    std::stringstream buf;
-    buf << in_file.rdbuf();
-    std::string source_code = buf.str();
-    
-    _loc.pos = &source_code.front();
-    _loc.end = &source_code.back();
+
+    _loc = Loc(in_file);
     
     while (!_loc.eof() && !_errors) {
-       parseFunc();
+        parseFunc();
+        skip_spaces(); // discard any whitespaces until the next function begins
     }
 
     if (!_errors)
@@ -153,9 +160,9 @@ Env* Parser::parse(const std::string& filename) {
 void Parser::parseFunc() {
     std::string ident;
     if (read_identifier(ident)) {
-        expect("(");
+        expect('(');
         // TODO: parameters
-        expect(")");
+        expect(')');
 
         parseScope();
 
@@ -167,25 +174,24 @@ void Parser::parseFunc() {
 }
 
 void Parser::parseScope() {
-    expect("{");
+    expect('{');
 
     _cur_scope = new Scope(_cur_scope);
     
     while (!_errors && !_loc.eof()) {
         std::string ident;
 
-        if (accept("print")) {
+        if (accept(Tok::Print)) {
             parsePrintDecl();
         } else if (read_identifier(ident)) {
             const bool isVar = parseVarDecl(ident);
             if (!isVar)
                 error("'%s' is not a valid variable", ident);
         } else {
-            error("Cannot parse: '%c'", _loc.current());
+            expect('}');
+            break;
         }
     }
-
-    expect("}");
 }
 
 void Parser::parsePrintDecl() {
@@ -204,7 +210,7 @@ void Parser::parsePrintDecl() {
             }
         }
 
-        if (!accept(","))
+        if (!accept(','))
             break;
     }
 
@@ -212,7 +218,7 @@ void Parser::parsePrintDecl() {
 }
 
 bool Parser::parseVarDecl(const std::string& ident) {
-    if (accept("=")) {
+    if (accept('=')) {
         Expr* exp = parseExpr();
         if (!exp) {
             error("Variable '%s' need assignment", ident);
@@ -222,9 +228,9 @@ bool Parser::parseVarDecl(const std::string& ident) {
         _cur_scope->addVarDecl(ident, new VarDecl(exp));
 
         return true;
-    } else if (accept("->")) {
+    } else if (accept(Tok::R_Arrow)) {
         error("Currently, no pointers are implemented");
-    } else if (accept("<-")) {
+    } else if (accept(Tok::L_Arrow)) {
         error("Currently, no pointers are implemented");
     } else {
         error("Unexpected identifier: %s", ident);
@@ -234,16 +240,16 @@ bool Parser::parseVarDecl(const std::string& ident) {
 }
 
 StringExpr* Parser::parseStringExpr() {
-    if (accept("\"")) {
+    if (accept('"')) {
         std::string str;
         while (!_loc.eof() && _loc.current() != '\"') {
-            str += *_loc.pos;
-            _loc.pos++;
+            str += _loc.current();
+            _loc.next();
         }
 
-        expect("\"");
+        expect('"');
 
-        const std::string label = _env.labels.addStr(str, "STR");
+        const std::string label = _env.labels.addStr(str, Lbl::Str);
 
         return new StringExpr(label);
     }
@@ -257,7 +263,7 @@ Expr* Parser::parseExpr() {
         return nullptr;
 
     while (!_loc.eof()) {
-        if (accept("+")) {
+        if (accept('+')) {
             Expr* rhs = parseTerm();
             if (!rhs) {
                 error("Expected factor after +");
@@ -267,7 +273,7 @@ Expr* Parser::parseExpr() {
                 return nullptr;
             }
             lhs = new AddExpr(lhs, rhs);
-        } else if (accept("-")) {
+        } else if (accept('-')) {
             Expr* rhs = parseTerm();
             if (!rhs) {
                 error("Expected factor after -");
@@ -290,7 +296,7 @@ Expr* Parser::parseTerm() {
         return nullptr;
 
     while (!_loc.eof()) {
-        if (accept("*")) {
+        if (accept('*')) {
             Expr* rhs = parseFactor();
             if (!rhs) {
                 error("Expected factor after *");
@@ -300,7 +306,7 @@ Expr* Parser::parseTerm() {
                 return nullptr;
             }
             lhs = new MulExpr(lhs, rhs);
-        } else if (accept("/")) {
+        } else if (accept('/')) {
             Expr* rhs = parseFactor();
             if (!rhs) {
                 error("Expected factor after /");
@@ -310,7 +316,7 @@ Expr* Parser::parseTerm() {
                 return nullptr;
             }
             lhs = new DivExpr(rhs, lhs);
-        } else if (accept("%")) {
+        } else if (accept('%')) {
             Expr* rhs = parseFactor();
             if (!rhs) {
                 error("Expected factor after %");
@@ -328,7 +334,7 @@ Expr* Parser::parseTerm() {
 }
 
 Expr* Parser::parseFactor() {
-    const bool negate = accept("-");
+    const bool negate = accept('-');
   
     i32_t num;
     std::string ident;
@@ -337,9 +343,9 @@ Expr* Parser::parseFactor() {
 
     if (read_number(num))
         expr = new NumExpr(num);
-    else if (accept("(")) {
+    else if (accept('(')) {
         expr = parseExpr();
-        expect(")");
+        expect(')');
     } else if (read_identifier(ident)) {
         const VarDecl* var = seekingDown(ident, _cur_scope);
         if (var)
