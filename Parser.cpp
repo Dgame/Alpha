@@ -277,7 +277,7 @@ StringExpr* Parser::parseStringExpr() {
 }
 
 Expr* Parser::parseExpr() {
-    std::unique_ptr<Expr> lhs(parseTerm());
+    Expr* lhs = parseTerm();
     if (!lhs)
         return nullptr;
 
@@ -286,29 +286,27 @@ Expr* Parser::parseExpr() {
             Expr* rhs = parseTerm();
             if (!rhs) {
                 error("Expected factor after +");
-                return nullptr;
+                break;
             }
 
-            AddExpr* add = new AddExpr(lhs.release(), rhs);
-            lhs.reset(add);
+            lhs = new AddExpr(lhs, rhs);
         } else if (accept('-')) {
             Expr* rhs = parseTerm();
             if (!rhs) {
                 error("Expected factor after -");
-                return nullptr;
+                break;
             }
 
-            SubExpr* sub = new SubExpr(rhs, lhs.release());
-            lhs.reset(sub);
+            lhs = new SubExpr(rhs, lhs);
         } else
             break;
     }
 
-    return lhs.release();
+    return lhs;
 }
 
 Expr* Parser::parseTerm() {
-    std::unique_ptr<Expr> lhs(parseFactor());
+    Expr* lhs = parseFactor();
     if (!lhs)
         return nullptr;
 
@@ -317,34 +315,31 @@ Expr* Parser::parseTerm() {
             Expr* rhs = parseFactor();
             if (!rhs) {
                 error("Expected factor after *");
-                return nullptr;
+                break;
             }
             
-            MulExpr* mul = new MulExpr(lhs.release(), rhs);
-            lhs.reset(mul);
+            lhs = new MulExpr(lhs, rhs);
         } else if (accept('/')) {
             Expr* rhs = parseFactor();
             if (!rhs) {
                 error("Expected factor after /");
-                return nullptr;
+                break;
             }
 
-            DivExpr* div = new DivExpr(rhs, lhs.release());
-            lhs.reset(div);
+            lhs = new DivExpr(rhs, lhs);
         } else if (accept('%')) {
             Expr* rhs = parseFactor();
             if (!rhs) {
                 error("Expected factor after %");
-                return nullptr;
+                break;
             }
 
-            ModExpr* mod = new ModExpr(rhs, lhs.release());
-            lhs.reset(mod);
+            lhs = new ModExpr(rhs, lhs);
         } else 
             break;
     }
 
-    return lhs.release();
+    return lhs;
 }
 
 Expr* Parser::parseFactor() {
