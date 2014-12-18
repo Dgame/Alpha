@@ -111,34 +111,52 @@ bool Parser::expect(const std::string& tok) {
 bool Parser::read_identifier(std::string& ident) {
     skip_spaces();
 
-    if (!_loc.eof() && (std::isalpha(_loc.current()) || _loc.current() == '_')) {
-        while (!_loc.eof() && std::isalnum(_loc.current())) {
-            ident += _loc.current();
-            _loc.next();
-        }
+    auto isValid = [this](bool first) -> bool {
+        if (_loc.eof())
+            return false;
+        const char c = _loc.current();
+        if (c == '_')
+            return true;
+        if (first)
+            return std::isalpha(c);
+        return std::isalnum(c);
+    };
 
-        return true;
-    }
+    if (!isValid(true))
+        return false;
 
-    return false;
+    ident.clear();
+    do {
+         ident += _loc.current();
+
+         _loc.next();
+    } while (isValid(false));
+
+    return ident.length() != 0;
 }
 
 bool Parser::read_number(i32_t& num) {
     skip_spaces();
 
-    if (!_loc.eof() && std::isdigit(_loc.current())) {
-        num = 0;
-        do {
-            num *= 10;
-            num += _loc.current() - '0';
+    auto isValid = [this]() -> bool {
+        if (_loc.eof())
+            return false;
+        const char c = _loc.current();
+        return std::isdigit(c);
+    };
 
-            _loc.next();
-        } while (!_loc.eof() && std::isdigit(_loc.current()));
+    if (!isValid())
+        return false;
 
-        return true;
-    }
+    num = 0;
+    do {
+        num *= 10;
+        num += _loc.current() - '0';
 
-    return false;
+        _loc.next();
+    } while (isValid());
+
+    return true;
 }
 
 Env* Parser::parse(const std::string& filename) {

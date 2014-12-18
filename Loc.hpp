@@ -5,8 +5,8 @@
 #include <fstream>
 
 struct Loc {
-	u32_t lineNr = 1;
-	std::ifstream* input_file = nullptr;
+    u32_t lineNr = 1;
+    std::ifstream* input_file = nullptr;
     
     Loc() = default;
     explicit Loc(std::ifstream&);
@@ -16,7 +16,7 @@ struct Loc {
     }
 
     void next() {
-    	input_file->ignore();
+        input_file->ignore();
     }
 
     bool eof() const {
