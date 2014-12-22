@@ -1,4 +1,5 @@
 #define TEST 0
+#define CMD_COMPILER 1
 
 #include <iostream>
 #include <fstream>
@@ -9,10 +10,13 @@
 #include "Instr.hpp"
 #include "Func.hpp"
 #else
+#if CMD_COMPILER
+#include <sstream>
+#endif
 #include "Parser.hpp"
 #endif
 
-int main() {
+int main(int argc, const char* argv[]) {
 #if TEST
     Func* func = new Func("_alpha_main", new Scope(nullptr));
 
@@ -49,6 +53,26 @@ int main() {
     std::cout << "\t.ascii\t\"" << str << "\\0\"" << std::endl;
 
     delete func;
+#elif CMD_COMPILER
+    if (argc >= 2) {
+        std::string filename(argv[1]);
+        if (filename.length() > 5) {
+            std::stringstream buf(filename);
+            std::string basename;
+            std::getline(buf, basename, '.');
+
+            std::ofstream output(basename + ".s");
+
+            Parser p;
+            Env* env = p.parse(filename);
+            if (env)
+                env->eval(output);
+        } else {
+            std::cerr << "Invalid input file" << std::endl;
+        }
+    } else {
+        std::cerr << "No input file" << std::endl;
+    }
 #else
     std::ofstream output("test.s");
 
