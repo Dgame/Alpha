@@ -55,7 +55,7 @@ struct Loc {
     * True if we reached the end of file.
     */
     bool eof() const {
-        return this->pos >= this->last || *this->pos == '\0';
+        return this->pos > this->last || *this->pos == '\0';
     }
 };
 
