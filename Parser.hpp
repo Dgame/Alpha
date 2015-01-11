@@ -25,15 +25,15 @@ public:
     template <typename T, typename... Args>
     void error(const char*, const T&, Args&& ...args);
 
-    void skip_spaces();
+    void skipSpaces();
 
     bool accept(char);
     bool accept(const std::string&);
     bool expect(char);
     bool expect(const std::string&);
 
-    bool read_identifier(std::string&);
-    bool read_number(i32_t&);
+    bool readIdentifier(std::string&);
+    bool readNumber(i32_t&);
 
     Env* parse(const std::string&);
     
